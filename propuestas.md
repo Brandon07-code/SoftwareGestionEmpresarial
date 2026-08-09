@@ -30,12 +30,12 @@ Todas comparten como diferenciador técnico un **QR de confirmación de pago**: 
 
 ---
 
-## 💈 Propuesta 2 — Quedó Pinta ✅ *(Propuesta seleccionada)*
+## 💈 Propuesta 2 — Quedó Pinta
 ### Sistema Integral de Gestión para Barberías, Salones de Belleza y Centros de Estética
 
-> *"El salón agenda por WhatsApp, pierde citas, no sabe cuánto gana cada estilista y no tiene forma de fidelizar clientas."*
+> *"El salón agenda por WhatsApp, pierde citas, no sabe cuánto gana cada estilista y no tiene forma de fidelizar a sus clientes."*
 
-**Problema que resuelve:** Los salones de belleza y barberías de Cartago manejan su operación de forma completamente informal. No existe control de citas por estilista, las comisiones se calculan a mano, el inventario de productos cosméticos se pierde, y no hay ninguna estrategia de fidelización.
+**Problema que resuelve:** Los salones de belleza y barberías de Cartago manejan su operación de forma completamente informal. No existe control de citas por estilista, las comisiones se calculan a mano, el inventario de productos se pierde, y no hay ninguna estrategia de fidelización de clientes.
 
 ### Módulos
 
@@ -43,11 +43,11 @@ Todas comparten como diferenciador técnico un **QR de confirmación de pago**: 
 |--------|-------------|
 | 📅 **Calendario de citas por estilista** | Vista semanal por empleado con validación de cruce de horarios. El dueño ve toda la operación en un panel central. |
 | 💅 **Catálogo de servicios con duración, precio y comisión** | Cada servicio tiene precio, tiempo estimado y porcentaje de comisión. Al cerrar el turno, el sistema calcula automáticamente lo que le corresponde a cada estilista. |
-| 📦 **Inventario de productos cosméticos con consumo por servicio** | Cada servicio descuenta del inventario los productos utilizados. Alertas de stock mínimo y vencimiento. |
-| 🌟 **Programa de fidelización: visitas acumuladas** | Al llegar a N visitas, el sistema activa automáticamente un descuento. Panel de *Clientes dormidos* con más de 30 días sin visitar. |
-| 💳 **QR de confirmación de pago** | El estilista genera el QR del turno. La clienta escanea, ve el detalle del servicio y confirma. El turno cierra como *Pagado* y el total del estilista se actualiza en tiempo real. |
+| 📦 **Inventario de productos con consumo por servicio** | Cada servicio descuenta del inventario los productos utilizados. Alertas de stock mínimo y vencimiento. |
+| 🌟 **Programa de fidelización: visitas acumuladas** | Al llegar a N visitas, el sistema activa automáticamente un descuento. Panel de *Clientes sin visitar* con más de 30 días de inactividad. |
+| 💳 **QR de confirmación de pago** | El estilista genera el QR del turno. El cliente escanea, ve el detalle del servicio y confirma. El turno cierra como *Pagado* y el total del estilista se actualiza en tiempo real. |
 
-**Diferenciador técnico:** Integra RRHH (comisiones automáticas), inventario, agenda y CRM (fidelización) en un solo sistema. Es la definición exacta de un ERP aplicada a un negocio de servicio local.
+**Diferenciador técnico:** Integra RRHH (comisiones automáticas), inventario, agenda y CRM (fidelización) en un solo sistema. Es la definición exacta de un ERP aplicada a un negocio de servicio local, tanto para barberías como para salones mixtos.
 
 ---
 
@@ -77,7 +77,7 @@ Todas comparten como diferenciador técnico un **QR de confirmación de pago**: 
 | Proyecto | Nicho Local — Cartago | Diferenciador Técnico | Complejidad ERP |
 |:---------|:----------------------|:----------------------|:----------------|
 | 🎉 **MontaYa** | Empresas de decoraciones y eventos | Disponibilidad cruzada de artículos por fecha | ⭐⭐⭐⭐⭐ |
-| 💈 **Quedó Pinta** ✅ | Salones de belleza y barberías | Comisiones automáticas + Fidelización integrada | ⭐⭐⭐⭐ |
+| 💈 **Quedó Pinta** | Salones de belleza y barberías | Comisiones automáticas + Fidelización integrada | ⭐⭐⭐⭐ |
 | 🍲 **SirvaPues** | Restaurantes y cafeterías | KDS en cocina + QR de mesa | ⭐⭐⭐⭐⭐ |
 
 ---
