@@ -9,7 +9,7 @@ services:
     container_name: sge_php
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "8085:80"
     volumes:
       - ./src:/var/www/html
     networks:
@@ -28,7 +28,7 @@ services:
       MYSQL_USER: dev_user
       MYSQL_PASSWORD: dev_password
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
     networks:
@@ -45,7 +45,7 @@ services:
       PMA_PASSWORD: root_password
       UPLOAD_LIMIT: 100M
     ports:
-      - "8081:80"
+      - "8086:80"
     networks:
       - sge_network
     depends_on:
