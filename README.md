@@ -8,20 +8,57 @@
 
 ---
 
-## 📁 Contenido del repositorio
+## 📁 Estructura del Repositorio
 
-| Archivo | Descripción |
-|---------|-------------|
-| [`propuestas.md`](./propuestas.md) | Tres propuestas de proyecto ERP para evaluación del docente |
+| Carpeta / Archivo | Descripción |
+|-------------------|-------------|
+| [`Clase2/`](./Clase2/) | Evidencias y capturas de la instalación del entorno y Laravel |
+| [`propuestas.md`](./propuestas.md) | Propuestas de proyecto ERP para evaluación del docente |
 
 ---
 
-## 🛠️ Entorno de desarrollo
+## 🚀 Instalación de Laravel (Clase 2)
 
-El entorno base fue provisto por el docente vía Docker:
+### 1. Verificación del Entorno
+* **PHP:** Versión `8.5.4` con extensiones requeridas (`pdo_mysql`, `sqlite3`, `mbstring`, `curl`).
+* **Composer:** Versión `2.10.1` instalada en Ubuntu WSL2.
 
-- **PHP 8.2 + Apache** → `http://localhost:8085`
-- **MariaDB 10.8** → `localhost:3307`
+### 2. Creación del Proyecto
+El proyecto base de Laravel fue creado mediante Composer con el comando:
+```bash
+composer create-project laravel/laravel sge
+```
+
+### 3. Ejecución del Servidor
+Para iniciar el servidor de desarrollo local se ejecuta:
+```bash
+php artisan serve
+```
+El servidor queda disponible en `http://127.0.0.1:8000`.
+
+---
+
+## 📸 Evidencias de la Instalación (Clase 2)
+
+### Captura 1 — Verificación de PHP y Composer
+![Captura 1](./Clase2/captura1_php_composer.png)
+
+### Captura 2 — Estructura del Proyecto Laravel (`ls -la`)
+![Captura 2](./Clase2/captura2_estructura_laravel.png)
+
+### Captura 3 — Pantalla de Bienvenida de Laravel en el Navegador
+![Captura 3](./Clase2/captura3_bienvenida_laravel.png)
+
+---
+
+## 🐳 Entorno con Docker (Servicios)
+
+- **PHP / Apache** → `http://localhost:8085`
+- **MariaDB** → `localhost:3307`
 - **phpMyAdmin** → `http://localhost:8086`
 
 Repositorio base del entorno: [jamescanos/SoftwareGestionEmpresarial](https://github.com/jamescanos/SoftwareGestionEmpresarial)
+
+---
+
+*Cartago, Valle del Cauca — 2026*
