@@ -3,8 +3,8 @@
 > **Estudiante:** Brandon  
 > **Institución:** Cotecnova — Cartago, Valle del Cauca  
 > **Asignatura:** Software de Gestión Empresarial  
-> **Docente:** James Caños  
-> **Stack:** Laravel · PHP 8.2 · Eloquent ORM · MySQL · Docker  
+> **Docente:** James Cano  
+> **Stack:** Laravel · PHP · Eloquent ORM · MySQL · Docker  
 
 ---
 
