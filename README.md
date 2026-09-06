@@ -1,63 +1,83 @@
-# Software de Gestión Empresarial
+# Software de Gestión Empresarial (ERP)
 
-> **Estudiante:** Brandon  
-> **Institución:** Cotecnova — Cartago, Valle del Cauca  
-> **Asignatura:** Software de Gestión Empresarial  
-> **Docente:** James Cano  
-> **Stack:** Laravel · PHP · Eloquent ORM · MySQL · Docker  
+> **Institución:** COTECNOVA — Cartago, Valle del Cauca  
+> **Asignatura:** Software de Gestión Empresarial (2026)  
+> **Docente:** Jhon James Cano Sánchez  
+> **Integrantes:** Brandon Cortés Giraldo & Johan  
+> **Caso de Estudio:** Barbería y Perfumería JyM (Cartago, Valle)  
+> **Stack Tecnológico:** Laravel 13 · PHP 8.2+ · Eloquent ORM · MySQL / MariaDB · Docker  
 
 ---
 
-## 📁 Estructura del Repositorio
+## 📁 Estructura y Documentación del Proyecto
 
 | Carpeta / Archivo | Descripción |
 |-------------------|-------------|
-| [`Clase2/`](./Clase2/) | Evidencias y capturas de la instalación del entorno y Laravel |
-| [`propuestas.md`](./propuestas.md) | Propuestas de proyecto ERP para evaluación del docente |
+| [📐 `DIAGRAMA_MER.md`](./DIAGRAMA_MER.md) | **Modelo Entidad-Relación oficial (21 tablas)**, diagrama Mermaid y diccionario de datos |
+| [📊 `ANALISIS_EMPRESA.md`](./ANALISIS_EMPRESA.md) | **Análisis del Negocio**, procesos clave de Barbería JyM y preguntas guía |
+| [📁 `src/`](./src/) | **Código fuente de la aplicación en Laravel 13** (Modelos, Migraciones, Seeders, Vistas Blade y Rutas Resource) |
+| [📁 `Clase2/`](./Clase2/) | Evidencias y capturas de la instalación del entorno (PHP, Composer, WSL2) |
+| [📄 `propuestas.md`](./propuestas.md) | Propuestas iniciales de negocio analizadas para la asignatura |
 
 ---
 
-## 🚀 Instalación de Laravel (Clase 2)
+## 💈 Módulo Funcional Implementado (Clase 4 - 5)
 
-### 1. Verificación del Entorno
-* **PHP:** Versión `8.5.4` con extensiones requeridas (`pdo_mysql`, `sqlite3`, `mbstring`, `curl`).
-* **Composer:** Versión `2.10.1` instalada en Ubuntu WSL2.
+En la carpeta [`src/`](./src/) se encuentra implementado el núcleo transaccional del ERP:
 
-### 2. Creación del Proyecto
-El proyecto base de Laravel fue creado mediante Composer con el comando:
+1. **Migraciones con Relaciones de Clave Foránea:**
+   * `clientes` ➔ Datos de contacto y puntos de fidelización.
+   * `servicios` ➔ Catálogo por categorías (Barbería, Peluquería, Estética, Spa) con precios en COP.
+   * `citas` ➔ Entidad central vinculada a clientes y servicios, con profesional asignado, estados y método de pago.
+2. **Modelos Eloquent con Relaciones Activas:**
+   * `Cliente` (`hasMany` Cita)
+   * `Servicio` (`hasMany` Cita)
+   * `Cita` (`belongsTo` Cliente, `belongsTo` Servicio)
+3. **Controlador Resource con Optimización Eager Loading:**
+   * [`CitaController`](./src/app/Http/Controllers/CitaController.php) implementa `Route::resource('citas')`.
+   * El método `index()` hace uso estricto de **`with(['cliente', 'servicio'])`** para eliminar el problema de rendimiento N+1.
+4. **Seeders Realistas (+10 registros por tabla):**
+   * Población de base de datos con clientes y servicios reales de Cartago mediante `DatabaseSeeder`.
+5. **Vistas Blade Responsivas:**
+   * Layout maestro con Tailwind CSS en [`resources/views/layouts/app.blade.php`](./src/resources/views/layouts/app.blade.php).
+   * CRUD completo: Listado paginado con métricas (`index.blade.php`), formulario de creación con validación (`create.blade.php`), edición (`edit.blade.php`) y comprobante con **QR de Pago** (`show.blade.php`).
+
+---
+
+## 🚀 Instalación y Puesta en Marcha Local
+
+### 1. Clonar el repositorio y entrar a la aplicación
 ```bash
-composer create-project laravel/laravel sge
+git clone https://github.com/Brandon07-code/SoftwareGestionEmpresarial.git
+cd SoftwareGestionEmpresarial/src
 ```
 
-### 3. Ejecución del Servidor
-Para iniciar el servidor de desarrollo local se ejecuta:
+### 2. Instalar dependencias y configurar entorno
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+```
+
+### 3. Ejecutar migraciones con datos de prueba
+```bash
+php artisan migrate:fresh --seed
+```
+
+### 4. Levantar servidor de desarrollo
 ```bash
 php artisan serve
 ```
-El servidor queda disponible en `http://127.0.0.1:8000`.
+Acceder en el navegador a: **`http://127.0.0.1:8000`**
 
 ---
 
-## 📸 Evidencias de la Instalación (Clase 2)
+## 🐳 Entorno con Docker (Puertos Protegidos)
 
-### Captura 1 — Verificación de PHP y Composer
-![Captura 1](./Clase2/captura1_php_composer.png)
-
-### Captura 2 — Estructura del Proyecto Laravel (`ls -la`)
-![Captura 2](./Clase2/captura2_estructura_laravel.png)
-
-### Captura 3 — Pantalla de Bienvenida de Laravel en el Navegador
-![Captura 3](./Clase2/captura3_bienvenida_laravel.png)
-
----
-
-## 🐳 Entorno con Docker (Servicios)
-
-- **PHP / Apache** → `http://localhost:8085`
-- **MariaDB** → `localhost:3307`
-- **phpMyAdmin** → `http://localhost:8086`
-
-Repositorio base del entorno: [jamescanos/SoftwareGestionEmpresarial](https://github.com/jamescanos/SoftwareGestionEmpresarial)
+El proyecto cuenta con contenedor Docker configurado para evitar colisiones de puertos:
+- **Servidor Web PHP / Apache** ➔ `http://localhost:8085`
+- **Base de Datos MariaDB** ➔ Puerto local `3307`
+- **phpMyAdmin** ➔ `http://localhost:8086`
 
 ---
 
