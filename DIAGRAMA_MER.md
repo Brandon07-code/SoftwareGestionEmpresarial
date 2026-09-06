@@ -9,100 +9,344 @@
 
 ---
 
-## 1. Diagrama Visual de la Base de Datos
+## 1. Diagramas MER Modulares (Renderizado Vectorial SVG Nítido en GitHub)
 
-A continuación se presenta el diseño relacional integral del ERP (21 entidades) estructurado bajo estándares de normalización y optimización para Laravel / Eloquent ORM:
-
-![Diagrama MER](./diagrama_mer.png)
+Para garantizar legibilidad total sin pixelado ni texto borroso, el modelo relacional (21 entidades) se desglosa a continuación en **diagramas vectoriales nativos de Mermaid**, organizados por submódulos con todos sus campos, tipos de datos, llaves primarias (PK) y foráneas (FK):
 
 ---
 
-## 2. Diagrama MER en Formato Mermaid (Interactivo)
+### 💈 Submódulo A: Usuarios, Personal, Clientes y Agenda (Citas & Servicios)
 
 ```mermaid
 erDiagram
-    ROLES ||--o{ USUARIOS : "asigna rol"
-    USUARIOS ||--o| EMPLEADOS : "perfil empleado"
-    USUARIOS ||--o| CLIENTES : "perfil opcional"
-    USUARIOS ||--o{ VENTAS : "registra ticket"
-    USUARIOS ||--o{ CAJAS : "apertura/cierre"
-    USUARIOS ||--o{ MOVIMIENTOS_CAJA : "registra movimiento"
+    ROLES {
+        bigint_unsigned id PK
+        varchar nombre
+        boolean estado
+    }
 
+    USUARIOS {
+        bigint_unsigned id PK
+        bigint_unsigned role_id FK
+        varchar primer_nombre
+        varchar segundo_nombre
+        varchar primer_apellido
+        varchar segundo_apellido
+        varchar email
+        varchar password
+        varchar telefono
+        varchar direccion
+        boolean estado
+    }
+
+    EMPLEADOS {
+        bigint_unsigned id PK
+        bigint_unsigned user_id FK
+        varchar especialidad
+        enum tipo_comision
+        decimal valor_comision
+        boolean estado
+    }
+
+    HORARIOS_EMPLEADOS {
+        bigint_unsigned id PK
+        bigint_unsigned empleado_id FK
+        tinyint_unsigned dia_semana
+        time hora_inicio
+        time hora_fin
+        boolean disponible
+    }
+
+    CLIENTES {
+        bigint_unsigned id PK
+        bigint_unsigned user_id FK
+        varchar primer_nombre
+        varchar segundo_nombre
+        varchar primer_apellido
+        varchar segundo_apellido
+        varchar telefono
+        varchar direccion
+        int_unsigned puntos
+        text preferencias
+        text observaciones
+        boolean estado
+    }
+
+    CATEGORIAS_SERVICIOS {
+        bigint_unsigned id PK
+        varchar nombre
+        boolean estado
+    }
+
+    SERVICIOS {
+        bigint_unsigned id PK
+        bigint_unsigned categoria_servicio_id FK
+        varchar nombre
+        text descripcion
+        decimal precio
+        smallint_unsigned duracion_minutos
+        boolean estado
+    }
+
+    EMPLEADO_SERVICIO {
+        bigint_unsigned empleado_id PK,FK
+        bigint_unsigned servicio_id PK,FK
+    }
+
+    CITAS {
+        bigint_unsigned id PK
+        bigint_unsigned cliente_id FK
+        bigint_unsigned empleado_id FK
+        date fecha
+        time hora_inicio
+        time hora_fin
+        enum estado
+        decimal total
+        text observaciones
+    }
+
+    CITA_SERVICIO {
+        bigint_unsigned cita_id PK,FK
+        bigint_unsigned servicio_id PK,FK
+        decimal precio_historico
+        smallint_unsigned duracion_historica
+    }
+
+    ROLES ||--o{ USUARIOS : "define permisos"
+    USUARIOS ||--o| EMPLEADOS : "perfil barbero"
+    USUARIOS ||--o| CLIENTES : "perfil opcional"
     EMPLEADOS ||--o{ HORARIOS_EMPLEADOS : "disponibilidad"
     EMPLEADOS ||--o{ EMPLEADO_SERVICIO : "habilidades"
     SERVICIOS ||--o{ EMPLEADO_SERVICIO : "asignado a"
-    EMPLEADOS ||--o{ CITAS : "atiende turno"
-    EMPLEADOS ||--o{ VENTA_SERVICIO : "comisiona servicio"
-    EMPLEADOS ||--o{ COMISIONES : "liquida ingresos"
-
-    CLIENTES ||--o{ CITAS : "solicita turno"
-    CLIENTES ||--o{ VENTAS : "factura a"
-    CLIENTES ||--o{ MOVIMIENTOS_PUNTOS : "acumula puntos"
-
     CATEGORIAS_SERVICIOS ||--o{ SERVICIOS : "clasifica"
+    CLIENTES ||--o{ CITAS : "solicita"
+    EMPLEADOS ||--o{ CITAS : "atiende"
+    CITAS ||--o{ CITA_SERVICIO : "contiene"
     SERVICIOS ||--o{ CITA_SERVICIO : "incluido en"
-    CITAS ||--o{ CITA_SERVICIO : "detalle de cita"
-    CITAS ||--o| VENTAS : "factura cita"
-
-    CATEGORIAS_PRODUCTOS ||--o{ PRODUCTOS : "clasifica"
-    PRODUCTOS ||--o{ MOVIMIENTOS_INVENTARIO : "kardex stock"
-    PRODUCTOS ||--o{ VENTA_PRODUCTO : "incluido en venta"
-
-    VENTAS ||--o{ VENTA_SERVICIO : "detalle servicios"
-    VENTAS ||--o{ VENTA_PRODUCTO : "detalle productos"
-    VENTAS ||--o{ PAGOS : "metodos de pago"
-    VENTAS ||--o{ COMISIONES : "genera comision"
-    VENTAS ||--o{ MOVIMIENTOS_CAJA : "ingreso caja"
-    VENTAS ||--o{ MOVIMIENTOS_PUNTOS : "otorga puntos"
-
-    CAJAS ||--o{ MOVIMIENTOS_CAJA : "registra movimientos"
 ```
 
 ---
 
-## 3. Diccionario de Datos por Módulos
+### 🧴 Submódulo B: Retail, Perfumería y Kárdex de Inventario
 
-### MÓDULO I: Autenticación, Usuarios y Personal
-* **`roles`:** Define los permisos y niveles de acceso (`Administrador`, `Recepcionista/Cajero`, `Barbero/Estilista`).
-* **`usuarios`:** Credenciales de acceso, datos personales principales (`primer_nombre`, `primer_apellido`, `email`, `password`, `telefono`).
-* **`empleados`:** Perfil laboral del barbero (`user_id`, `especialidad`, `tipo_comision` ['porcentaje', 'valor_fijo'], `valor_comision`).
-* **`horarios_empleados`:** Disponibilidad laboral semanal por día y rango de horas (`dia_semana`, `hora_inicio`, `hora_fin`, `disponible`).
-* **`empleado_servicio`:** Tabla intermedia que mapea qué servicios específicos está capacitado para realizar cada barbero.
+```mermaid
+erDiagram
+    CATEGORIAS_PRODUCTOS {
+        bigint_unsigned id PK
+        varchar nombre
+        boolean estado
+    }
 
-### MÓDULO II: Clientes y Fidelización (CRM)
-* **`clientes`:** Expediente del cliente (`primer_nombre`, `primer_apellido`, `telefono`, `direccion`, `puntos`, `preferencias`, `observaciones`).
-  * *Nota técnica:* `user_id` es **NULLABLE**, permitiendo registrar clientes de Cartago que no usan cuenta web.
-* **`movimientos_puntos`:** Libro mayor de fidelización (`cliente_id`, `venta_id`, `tipo` ['ganancia', 'redencion', 'ajuste'], `puntos`, `saldo_anterior`, `saldo_nuevo`).
+    PRODUCTOS {
+        bigint_unsigned id PK
+        bigint_unsigned categoria_producto_id FK
+        varchar nombre
+        text descripcion
+        decimal costo
+        decimal precio_venta
+        int_unsigned stock_actual
+        int_unsigned stock_minimo
+        varchar imagen_url
+        boolean estado
+    }
 
-### MÓDULO III: Catálogo y Gestión de Citas (Core Operativo)
-* **`categorias_servicios`:** Agrupación temática (`Barbería`, `Peluquería`, `Spa`, `Estética`).
-* **`servicios`:** Catálogo oficial con tarifas y tiempos (`categoria_servicio_id`, `nombre`, `precio`, `duracion_minutos`, `estado`).
-* **`citas`:** Cabecera de agenda (`cliente_id`, `empleado_id`, `fecha`, `hora_inicio`, `hora_fin`, `estado`, `total`, `observaciones`).
-* **`cita_servicio`:** Tabla intermedia que permite citas con múltiples servicios simultáneos con respaldo de `precio_historico` y `duracion_historica`.
+    MOVIMIENTOS_INVENTARIO {
+        bigint_unsigned id PK
+        bigint_unsigned producto_id FK
+        enum tipo
+        int_unsigned cantidad
+        int_unsigned stock_anterior
+        int_unsigned stock_nuevo
+        varchar motivo
+        varchar referencia_tipo
+        bigint_unsigned referencia_id
+        timestamp created_at
+    }
 
-### MÓDULO IV: Retail, Perfumería e Inventario
-* **`categorias_productos`:** Familias de productos (`Perfumes Importados`, `Perfumes Réplica`, `Ceras y Pomadas`, `Cuidado de Barba`).
-* **`productos`:** Ficha de producto con control de costos y existencias (`categoria_producto_id`, `nombre`, `costo`, `precio_venta`, `stock_actual`, `stock_minimo`).
-* **`movimientos_inventario`:** Kárdex inmutable (`producto_id`, `tipo` ['entrada', 'salida', 'ajuste'], `cantidad`, `stock_anterior`, `stock_nuevo`, `motivo`, `referencia_tipo`, `referencia_id`).
-
-### MÓDULO V: Facturación (POS), Pagos, Caja y Comisiones
-* **`ventas`:** Ticket unificado de la visita (`cliente_id`, `cita_id` *[NULLABLE para ventas directas de mostrador]*, `usuario_id`, `subtotal_servicios`, `subtotal_productos`, `total`, `estado`).
-* **`venta_servicio`:** Desglose de servicios facturados (`venta_id`, `servicio_id`, `empleado_id`, `precio_historico`, `porcentaje_comision`, `valor_comision`).
-* **`venta_producto`:** Desglose de productos vendidos (`venta_id`, `producto_id`, `cantidad`, `precio_historico`, `subtotal`).
-* **`pagos`:** Transacciones financieras (`venta_id`, `metodo` ['efectivo', 'transferencia', 'qr'], `monto`, `referencia`, `estado`, `fecha_pago`).
-* **`cajas`:** Arqueo diario de caja (`usuario_apertura_id`, `fecha`, `saldo_inicial`, `saldo_final`, `estado`, `fecha_apertura`, `fecha_cierre`).
-* **`movimientos_caja`:** Flujo de efectivo (`caja_id`, `usuario_id`, `venta_id`, `tipo` ['ingreso', 'egreso', 'ajuste'], `concepto`, `monto`).
-* **`comisiones`:** Liquidación individual a barberos (`empleado_id`, `venta_id`, `venta_servicio_id`, `porcentaje`, `base_calculo`, `valor`, `estado` ['pendiente', 'liquidada', 'pagada']).
+    CATEGORIAS_PRODUCTOS ||--o{ PRODUCTOS : "clasifica"
+    PRODUCTOS ||--o{ MOVIMIENTOS_INVENTARIO : "registra kardex"
+```
 
 ---
 
-## 4. Principios Clave de la Arquitectura de Software
+### 💵 Submódulo C: Facturación (POS), Pagos, Caja, Comisiones y Fidelización
 
-1. **Inmutabilidad Financiera:**  
-   Los campos `precio_historico` y `valor_comision` garantizan que cualquier cambio futuro en las tarifas de JyM no altere la contabilidad ni los reportes históricos.
-2. **Desacople Operativo (Cita vs. Venta):**  
-   Al permitir que `cita_id` sea nulo en `ventas`, el sistema actúa como Punto de Venta (POS) independiente para ventas de perfumería al paso.
-3. **Transaccionalidad Atómica (`VentaService` + `DB::transaction`):**  
-   Al facturar una venta, el descuento de inventario, registro de comisiones, movimiento de caja y acumulación de puntos se ejecutan en una sola transacción segura con *Rollback* automático ante fallas.
-4. **Optimización contra el problema N+1:**  
-   Uso de Eager Loading en Eloquent (`with(['cliente', 'servicio', 'empleado'])`) para garantizar alto rendimiento con consultas SQL consolidadas.
+```mermaid
+erDiagram
+    VENTAS {
+        bigint_unsigned id PK
+        bigint_unsigned cliente_id FK
+        bigint_unsigned cita_id FK
+        bigint_unsigned usuario_id FK
+        decimal subtotal_servicios
+        decimal subtotal_productos
+        decimal total
+        enum estado
+        timestamp created_at
+    }
+
+    VENTA_SERVICIO {
+        bigint_unsigned id PK
+        bigint_unsigned venta_id FK
+        bigint_unsigned servicio_id FK
+        bigint_unsigned empleado_id FK
+        int_unsigned cantidad
+        decimal precio_historico
+        decimal porcentaje_comision
+        decimal valor_comision
+    }
+
+    VENTA_PRODUCTO {
+        bigint_unsigned id PK
+        bigint_unsigned venta_id FK
+        bigint_unsigned producto_id FK
+        int_unsigned cantidad
+        decimal precio_historico
+        decimal subtotal
+    }
+
+    PAGOS {
+        bigint_unsigned id PK
+        bigint_unsigned venta_id FK
+        enum metodo
+        decimal monto
+        varchar referencia
+        enum estado
+        datetime fecha_pago
+    }
+
+    CAJAS {
+        bigint_unsigned id PK
+        bigint_unsigned usuario_apertura_id FK
+        date fecha
+        decimal saldo_inicial
+        decimal saldo_final
+        enum estado
+        datetime fecha_apertura
+        datetime fecha_cierre
+    }
+
+    MOVIMIENTOS_CAJA {
+        bigint_unsigned id PK
+        bigint_unsigned caja_id FK
+        bigint_unsigned usuario_id FK
+        bigint_unsigned venta_id FK
+        enum tipo
+        varchar concepto
+        decimal monto
+        timestamp created_at
+    }
+
+    COMISIONES {
+        bigint_unsigned id PK
+        bigint_unsigned empleado_id FK
+        bigint_unsigned venta_id FK
+        bigint_unsigned venta_servicio_id FK
+        decimal porcentaje
+        decimal base_calculo
+        decimal valor
+        enum estado
+    }
+
+    MOVIMIENTOS_PUNTOS {
+        bigint_unsigned id PK
+        bigint_unsigned cliente_id FK
+        bigint_unsigned venta_id FK
+        enum tipo
+        int puntos
+        int_unsigned saldo_anterior
+        int_unsigned saldo_nuevo
+        varchar descripcion
+        timestamp created_at
+    }
+
+    VENTAS ||--o{ VENTA_SERVICIO : "servicios facturados"
+    VENTAS ||--o{ VENTA_PRODUCTO : "productos facturados"
+    VENTAS ||--o{ PAGOS : "transacciones de pago"
+    VENTAS ||--o{ COMISIONES : "genera comision barbero"
+    VENTAS ||--o{ MOVIMIENTOS_CAJA : "ingreso caja"
+    VENTAS ||--o{ MOVIMIENTOS_PUNTOS : "suma puntos"
+    CAJAS ||--o{ MOVIMIENTOS_CAJA : "arqueo flujo de caja"
+```
+
+---
+
+## 2. Diagrama Global Simplificado (Mapa de Navegación de Entidades)
+
+```mermaid
+erDiagram
+    ROLES ||--o{ USUARIOS : ""
+    USUARIOS ||--o| EMPLEADOS : ""
+    USUARIOS ||--o| CLIENTES : ""
+    USUARIOS ||--o{ CAJAS : ""
+    USUARIOS ||--o{ VENTAS : ""
+
+    EMPLEADOS ||--o{ HORARIOS_EMPLEADOS : ""
+    EMPLEADOS ||--o{ EMPLEADO_SERVICIO : ""
+    SERVICIOS ||--o{ EMPLEADO_SERVICIO : ""
+    EMPLEADOS ||--o{ CITAS : ""
+    EMPLEADOS ||--o{ COMISIONES : ""
+
+    CLIENTES ||--o{ CITAS : ""
+    CLIENTES ||--o{ VENTAS : ""
+    CLIENTES ||--o{ MOVIMIENTOS_PUNTOS : ""
+
+    CATEGORIAS_SERVICIOS ||--o{ SERVICIOS : ""
+    CITAS ||--o{ CITA_SERVICIO : ""
+    SERVICIOS ||--o{ CITA_SERVICIO : ""
+    CITAS ||--o| VENTAS : "factura"
+
+    CATEGORIAS_PRODUCTOS ||--o{ PRODUCTOS : ""
+    PRODUCTOS ||--o{ MOVIMIENTOS_INVENTARIO : ""
+    PRODUCTOS ||--o{ VENTA_PRODUCTO : ""
+
+    VENTAS ||--o{ VENTA_SERVICIO : ""
+    VENTAS ||--o{ VENTA_PRODUCTO : ""
+    VENTAS ||--o{ PAGOS : ""
+    VENTAS ||--o{ COMISIONES : ""
+    CAJAS ||--o{ MOVIMIENTOS_CAJA : ""
+    VENTAS ||--o{ MOVIMIENTOS_CAJA : ""
+```
+
+---
+
+## 3. Diccionario de Datos Exhaustivo (21 Tablas)
+
+### MÓDULO 1: Identidad, Accesos y Personal
+1. **`roles`:** Catálogo de perfiles (`Administrador`, `Recepcionista/Cajero`, `Barbero/Estilista`).
+2. **`usuarios`:** Credenciales maestras, nombres, apellidos, correo único, contraseña cifrada, teléfono y estado.
+3. **`empleados`:** Perfil profesional del barbero vinculado a su usuario (`user_id` único), especialidad, tipo de liquidación (`porcentaje` o `valor_fijo`) y valor pactado.
+4. **`horarios_empleados`:** Matriz de disponibilidad semanal por barbero (`dia_semana`, `hora_inicio`, `hora_fin`, `disponible`).
+5. **`empleado_servicio`:** Habilidades profesionales (asocia qué servicios sabe realizar cada barbero).
+
+### MÓDULO 2: Clientes y Fidelización (CRM)
+6. **`clientes`:** Ficha de contacto y preferencias. Campo `user_id` **NULLABLE** para permitir registrar clientes de mostrador en Cartago sin correo ni cuenta web.
+7. **`movimientos_puntos`:** Kárdex de fidelidad (`ganancia`, `redencion`, `ajuste`) con saldo anterior y nuevo.
+
+### MÓDULO 3: Catálogo y Operación de Citas
+8. **`categorias_servicios`:** Familias de atención (`Barbería`, `Peluquería`, `Spa`, `Estética`).
+9. **`servicios`:** Tarifario base con precio actual y duración en minutos.
+10. **`citas`:** Turnos de atención con ciclo de vida (`pendiente`, `confirmada`, `en_atencion`, `completada`, `cancelada`, `no_asistio`).
+11. **`cita_servicio`:** Detalle multiproducto por cita con respaldo inmutable de `precio_historico` y `duracion_historica`.
+
+### MÓDULO 4: Retail, Perfumería y Control de Stock
+12. **`categorias_productos`:** Familias de retail (`Lociones Originales`, `Perfumes Réplica`, `Ceras y Pomadas`, `Cuidado de Barba`).
+13. **`productos`:** Ficha de inventario con costo, precio de venta, stock actual y umbral de alerta de stock mínimo.
+14. **`movimientos_inventario`:** Kárdex de almacén (`entrada`, `salida`, `ajuste`) con trazabilidad de motivo y documento de referencia.
+
+### MÓDULO 5: Ventas, Facturación (POS), Caja y Comisiones
+15. **`ventas`:** Ticket unificado de cobro. `cita_id` es **NULLABLE** para permitir compras de perfumería sin turno de motilada.
+16. **`venta_servicio`:** Servicios liquidados en el ticket con congelamiento de `precio_historico`, `porcentaje_comision` y `valor_comision`.
+17. **`venta_producto`:** Productos físicos facturados con `precio_historico` y subtotal.
+18. **`pagos`:** Transacciones financieras (`efectivo`, `transferencia`, `qr`) con monto y código de referencia.
+19. **`cajas`:** Turnos diarios de caja con saldo inicial, saldo final y marcas de tiempo de apertura y cierre.
+20. **`movimientos_caja`:** Libro diario de ingresos y egresos de dinero físico en el punto de venta.
+21. **`comisiones`:** Liquidaciones a favor del barbero generadas por cada servicio completado.
+
+---
+
+## 4. Pilares de Arquitectura Técnica
+
+* **Inmutabilidad Contable:** Toda venta congela el precio y comisión del momento (`precio_historico`, `valor_comision`) para evitar que aumentos futuros de tarifas alteren cierres contables pasados.
+* **Transaccionalidad Atómica:** Las operaciones de venta se ejecutan mediante `DB::transaction()` en un `VentaService`, garantizando que si falta stock de un perfume, la venta, la comisión y el movimiento de caja no se registren a medias.
+* **Eliminación del problema N+1:** Consultas en Laravel optimizadas con Eager Loading (`with(['cliente', 'servicio', 'empleado'])`).

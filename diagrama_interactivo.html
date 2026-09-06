@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagrama MER Interactivo — Barbería y Perfumería JyM ERP</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Mermaid CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- Panzoom para zoom y arrastre interactivo -->
+    <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        .panzoom-container { cursor: grab; }
+        .panzoom-container:active { cursor: grabbing; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header de Controles -->
+    <header class="bg-slate-950 border-b border-slate-800 px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-50">
+        <div>
+            <h1 class="text-xl font-black tracking-wide text-white flex items-center gap-2">
+                <span>💈</span> JyM ERP — Diagrama Entidad-Relación (21 Tablas)
+            </h1>
+            <p class="text-xs text-slate-400">COTECNOVA 2026 · Software de Gestión Empresarial | Brandon Cortés & Johan</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button id="zoom-in" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-bold shadow transition">
+                🔍 + Zoom
+            </button>
+            <button id="zoom-out" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-bold shadow transition">
+                🔍 - Zoom
+            </button>
+            <button id="reset-zoom" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-bold shadow transition">
+                ↺ Centrar
+            </button>
+            <span class="text-xs text-slate-500 ml-2 hidden sm:inline">💡 Arrastra con el ratón o usa la rueda para hacer zoom</span>
+        </div>
+    </header>
+
+    <!-- Lienzo del Diagrama con Zoom y Arrastre -->
+    <main class="flex-1 relative overflow-hidden bg-slate-950 flex items-center justify-center p-4">
+        <div id="panzoom-element" class="panzoom-container flex justify-center items-center w-full min-h-[85vh]">
+            <pre class="mermaid text-xs">
+erDiagram
+    ROLES {
+        bigint_unsigned id PK
+        varchar nombre
+        boolean estado
+    }
+
+    USUARIOS {
+        bigint_unsigned id PK
+        bigint_unsigned role_id FK
+        varchar primer_nombre
+        varchar primer_apellido
+        varchar email
+        varchar telefono
+        boolean estado
+    }
+
+    EMPLEADOS {
+        bigint_unsigned id PK
+        bigint_unsigned user_id FK
+        varchar especialidad
+        enum tipo_comision
+        decimal valor_comision
+        boolean estado
+    }
+
+    HORARIOS_EMPLEADOS {
+        bigint_unsigned id PK
+        bigint_unsigned empleado_id FK
+        tinyint_unsigned dia_semana
+        time hora_inicio
+        time hora_fin
+        boolean disponible
+    }
+
+    CLIENTES {
+        bigint_unsigned id PK
+        bigint_unsigned user_id FK
+        varchar primer_nombre
+        varchar primer_apellido
+        varchar telefono
+        varchar direccion
+        int_unsigned puntos
+        boolean estado
+    }
+
+    CATEGORIAS_SERVICIOS {
+        bigint_unsigned id PK
+        varchar nombre
+        boolean estado
+    }
+
+    SERVICIOS {
+        bigint_unsigned id PK
+        bigint_unsigned categoria_servicio_id FK
+        varchar nombre
+        decimal precio
+        smallint_unsigned duracion_minutos
+        boolean estado
+    }
+
+    EMPLEADO_SERVICIO {
+        bigint_unsigned empleado_id PK,FK
+        bigint_unsigned servicio_id PK,FK
+    }
+
+    CITAS {
+        bigint_unsigned id PK
+        bigint_unsigned cliente_id FK
+        bigint_unsigned empleado_id FK
+        date fecha
+        time hora_inicio
+        time hora_fin
+        enum estado
+        decimal total
+    }
+
+    CITA_SERVICIO {
+        bigint_unsigned cita_id PK,FK
+        bigint_unsigned servicio_id PK,FK
+        decimal precio_historico
+        smallint_unsigned duracion_historica
+    }
+
+    CATEGORIAS_PRODUCTOS {
+        bigint_unsigned id PK
+        varchar nombre
+        boolean estado
+    }
+
+    PRODUCTOS {
+        bigint_unsigned id PK
+        bigint_unsigned categoria_producto_id FK
+        varchar nombre
+        decimal costo
+        decimal precio_venta
+        int_unsigned stock_actual
+        int_unsigned stock_minimo
+        boolean estado
+    }
+
+    MOVIMIENTOS_INVENTARIO {
+        bigint_unsigned id PK
+        bigint_unsigned producto_id FK
+        enum tipo
+        int_unsigned cantidad
+        int_unsigned stock_anterior
+        int_unsigned stock_nuevo
+        varchar motivo
+    }
+
+    VENTAS {
+        bigint_unsigned id PK
+        bigint_unsigned cliente_id FK
+        bigint_unsigned cita_id FK
+        bigint_unsigned usuario_id FK
+        decimal subtotal_servicios
+        decimal subtotal_productos
+        decimal total
+        enum estado
+    }
+
+    VENTA_SERVICIO {
+        bigint_unsigned id PK
+        bigint_unsigned venta_id FK
+        bigint_unsigned servicio_id FK
+        bigint_unsigned empleado_id FK
+        decimal precio_historico
+        decimal porcentaje_comision
+        decimal valor_comision
+    }
+
+    VENTA_PRODUCTO {
+        bigint_unsigned id PK
+        bigint_unsigned venta_id FK
+        bigint_unsigned producto_id FK
+        int_unsigned cantidad
+        decimal precio_historico
+        decimal subtotal
+    }
+
+    PAGOS {
+        bigint_unsigned id PK
+        bigint_unsigned venta_id FK
+        enum metodo
+        decimal monto
+        varchar referencia
+        enum estado
+    }
+
+    CAJAS {
+        bigint_unsigned id PK
+        bigint_unsigned usuario_apertura_id FK
+        date fecha
+        decimal saldo_inicial
+        decimal saldo_final
+        enum estado
+    }
+
+    MOVIMIENTOS_CAJA {
+        bigint_unsigned id PK
+        bigint_unsigned caja_id FK
+        bigint_unsigned usuario_id FK
+        bigint_unsigned venta_id FK
+        enum tipo
+        varchar concepto
+        decimal monto
+    }
+
+    COMISIONES {
+        bigint_unsigned id PK
+        bigint_unsigned empleado_id FK
+        bigint_unsigned venta_id FK
+        decimal porcentaje
+        decimal valor
+        enum estado
+    }
+
+    MOVIMIENTOS_PUNTOS {
+        bigint_unsigned id PK
+        bigint_unsigned cliente_id FK
+        bigint_unsigned venta_id FK
+        enum tipo
+        int puntos
+        int_unsigned saldo_nuevo
+    }
+
+    ROLES ||--o{ USUARIOS : "asigna"
+    USUARIOS ||--o| EMPLEADOS : "perfil"
+    USUARIOS ||--o| CLIENTES : "opcional"
+    EMPLEADOS ||--o{ HORARIOS_EMPLEADOS : "horario"
+    EMPLEADOS ||--o{ EMPLEADO_SERVICIO : "habilidades"
+    SERVICIOS ||--o{ EMPLEADO_SERVICIO : "asignado"
+    CATEGORIAS_SERVICIOS ||--o{ SERVICIOS : "clasifica"
+    CLIENTES ||--o{ CITAS : "solicita"
+    EMPLEADOS ||--o{ CITAS : "atiende"
+    CITAS ||--o{ CITA_SERVICIO : "detalle"
+    SERVICIOS ||--o{ CITA_SERVICIO : "incluido"
+    CITAS ||--o| VENTAS : "factura"
+
+    CATEGORIAS_PRODUCTOS ||--o{ PRODUCTOS : "clasifica"
+    PRODUCTOS ||--o{ MOVIMIENTOS_INVENTARIO : "kardex"
+    PRODUCTOS ||--o{ VENTA_PRODUCTO : "incluido"
+
+    VENTAS ||--o{ VENTA_SERVICIO : "servicios"
+    VENTAS ||--o{ VENTA_PRODUCTO : "productos"
+    VENTAS ||--o{ PAGOS : "pagos"
+    VENTAS ||--o{ COMISIONES : "comisiones"
+    VENTAS ||--o{ MOVIMIENTOS_CAJA : "caja"
+    VENTAS ||--o{ MOVIMIENTOS_PUNTOS : "puntos"
+    CAJAS ||--o{ MOVIMIENTOS_CAJA : "arqueo"
+            </pre>
+        </div>
+    </main>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            er: {
+                useMaxWidth: false
+            }
+        });
+
+        window.addEventListener('load', () => {
+            const elem = document.getElementById('panzoom-element');
+            const panzoom = Panzoom(elem, {
+                maxScale: 6,
+                minScale: 0.3,
+                contain: 'outside'
+            });
+
+            elem.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
+
+            document.getElementById('zoom-in').addEventListener('click', panzoom.zoomIn);
+            document.getElementById('zoom-out').addEventListener('click', panzoom.zoomOut);
+            document.getElementById('reset-zoom').addEventListener('click', () => {
+                panzoom.reset();
+            });
+        });
+    </script>
+</body>
+</html>
