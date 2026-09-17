@@ -20,6 +20,7 @@
 | [📁 `src/`](./src/) | **Código fuente en Laravel 13** (Modelos, Migraciones, Seeders, Vistas Blade y Rutas Resource) |
 | [📁 `Clase2/`](./Clase2/) | Evidencias de instalación del entorno (PHP, Composer, WSL2) |
 | [📁 `Clase4/`](./Clase4/) | Evidencias de Migraciones, Modelos, Tinker y BD (Clase 4) |
+| [📁 `Clase5/`](./Clase5/) | Evidencias de Controlador Resource, Vistas Blade y Scopes (Clase 5) |
 | [📄 `propuestas.md`](./propuestas.md) | Propuestas iniciales de negocio analizadas para la asignatura |
 
 ---
