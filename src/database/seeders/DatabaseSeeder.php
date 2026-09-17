@@ -86,5 +86,9 @@ class DatabaseSeeder extends Seeder
                 'notas' => $cd['notas']
             ]);
         }
+
+        // 4. Categorías y Productos de la Empresa (Clase 4)
+        $this->call(CategorySeeder::class);
     }
 }
+

@@ -43,4 +43,28 @@ class Cita extends Model
     {
         return $this->belongsTo(Servicio::class, 'servicio_id');
     }
+
+    /**
+     * Scope local: Filtrar citas programadas para hoy
+     */
+    public function scopeHoy($query)
+    {
+        return $query->whereDate('fecha_hora', today());
+    }
+
+    /**
+     * Scope local: Filtrar citas en espera o confirmadas
+     */
+    public function scopePendientes($query)
+    {
+        return $query->whereIn('estado', ['pendiente', 'confirmada']);
+    }
+
+    /**
+     * Scope local: Filtrar citas completadas y facturadas
+     */
+    public function scopeCompletadas($query)
+    {
+        return $query->where('estado', 'completada');
+    }
 }

@@ -13,10 +13,12 @@
 
 | Carpeta / Archivo | Descripción |
 |-------------------|-------------|
-| [📐 `DIAGRAMA_MER.md`](./DIAGRAMA_MER.md) | **Modelo Entidad-Relación oficial (21 tablas)**, diagrama Mermaid y diccionario de datos |
-| [📊 `ANALISIS_EMPRESA.md`](./ANALISIS_EMPRESA.md) | **Análisis del Negocio**, procesos clave de Barbería JyM y preguntas guía |
-| [📁 `src/`](./src/) | **Código fuente de la aplicación en Laravel 13** (Modelos, Migraciones, Seeders, Vistas Blade y Rutas Resource) |
-| [📁 `Clase2/`](./Clase2/) | Evidencias y capturas de la instalación del entorno (PHP, Composer, WSL2) |
+| [📊 `docs/analisis.md`](./docs/analisis.md) | **Análisis de la Empresa** (Formato oficial Guía Evaluativa SGE) |
+| [📖 `docs/diccionario.md`](./docs/diccionario.md) | **Diccionario de Datos** exhaustivo (21 tablas del ERP JyM) |
+| [🖼️ `docs/diagrama_mer.png`](./docs/diagrama_mer.png) | **Diagrama Entidad-Relación (MER)** |
+| [📐 `DIAGRAMA_MER.md`](./DIAGRAMA_MER.md) | Diagramas modulares Mermaid en código |
+| [📁 `src/`](./src/) | **Código fuente en Laravel 13** (Modelos, Migraciones, Seeders, Vistas Blade y Rutas Resource) |
+| [📁 `Clase2/`](./Clase2/) | Evidencias de instalación del entorno (PHP, Composer, WSL2) |
 | [📄 `propuestas.md`](./propuestas.md) | Propuestas iniciales de negocio analizadas para la asignatura |
 
 ---
