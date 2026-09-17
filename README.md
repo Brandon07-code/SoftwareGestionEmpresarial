@@ -19,6 +19,7 @@
 | [📐 `DIAGRAMA_MER.md`](./DIAGRAMA_MER.md) | Diagramas modulares Mermaid en código |
 | [📁 `src/`](./src/) | **Código fuente en Laravel 13** (Modelos, Migraciones, Seeders, Vistas Blade y Rutas Resource) |
 | [📁 `Clase2/`](./Clase2/) | Evidencias de instalación del entorno (PHP, Composer, WSL2) |
+| [📁 `Clase4/`](./Clase4/) | Evidencias de Migraciones, Modelos, Tinker y BD (Clase 4) |
 | [📄 `propuestas.md`](./propuestas.md) | Propuestas iniciales de negocio analizadas para la asignatura |
 
 ---
