@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustentación ERP — Barbería y Perfumería JyM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        code, pre {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .slide {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease-in-out;
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased h-screen overflow-hidden flex flex-col justify-between select-none">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white/80 backdrop-blur-md px-8 py-3.5 flex items-center justify-between border-b border-slate-200/60 z-10">
+        <div class="flex items-center space-x-3">
+            <span class="text-xl">💈</span>
+            <div class="leading-none">
+                <span class="font-bold text-slate-900 text-sm tracking-tight">Barbería y Perfumería JyM</span>
+                <span class="text-slate-400 text-xs ml-2">Sistema ERP · COTECNOVA 2026</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-1.5 bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold text-slate-600">
+                <span id="currentSlideNum">01</span>
+                <span class="text-slate-400">/</span>
+                <span id="totalSlidesNum">08</span>
+            </div>
+            <button onclick="toggleFullScreen()" title="Pantalla Completa (F11)" class="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Slide Container -->
+    <main class="flex-1 w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-center overflow-hidden">
+
+        <!-- SLIDE 1: PORTADA -->
+        <section class="slide active w-full h-full flex-col justify-center items-center text-center">
+            <div class="max-w-3xl bg-white p-12 rounded-3xl shadow-sm">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold mb-6">
+                    <span>COTECNOVA</span>
+                    <span class="text-slate-300">·</span>
+                    <span>Software de Gestión Empresarial</span>
+                </div>
+                
+                <h1 class="text-4xl md:text-5xl font-extrabold text-slate-950 tracking-tight leading-tight mb-4">
+                    Sistema de Gestión Empresarial (ERP)
+                </h1>
+                
+                <p class="text-lg text-slate-600 font-medium mb-8">
+                    Caso de Estudio: <strong class="text-slate-900">Barbería y Perfumería JyM</strong> — Cartago, Valle
+                </p>
+
+                <div class="grid grid-cols-2 gap-4 max-w-xl mx-auto pt-6 border-t border-slate-100 text-left">
+                    <div class="bg-slate-50 p-4 rounded-2xl">
+                        <span class="text-xs uppercase font-bold text-slate-400 block mb-1">Docente</span>
+                        <p class="font-bold text-slate-900 text-sm">Jhon James Cano Sánchez</p>
+                        <span class="text-xs text-slate-500">Seminario Desarrollo Web RAD</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl">
+                        <span class="text-xs uppercase font-bold text-slate-400 block mb-1">Integrantes</span>
+                        <p class="font-bold text-slate-900 text-sm">Brandon Cortés Giraldo</p>
+                        <p class="font-bold text-slate-900 text-sm">Johan Linares</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-xs text-slate-400">
+                    Sustentación Primer Corte · Septiembre 2026
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: CONTEXTO DEL NEGOCIO Y PROBLEMÁTICA -->
+        <section class="slide w-full h-full flex-col justify-center">
+            <div class="mb-4">
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">01. Contexto Empresarial</span>
+                <h2 class="text-3xl font-extrabold text-slate-950 mt-1">Barbería y Perfumería JyM</h2>
+                <p class="text-sm text-slate-500">Diagnóstico operativo de una microempresa de servicios y comercio en Cartago</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 max-h-[500px]">
+                <!-- Card 1: Giro del Negocio -->
+                <div class="bg-white p-7 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg mb-4">🏪</div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Modelo de Operación Híbrido</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                            La empresa genera ingresos mediante dos líneas de negocio que conviven en el mismo local:
+                        </p>
+                        <ul class="space-y-2 text-sm text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <span class="text-indigo-600 font-bold">✓</span>
+                                <span><strong>Servicios de cuidado personal:</strong> Cortes de cabello, degradados, ritual de barba con toalla caliente, tinte, alisados y estética.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-indigo-600 font-bold">✓</span>
+                                <span><strong>Venta minorista de mostrador:</strong> Perfumería fina (lociones originales y réplicas), ceras mate, pomadas y tónicos capilares.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="text-xs bg-slate-50 text-slate-500 p-3 rounded-xl mt-4">
+                        Ubicación: Cartago, Valle del Cauca · Tamaño: Microempresa local
+                    </div>
+                </div>
+
+                <!-- Card 2: La Problemática Real -->
+                <div class="bg-white p-7 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-lg mb-4">⚠️</div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Problemas del Manejo Tradicional</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                            La gestión mediante cuadernos y hojas de cálculo provocaba fallas críticas en la operación:
+                        </p>
+                        <ul class="space-y-3 text-sm text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <span class="text-rose-500 font-bold">✗</span>
+                                <span><strong>Cruces y demoras en citas:</strong> Agendamiento manual que causaba dobles reservas para un mismo barbero y tiempos muertos.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-rose-500 font-bold">✗</span>
+                                <span><strong>Descontrol en inventario:</strong> Pérdida de lociones e insumos sin alertas de stock mínimo para reabastecimiento.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-rose-500 font-bold">✗</span>
+                                <span><strong>Descuadres de caja:</strong> Dificultad para conciliar pagos mixtos (efectivo, Nequi y datáfono) y liquidar comisiones a profesionales.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="text-xs bg-indigo-50 text-indigo-700 font-medium p-3 rounded-xl mt-4">
+                        Objetivo: Unificar la gestión clínica, comercial y financiera en un único sistema transaccional.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: PROCESOS CLAVE DEL ERP -->
+        <section class="slide w-full h-full flex-col justify-center">
+            <div class="mb-4">
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">02. Arquitectura de Negocio</span>
+                <h2 class="text-3xl font-extrabold text-slate-950 mt-1">Procesos Clave Implementados</h2>
+                <p class="text-sm text-slate-500">Módulos integrados que componen la solución ERP para Barbería JyM</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5 flex-1 max-h-[500px]">
+                <!-- Proceso 1 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg mb-3">📅</div>
+                        <h3 class="font-bold text-slate-900 text-base mb-1">Agendamiento y Citas</h3>
+                        <p class="text-xs text-slate-500 mb-3">Control de turnos y profesionales</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Reserva digital previa o por orden de llegada. Asignación directa de barbero o estilista, cálculo de duración estimada y estados operativos en tiempo real.
+                        </p>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-700">
+                        Entidades: Citas · Clientes · Servicios
+                    </div>
+                </div>
+
+                <!-- Proceso 2 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg mb-3">💳</div>
+                        <h3 class="font-bold text-slate-900 text-base mb-1">Punto de Venta (POS)</h3>
+                        <p class="text-xs text-slate-500 mb-3">Facturación unificada en caja</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Emisión de comprobante consolidando tanto el servicio prestado como productos comprados. Soporte para pagos en efectivo, transferencia bancaria y código QR.
+                        </p>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-700">
+                        Entidades: Ventas · Pagos · Detalles
+                    </div>
+                </div>
+
+                <!-- Proceso 3 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg mb-3">📦</div>
+                        <h3 class="font-bold text-slate-900 text-base mb-1">Inventario y Perfumería</h3>
+                        <p class="text-xs text-slate-500 mb-3">Control de kárdex y existencias</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Seguimiento de stock de lociones, ceras fijadoras e insumos de consumo interno (tintes, cuchillas). Alertas automáticas de reposición bajo umbral mínimo.
+                        </p>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-700">
+                        Entidades: Products · Categories
+                    </div>
+                </div>
+
+                <!-- Proceso 4 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg mb-3">👥</div>
+                        <h3 class="font-bold text-slate-900 text-base mb-1">Clientes y Fidelización</h3>
+                        <p class="text-xs text-slate-500 mb-3">Historial y retención</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Base centralizada de clientes con historial de visitas, preferencias de corte y acumulación de puntos de fidelización por compras y servicios realizados.
+                        </p>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-700">
+                        Entidades: Clientes · Puntos
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: MODELO ENTIDAD-RELACIÓN (MER) -->
+        <section class="slide w-full h-full flex-col justify-center">
+            <div class="mb-3 flex justify-between items-end">
+                <div>
+                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">03. Base de Datos Relacional</span>
+                    <h2 class="text-3xl font-extrabold text-slate-950 mt-0.5">Modelo Entidad-Relación — Núcleo Transaccional</h2>
+                    <p class="text-sm text-slate-500">Entidades activas evaluadas en el Primer Corte con claves foráneas e integridad referencial</p>
+                </div>
+                <a href="./docs/diagrama_mer.png" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-200/70 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition">
+                    <span>🔍</span> Ver MER Global (21 tablas)
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 flex-1 max-h-[500px]">
+                <!-- Tabla Clientes -->
+                <div class="bg-white p-5 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                            <span class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> clientes
+                            </span>
+                            <span class="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded-full">1 : N</span>
+                        </div>
+                        <ul class="space-y-1.5 text-xs font-mono text-slate-600">
+                            <li class="flex justify-between text-slate-900 font-semibold bg-slate-50 px-2 py-1 rounded"><span>🔑 id</span><span class="text-slate-400">BIGINT PK</span></li>
+                            <li class="px-2 py-0.5 flex justify-between"><span>nombre</span><span class="text-slate-400">VARCHAR</span></li>
+                            <li class="px-2 py-0.5 flex justify-between"><span>telefono</span><span class="text-slate-400">VARCHAR</span></li>
+                            <li class="px-2 py-0.5 flex justify-between"><span>email</span><span class="text-slate-400">VARCHAR</span></li>
+                            <li class="px-2 py-0.5 flex justify-between"><span>direccion</span><span class="text-slate-400">VARCHAR</span></li>
+                            <li class="px-2 py-0.5 flex justify-between text-emerald-600 font-medium"><span>puntos_fidelidad</span><span class="text-slate-400">INT</span></li>
+                        </ul>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                        12 clientes reales de Cartago poblados con Seeder
+                    </div>
+                </div>
+
+                <!-- Tabla Citas (Centro Transaccional) -->
+                <div class="bg-white p-5 rounded-3xl shadow-sm flex flex-col justify-between border-2 border-indigo-100">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-indigo-100 mb-3">
+                            <span class="font-bold text-indigo-950 text-sm flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span> citas <span class="text-xs font-normal text-slate-400">(Núcleo)</span>
+                            </span>
+                            <span class="text-[10px] bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded-full">TRANSACCIÓN</span>
+                        </div>
+                        <ul class="space-y-1.5 text-xs font-mono text-slate-600">
+                            <li class="flex justify-between text-slate-900 font-semibold bg-indigo-50/50 px-2 py-1 rounded"><span>🔑 id</span><span class="text-slate-400">BIGINT PK</span></li>
+                            <li class="px-2 py-0.5 flex justify-between text-blue-700 font-semibold"><span>🔗 cliente_id</span><span class="text-slate-400">FK ➔ clientes</span></li>
+                            <li class="px-2 py-0.5 flex justify-between text-purple-700 font-semibold"><span>🔗 servicio_id</span><span class="text-slate-400">FK ➔ servicios</span></li>
+                            <li class="px-2 py-0.5 flex justify-between"><span>estilista</span><span class="text-slate-400">VARCHAR</span></li>
+                            <li class="px-2 py-0.5 flex justify-between"><span>fecha_hora</span><span class="text-slate-400">DATETIME</span></li>
+                            <li class="px-2 py-0.5 flex justify-between font-semibold text-slate-900"><span>total</span><span class="text-slate-400">DECIMAL COP</span></li>
+                            <li class="px-2 py-0.5 flex justify-between text-amber-700 font-medium"><span>estado</span><span class="text-slate-400">VARCHAR</span></li>
+                            <li class="px-2 py-0.5 flex justify-between"><span>metodo_pago</span><span class="text-slate-400">QR / Efectivo</span></li>
+                        </ul>
+                    </div>
+                    <div class="pt-3 border-t border-indigo-50 text-[11px] text-indigo-700 font-medium">
+                        Optimizado con with(['cliente', 'servicio'])
+                    </div>
+                </div>
+
+                <!-- Tabla Servicios y Catálogo Retail -->
+                <div class="bg-white p-5 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <!-- Subtabla servicios -->
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
+                            <span class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> servicios
+                            </span>
+                            <span class="text-[10px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded-full">1 : N</span>
+                        </div>
+                        <ul class="space-y-1 text-xs font-mono text-slate-600 mb-4">
+                            <li class="flex justify-between font-semibold bg-slate-50 px-2 py-0.5 rounded"><span>🔑 id</span><span class="text-slate-400">PK</span></li>
+                            <li class="px-2 py-0.5 flex justify-between"><span>nombre</span><span class="text-slate-400">VARCHAR</span></li>
+                            <li class="px-2 py-0.5 flex justify-between"><span>categoria</span><span class="text-slate-400">Barbería / Spa</span></li>
+                            <li class="px-2 py-0.5 flex justify-between text-slate-900 font-medium"><span>precio</span><span class="text-slate-400">COP</span></li>
+                            <li class="px-2 py-0.5 flex justify-between"><span>duracion</span><span class="text-slate-400">MINUTOS</span></li>
+                        </ul>
+
+                        <!-- Subtabla productos y categorías (Retail) -->
+                        <div class="p-2.5 bg-slate-50 rounded-xl text-xs">
+                            <div class="font-semibold text-slate-800 text-[11px] mb-1 flex items-center justify-between">
+                                <span>📦 categories (1:N) products</span>
+                                <span class="text-emerald-700 bg-emerald-100/70 px-1.5 py-0.2 rounded text-[10px]">Perfumería</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 font-sans">
+                                Catálogo de mostrador para ceras mate, minoxidil y fragancias.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+                        10 servicios clasificados + catálogo de mostrador
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: ARQUITECTURA TÉCNICA Y ENTORNO -->
+        <section class="slide w-full h-full flex-col justify-center">
+            <div class="mb-4">
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">04. Infraestructura y Entorno</span>
+                <h2 class="text-3xl font-extrabold text-slate-950 mt-1">Stack Tecnológico y Docker</h2>
+                <p class="text-sm text-slate-500">Ambiente de desarrollo reproducible con aislamiento de servicios</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 max-h-[500px]">
+                <!-- Stack Tecnológico -->
+                <div class="bg-white p-7 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg mb-4">⚡</div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Stack de Aplicación</h3>
+                        <p class="text-xs text-slate-500 mb-4">Herramientas principales del framework</p>
+                        <ul class="space-y-2.5 text-xs text-slate-700">
+                            <li class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                <span><strong>Laravel 13:</strong> Arquitectura MVC moderna con Enfoque RAD.</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                                <span><strong>PHP 8.2+:</strong> Tipado estricto y alto rendimiento.</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                <span><strong>MariaDB / MySQL:</strong> Motor relacional transaccional InnoDB.</span>
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
+                                <span><strong>Tailwind CSS:</strong> Vistas responsivas y limpias.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="text-[11px] bg-slate-50 text-slate-500 p-3 rounded-xl mt-4">
+                        Control de versiones: Git · Rama de trabajo: <code>main</code>
+                    </div>
+                </div>
+
+                <!-- Docker y Puertos Aislados -->
+                <div class="bg-white p-7 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg mb-4">🐳</div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Contenedores Docker</h3>
+                        <p class="text-xs text-slate-500 mb-4">Puertos protegidos para evitar colisiones</p>
+                        <div class="space-y-2.5 text-xs">
+                            <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center">
+                                <div>
+                                    <strong class="text-slate-900 block font-semibold">Servidor Web PHP</strong>
+                                    <span class="text-slate-400 text-[11px]">Apache / PHP 8.2</span>
+                                </div>
+                                <span class="font-mono bg-white px-2 py-1 rounded text-slate-700 border border-slate-200">8085</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center">
+                                <div>
+                                    <strong class="text-slate-900 block font-semibold">Base de Datos MariaDB</strong>
+                                    <span class="text-slate-400 text-[11px]">sge_mariadb</span>
+                                </div>
+                                <span class="font-mono bg-white px-2 py-1 rounded text-slate-700 border border-slate-200">3307</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center">
+                                <div>
+                                    <strong class="text-slate-900 block font-semibold">phpMyAdmin</strong>
+                                    <span class="text-slate-400 text-[11px]">Gestión visual de BD</span>
+                                </div>
+                                <span class="font-mono bg-white px-2 py-1 rounded text-slate-700 border border-slate-200">8086</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mt-2">
+                        Configurado en: <code>docker-compose.yml</code>
+                    </div>
+                </div>
+
+                <!-- Repositorio Estructurado -->
+                <div class="bg-white p-7 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg mb-4">📁</div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Estructura del Proyecto</h3>
+                        <p class="text-xs text-slate-500 mb-4">Organización bajo la guía oficial</p>
+                        <div class="space-y-2 text-xs text-slate-700 font-mono">
+                            <p class="bg-slate-50 p-2 rounded-lg"><strong>docs/</strong> ➔ analisis.md, diccionario.md, mer.png</p>
+                            <p class="bg-slate-50 p-2 rounded-lg"><strong>src/</strong> ➔ Código fuente en Laravel 13</p>
+                            <p class="bg-slate-50 p-2 rounded-lg"><strong>Clase2/</strong> ➔ Evidencias Composer y Laravel</p>
+                            <p class="bg-slate-50 p-2 rounded-lg"><strong>Clase4/</strong> ➔ Migraciones, Modelos, Tinker</p>
+                            <p class="bg-slate-50 p-2 rounded-lg"><strong>Clase5/</strong> ➔ Controladores y Vistas Blade</p>
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-emerald-600 font-semibold mt-2">
+                        100% verificado y publicado en GitHub
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: ARQUITECTURA ORM Y RENDIMIENTO (100% CONCEPTUAL - SIN CÓDIGO) -->
+        <section class="slide w-full h-full flex-col justify-center">
+            <div class="mb-4">
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">05. Lógica del Modelo y Rendimiento</span>
+                <h2 class="text-3xl font-extrabold text-slate-950 mt-1">Eloquent ORM y Eficiencia en Consultas</h2>
+                <p class="text-sm text-slate-500">Patrones de diseño aplicados para garantizar velocidad y consistencia transaccional</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 max-h-[500px]">
+                <!-- Card 1: Eager Loading (Anti N+1) Conceptual -->
+                <div class="bg-white p-7 rounded-3xl shadow-sm flex flex-col justify-between border border-slate-100">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-3">
+                            <span>⚡ Rendimiento y Base de Datos</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Precarga de Relaciones (Eager Loading)</h3>
+                        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                            Resuelve de forma nativa el problema clásico de saturación en bases de datos relacionales:
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <div class="p-3.5 bg-rose-50/70 border border-rose-100 rounded-2xl">
+                                <div class="flex items-center gap-2 text-rose-800 font-semibold text-xs mb-1">
+                                    <span>⚠️</span> Sin Optimización (Problema N+1)
+                                </div>
+                                <p class="text-[11px] text-slate-600 leading-relaxed">
+                                    Para 10 citas en pantalla, el sistema lanzaría <strong>21 consultas SQL separadas</strong> (1 para citas + 10 para clientes + 10 para servicios), ralentizando el servidor.
+                                </p>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-50/70 border border-emerald-100 rounded-2xl">
+                                <div class="flex items-center gap-2 text-emerald-800 font-semibold text-xs mb-1">
+                                    <span>✅</span> Solución Implementada en el ERP
+                                </div>
+                                <p class="text-[11px] text-slate-600 leading-relaxed">
+                                    El ORM agrupa todas las solicitudes relacionadas y las resuelve en <strong>solo 3 consultas optimizadas</strong>, manteniendo la agilidad incluso con miles de registros.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500 pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <span>Impacto: Carga fluida del panel de barbería</span>
+                        <span class="text-emerald-600 font-semibold font-mono text-[11px]">-85% consultas</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Scopes Locales Reutilizables Conceptual -->
+                <div class="bg-white p-7 rounded-3xl shadow-sm flex flex-col justify-between border border-slate-100">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold mb-3">
+                            <span>🎯 Reglas de Negocio en el Modelo</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Filtros Automáticos de Operación (Scopes)</h3>
+                        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                            Lógica de filtrado encapsulada directamente en el modelo de datos para alimentar reportes y tableros en tiempo real:
+                        </p>
+                        
+                        <div class="space-y-2.5">
+                            <div class="p-3 bg-slate-50 rounded-2xl flex items-start gap-3">
+                                <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">📅</div>
+                                <div>
+                                    <h4 class="font-semibold text-slate-900 text-xs">Agenda de la Jornada</h4>
+                                    <p class="text-[11px] text-slate-500 leading-tight">Filtra citas correspondientes a la fecha actual para organizar la atención de los barberos.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 rounded-2xl flex items-start gap-3">
+                                <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold shrink-0">⏳</div>
+                                <div>
+                                    <h4 class="font-semibold text-slate-900 text-xs">Control de Sala de Espera</h4>
+                                    <p class="text-[11px] text-slate-500 leading-tight">Detecta turnos en cola pendientes de atención o pago para la administración de mostrador.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 rounded-2xl flex items-start gap-3">
+                                <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">💵</div>
+                                <div>
+                                    <h4 class="font-semibold text-slate-900 text-xs">Liquidación y Cobro</h4>
+                                    <p class="text-[11px] text-slate-500 leading-tight">Consolida citas finalizadas para calcular al instante las métricas financieras de caja.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500 pt-3 border-t border-slate-100">
+                        Beneficio: Consultas reutilizables sin duplicar lógica en controladores.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: DEMOSTRACIÓN FUNCIONAL EN VIVO -->
+        <section class="slide w-full h-full flex-col justify-center">
+            <div class="mb-4">
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">06. Módulo Transaccional</span>
+                <h2 class="text-3xl font-extrabold text-slate-950 mt-1">Vistas Funcionales Blade (CRUD)</h2>
+                <p class="text-sm text-slate-500">Demostración interactiva en navegador del módulo de agendamiento y caja</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 max-h-[500px]">
+                <!-- index.blade.php -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center font-mono font-bold text-xs mb-3">01</div>
+                        <h3 class="font-bold text-slate-900 text-sm mb-1">Listado y Métricas</h3>
+                        <span class="text-[11px] font-mono text-slate-400 block mb-3">index.blade.php</span>
+                        <ul class="space-y-2 text-xs text-slate-600">
+                            <li>• 4 tarjetas de métricas calculadas en tiempo real (Citas totales, Hoy, Pendientes, Ingresos en COP).</li>
+                            <li>• Tabla paginada con badges de estado (Pendiente, Confirmada, Completada).</li>
+                            <li>• Acciones directas: ver, editar y eliminar.</li>
+                        </ul>
+                    </div>
+                    <div class="text-[11px] bg-slate-50 text-slate-600 p-2.5 rounded-xl font-medium">
+                        URL: <code>/citas</code>
+                    </div>
+                </div>
+
+                <!-- create / edit.blade.php -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center font-mono font-bold text-xs mb-3">02</div>
+                        <h3 class="font-bold text-slate-900 text-sm mb-1">Formularios Validados</h3>
+                        <span class="text-[11px] font-mono text-slate-400 block mb-3">create & edit.blade.php</span>
+                        <ul class="space-y-2 text-xs text-slate-600">
+                            <li>• Selector dinámico de clientes registrados.</li>
+                            <li>• Catálogo categorizado de servicios con precio y duración precargados.</li>
+                            <li>• Validación de campos requeridos y mensajes de alerta de errores en pantalla.</li>
+                        </ul>
+                    </div>
+                    <div class="text-[11px] bg-slate-50 text-slate-600 p-2.5 rounded-xl font-medium">
+                        URL: <code>/citas/create</code>
+                    </div>
+                </div>
+
+                <!-- show.blade.php -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center font-mono font-bold text-xs mb-3">03</div>
+                        <h3 class="font-bold text-slate-900 text-sm mb-1">Liquidación y Detalle de Turno</h3>
+                        <span class="text-[11px] font-mono text-slate-400 block mb-3">show.blade.php</span>
+                        <ul class="space-y-2 text-xs text-slate-600">
+                            <li>• Ficha consolidada con datos del cliente, estilista asignado y servicio contratado.</li>
+                            <li>• Control de estado de cobro en mostrador con liquidación en pesos colombianos (COP).</li>
+                            <li>• Botón de acción para completar el servicio y liquidar el turno en caja.</li>
+                        </ul>
+                    </div>
+                    <div class="text-[11px] bg-slate-50 text-slate-600 p-2.5 rounded-xl font-medium">
+                        URL: <code>/citas/{id}</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: CONCLUSIONES Y PRÓXIMOS PASOS -->
+        <section class="slide w-full h-full flex-col justify-center">
+            <div class="mb-4">
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">07. Cierre de Sustentación</span>
+                <h2 class="text-3xl font-extrabold text-slate-950 mt-1">Conclusiones y Próximo Alcance</h2>
+                <p class="text-sm text-slate-500">Balance del Primer Corte y proyección para el Segundo Corte de la asignatura</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 max-h-[500px]">
+                <!-- Logros del Primer Corte -->
+                <div class="bg-white p-7 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-lg mb-4">🏆</div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Entregable Primer Corte (100%)</h3>
+                        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                            Se cubrieron la totalidad de los criterios exigidos en la rúbrica de evaluación:
+                        </p>
+                        <ul class="space-y-2.5 text-xs text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <span class="text-emerald-600 font-bold">✓</span>
+                                <span><strong>Análisis de Negocio:</strong> Procesos clave y diagnóstico documentados en <code>docs/analisis.md</code>.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-emerald-600 font-bold">✓</span>
+                                <span><strong>Modelo de Datos:</strong> MER visual y diccionario exhaustivo de 21 tablas en <code>docs/diccionario.md</code>.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-emerald-600 font-bold">✓</span>
+                                <span><strong>Código Funcional:</strong> Migraciones, modelos con relaciones activas, seeders (+10 registros), controlador resource, Eager Loading y vistas Blade.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="text-xs bg-emerald-50 text-emerald-800 font-medium p-3 rounded-xl">
+                        Estado: Sistema funcional y verificado en entorno local y Docker.
+                    </div>
+                </div>
+
+                <!-- Próximos Pasos -->
+                <div class="bg-white p-7 rounded-3xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-lg mb-4">🚀</div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Alcance para el Segundo Corte</h3>
+                        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                            Módulos a incorporar en la siguiente fase del desarrollo:
+                        </p>
+                        <ul class="space-y-3 text-xs text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <span class="text-indigo-600 font-bold">→</span>
+                                <span><strong>Control de Inventario Kárdex:</strong> Movimientos de entrada por compras y salidas por ventas bajo método PEPS.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-indigo-600 font-bold">→</span>
+                                <span><strong>Módulo de Compras:</strong> Gestión de proveedores de perfumería mayorista y reposición de insumos.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-indigo-600 font-bold">→</span>
+                                <span><strong>Liquidación de Comisiones:</strong> Cálculo automático del porcentaje devengado por cada profesional según servicios cobrados.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-3.5 bg-slate-50 rounded-2xl flex items-center justify-between text-xs text-slate-600">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="font-semibold text-slate-900">Estado del Proyecto:</span>
+                            <span>Primer Corte 100% Completado</span>
+                        </div>
+                        <span class="font-mono text-[11px] text-slate-400">COTECNOVA 2026</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Controls Bar -->
+    <footer class="bg-white/80 backdrop-blur-md px-8 py-3 flex items-center justify-between border-t border-slate-200/60 z-10">
+        <div class="flex items-center space-x-2">
+            <span class="text-xs text-slate-400 font-medium">Usa las flechas del teclado</span>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[11px] rounded font-mono border border-slate-200">←</span>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[11px] rounded font-mono border border-slate-200">→</span>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button onclick="prevSlide()" class="px-4 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition flex items-center gap-1">
+                <span>←</span> Anterior
+            </button>
+            <button onclick="nextSlide()" class="px-5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition flex items-center gap-1 shadow-sm">
+                Siguiente <span>→</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Script de Navegación -->
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlidesNum').textContent = String(totalSlides).padStart(2, '0');
+
+        function updateSlide(index) {
+            slides.forEach((s, i) => {
+                s.classList.remove('active');
+                if (i === index) {
+                    s.classList.add('active');
+                }
+            });
+            document.getElementById('currentSlideNum').textContent = String(index + 1).padStart(2, '0');
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide(currentSlide);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                currentSlide = 0;
+                updateSlide(currentSlide);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                currentSlide = totalSlides - 1;
+                updateSlide(currentSlide);
+            }
+        });
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -75,30 +75,41 @@
             </div>
         </div>
 
-        <!-- Módulo QR Fachada de Pago (Sin Bordes, Neutro) -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm flex flex-col items-center justify-between text-center">
+        <!-- Resumen de Caja y Liquidación del Servicio -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm flex flex-col justify-between">
             <div>
                 <span class="inline-block px-3 py-1 bg-slate-100 text-slate-800 text-[11px] font-bold rounded-full uppercase tracking-wider mb-2">
-                    📱 QR de Pago
+                    💵 Liquidación en Caja
                 </span>
-                <h3 class="text-sm font-bold text-slate-900">Escaneo de Caja</h3>
-                <p class="text-[11px] text-slate-500 mt-1">El cliente escanea con la cámara del celular.</p>
-            </div>
+                <h3 class="text-base font-bold text-slate-900">Estado del Turno</h3>
+                <p class="text-xs text-slate-500 mt-1">Control de atención y registro de pago en el establecimiento.</p>
 
-            <!-- Código QR generado dinámicamente -->
-            <div class="my-4 p-3 bg-slate-50 rounded-2xl shadow-inner">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ urlencode(url('/citas/' . $cita->id)) }}" alt="QR de Pago Cita #{{ $cita->id }}" class="w-36 h-36 mx-auto rounded-lg">
-            </div>
+                <div class="mt-5 space-y-3 text-xs">
+                    <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center">
+                        <span class="text-slate-500">Estado actual:</span>
+                        @if($cita->estado === 'completada')
+                            <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-bold">✅ Atendida y Cobrada</span>
+                        @elseif($cita->estado === 'confirmada')
+                            <span class="px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full font-bold">✓ Confirmada</span>
+                        @else
+                            <span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full font-bold">⏳ En Espera</span>
+                        @endif
+                    </div>
 
-            <div class="w-full">
-                <div class="text-xs text-slate-600 mb-3 font-medium">
-                    Estado: 
-                    @if($cita->estado === 'completada')
-                        <span class="font-bold text-emerald-700">✅ Pagado & Finalizado</span>
-                    @else
-                        <span class="font-bold text-slate-900">⏳ En Espera</span>
-                    @endif
+                    <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center">
+                        <span class="text-slate-500">Método de pago:</span>
+                        <span class="font-bold text-slate-800 uppercase">{{ $cita->metodo_pago === 'qr_fachada' ? 'Nequi / Transferencia' : ucfirst($cita->metodo_pago) }}</span>
+                    </div>
+
+                    <div class="p-3 bg-slate-50 rounded-xl flex justify-between items-center">
+                        <span class="text-slate-500">Total liquidado:</span>
+                        <span class="text-sm font-black text-slate-900">${{ number_format($cita->total, 0, ',', '.') }} COP</span>
+                    </div>
                 </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 mt-4">
+                @if($cita->estado !== 'completada')
                 <form action="{{ route('citas.update', $cita) }}" method="POST">
                     @csrf
                     @method('PUT')
@@ -107,11 +118,16 @@
                     <input type="hidden" name="estilista" value="{{ $cita->estilista }}">
                     <input type="hidden" name="fecha_hora" value="{{ $cita->fecha_hora->format('Y-m-d\TH:i') }}">
                     <input type="hidden" name="estado" value="completada">
-                    <input type="hidden" name="metodo_pago" value="qr_fachada">
+                    <input type="hidden" name="metodo_pago" value="{{ $cita->metodo_pago === 'pendiente' ? 'efectivo' : $cita->metodo_pago }}">
                     <button type="submit" class="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow transition">
-                        ✓ Confirmar Pago (Simulación)
+                        ✓ Marcar como Atendida y Cobrada
                     </button>
                 </form>
+                @else
+                <div class="text-center py-2 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-xl">
+                    ✓ Servicio facturado y cerrado en caja
+                </div>
+                @endif
             </div>
         </div>
 
