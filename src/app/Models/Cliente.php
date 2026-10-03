@@ -2,30 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-
-class Cliente extends Model
+/**
+ * Clase de compatibilidad / Alias para Tercero (Categoría Cliente).
+ * En el modelo de ERP, los clientes son Terceros con es_cliente = true.
+ */
+class Cliente extends Tercero
 {
-    use HasFactory;
+    protected $table = 'terceros';
 
-    protected $table = 'clientes';
-
-    protected $fillable = [
-        'nombre',
-        'telefono',
-        'email',
-        'direccion',
-        'puntos_fidelizacion',
-        'notas',
-    ];
-
-    /**
-     * Relación: Un cliente tiene muchas citas
-     */
-    public function citas(): HasMany
+    protected static function booted()
     {
-        return $this->hasMany(Cita::class);
+        static::addGlobalScope('solo_clientes', function ($builder) {
+            $builder->where('es_cliente', true);
+        });
     }
 }

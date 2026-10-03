@@ -7,28 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Servicio extends Model
+class Sucursal extends Model
 {
     use HasFactory;
 
-    protected $table = 'servicios';
+    protected $table = 'sucursales';
 
     protected $fillable = [
         'empresa_id',
-        'categoria_id',
-        'codigo',
         'nombre',
-        'descripcion',
-        'precio_venta',
-        'duracion_minutos',
-        'comision_base_porcentaje',
+        'codigo',
+        'telefono',
+        'direccion',
         'activo',
     ];
 
     protected $casts = [
-        'precio_venta' => 'decimal:2',
-        'duracion_minutos' => 'integer',
-        'comision_base_porcentaje' => 'decimal:2',
         'activo' => 'boolean',
     ];
 
@@ -37,13 +31,13 @@ class Servicio extends Model
         return $this->belongsTo(Empresa::class);
     }
 
-    public function categoria(): BelongsTo
+    public function cajas(): HasMany
     {
-        return $this->belongsTo(Categoria::class, 'categoria_id');
+        return $this->hasMany(Caja::class);
     }
 
-    public function citas(): HasMany
+    public function ventas(): HasMany
     {
-        return $this->hasMany(Cita::class);
+        return $this->hasMany(Venta::class);
     }
 }

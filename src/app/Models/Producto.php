@@ -7,28 +7,32 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Servicio extends Model
+class Producto extends Model
 {
     use HasFactory;
 
-    protected $table = 'servicios';
+    protected $table = 'productos';
 
     protected $fillable = [
         'empresa_id',
         'categoria_id',
-        'codigo',
+        'codigo_barras',
         'nombre',
         'descripcion',
+        'precio_costo',
         'precio_venta',
-        'duracion_minutos',
-        'comision_base_porcentaje',
+        'stock_actual',
+        'stock_minimo',
+        'maneja_inventario',
         'activo',
     ];
 
     protected $casts = [
+        'precio_costo' => 'decimal:2',
         'precio_venta' => 'decimal:2',
-        'duracion_minutos' => 'integer',
-        'comision_base_porcentaje' => 'decimal:2',
+        'stock_actual' => 'integer',
+        'stock_minimo' => 'integer',
+        'maneja_inventario' => 'boolean',
         'activo' => 'boolean',
     ];
 
@@ -42,8 +46,14 @@ class Servicio extends Model
         return $this->belongsTo(Categoria::class, 'categoria_id');
     }
 
-    public function citas(): HasMany
+    public function movimientosInventario(): HasMany
     {
-        return $this->hasMany(Cita::class);
+        return $this->hasMany(InventarioMovimiento::class, 'producto_id');
+    }
+
+    public function getMargenGananciaAttribute(): float
+    {
+        if ($this->precio_costo <= 0) return 100.0;
+        return round((($this->precio_venta - $this->precio_costo) / $this->precio_costo) * 100, 2);
     }
 }

@@ -7,28 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Servicio extends Model
+class Categoria extends Model
 {
     use HasFactory;
 
-    protected $table = 'servicios';
+    protected $table = 'categorias';
 
     protected $fillable = [
         'empresa_id',
-        'categoria_id',
-        'codigo',
         'nombre',
+        'tipo',
         'descripcion',
-        'precio_venta',
-        'duracion_minutos',
-        'comision_base_porcentaje',
         'activo',
     ];
 
     protected $casts = [
-        'precio_venta' => 'decimal:2',
-        'duracion_minutos' => 'integer',
-        'comision_base_porcentaje' => 'decimal:2',
         'activo' => 'boolean',
     ];
 
@@ -37,13 +30,13 @@ class Servicio extends Model
         return $this->belongsTo(Empresa::class);
     }
 
-    public function categoria(): BelongsTo
+    public function productos(): HasMany
     {
-        return $this->belongsTo(Categoria::class, 'categoria_id');
+        return $this->hasMany(Producto::class, 'categoria_id');
     }
 
-    public function citas(): HasMany
+    public function servicios(): HasMany
     {
-        return $this->hasMany(Cita::class);
+        return $this->hasMany(Servicio::class, 'categoria_id');
     }
 }

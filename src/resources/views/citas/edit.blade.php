@@ -1,138 +1,138 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Cita #' . $cita->id . ' - JyM ERP')
+@section('title', 'Editar Turno #' . $cita->id . ' - ERP')
 
 @section('content')
 <div class="max-w-3xl mx-auto space-y-6">
 
+    <!-- Encabezado -->
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-900">Editar Cita #{{ $cita->id }}</h1>
-            <p class="text-sm text-slate-500 mt-1">Actualiza los datos del turno, estado o método de pago.</p>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Editar Turno de Servicio #{{ $cita->id }}</h1>
+            <p class="text-sm text-slate-500 mt-0.5">Modificación de asignación de Terceros, procedimiento y pasarela de pago.</p>
         </div>
-        <a href="{{ route('citas.index') }}" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl shadow-sm transition">
+        <a href="{{ route('citas.index') }}" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-xl transition">
             ← Volver al Listado
         </a>
     </div>
 
-    <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm">
-        <form action="{{ route('citas.update', $cita) }}" method="POST" class="space-y-6">
-            @csrf
-            @method('PUT')
+    <!-- Formulario en Tarjeta Blanca -->
+    <form action="{{ route('citas.update', $cita) }}" method="POST" class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm space-y-5">
+        @csrf
+        @method('PUT')
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <!-- Selección de Cliente (Tercero) -->
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                👤 Cliente (Tercero Registrado) *
+            </label>
+            <select name="tercero_cliente_id" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm bg-slate-50 font-medium">
+                @foreach($clientes as $cliente)
+                    <option value="{{ $cliente->id }}" {{ (old('tercero_cliente_id', $cita->tercero_cliente_id) == $cliente->id) ? 'selected' : '' }}>
+                        {{ $cliente->nombre_completo }} — CC: {{ $cliente->numero_documento }} (⭐ {{ $cliente->puntos_fidelidad }} pts)
+                    </option>
+                @endforeach
+            </select>
+            @error('tercero_cliente_id')
+                <p class="text-xs text-rose-600 mt-1 font-semibold">{{ $message }}</p>
+            @enderror
+        </div>
 
-                <!-- Cliente -->
-                <div>
-                    <label for="cliente_id" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        👤 Cliente <span class="text-rose-500">*</span>
-                    </label>
-                    <select name="cliente_id" id="cliente_id" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-slate-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 transition">
-                        @foreach($clientes as $cliente)
-                            <option value="{{ $cliente->id }}" {{ (old('cliente_id', $cita->cliente_id) == $cliente->id) ? 'selected' : '' }}>
-                                {{ $cliente->nombre }} (📞 {{ $cliente->telefono }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('cliente_id')
-                        <p class="text-xs text-rose-600 mt-1.5 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
+        <!-- Selección de Especialista (Tercero Empleado) -->
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                ✂️ Especialista / Profesional Responsable (Empleado) *
+            </label>
+            <select name="tercero_especialista_id" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm bg-slate-50 font-medium">
+                @foreach($especialistas as $esp)
+                    <option value="{{ $esp->id }}" {{ (old('tercero_especialista_id', $cita->tercero_especialista_id) == $esp->id) ? 'selected' : '' }}>
+                        {{ $esp->nombre_completo }} — {{ $esp->cargo ?? 'Operativo' }} (Comisión: {{ $esp->porcentaje_comision }}%)
+                    </option>
+                @endforeach
+            </select>
+            @error('tercero_especialista_id')
+                <p class="text-xs text-rose-600 mt-1 font-semibold">{{ $message }}</p>
+            @enderror
+        </div>
 
-                <!-- Servicio -->
-                <div>
-                    <label for="servicio_id" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        ✂️ Servicio <span class="text-rose-500">*</span>
-                    </label>
-                    <select name="servicio_id" id="servicio_id" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-slate-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 transition">
-                        @foreach($servicios as $servicio)
-                            <option value="{{ $servicio->id }}" {{ (old('servicio_id', $cita->servicio_id) == $servicio->id) ? 'selected' : '' }}>
-                                {{ $servicio->nombre }} [{{ $servicio->categoria }}] - ${{ number_format($servicio->precio, 0, ',', '.') }} COP
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('servicio_id')
-                        <p class="text-xs text-rose-600 mt-1.5 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
+        <!-- Selección de Servicio -->
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                💈 Servicio del Catálogo Oficial *
+            </label>
+            <select name="servicio_id" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm bg-slate-50 font-medium">
+                @foreach($servicios as $servicio)
+                    <option value="{{ $servicio->id }}" {{ (old('servicio_id', $cita->servicio_id) == $servicio->id) ? 'selected' : '' }}>
+                        {{ $servicio->nombre }} — ${{ number_format($servicio->precio_venta, 0, ',', '.') }} COP ({{ $servicio->duracion_minutos }} min)
+                    </option>
+                @endforeach
+            </select>
+            @error('servicio_id')
+                <p class="text-xs text-rose-600 mt-1 font-semibold">{{ $message }}</p>
+            @enderror
+        </div>
 
-                <!-- Estilista -->
-                <div>
-                    <label for="estilista" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        💈 Barbero / Estilista <span class="text-rose-500">*</span>
-                    </label>
-                    <select name="estilista" id="estilista" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-slate-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 transition">
-                        @foreach($estilistas as $estilista)
-                            <option value="{{ $estilista }}" {{ (old('estilista', $cita->estilista) == $estilista) ? 'selected' : '' }}>
-                                {{ $estilista }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('estilista')
-                        <p class="text-xs text-rose-600 mt-1.5 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Fecha y Hora -->
-                <div>
-                    <label for="fecha_hora" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        📅 Fecha y Hora <span class="text-rose-500">*</span>
-                    </label>
-                    <input type="datetime-local" name="fecha_hora" id="fecha_hora" value="{{ old('fecha_hora', $cita->fecha_hora->format('Y-m-d\TH:i')) }}" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-slate-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 transition">
-                    @error('fecha_hora')
-                        <p class="text-xs text-rose-600 mt-1.5 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Estado -->
-                <div>
-                    <label for="estado" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        📊 Estado del Turno <span class="text-rose-500">*</span>
-                    </label>
-                    <select name="estado" id="estado" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-slate-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 transition">
-                        <option value="pendiente" {{ old('estado', $cita->estado) == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                        <option value="confirmada" {{ old('estado', $cita->estado) == 'confirmada' ? 'selected' : '' }}>Confirmada</option>
-                        <option value="en_atencion" {{ old('estado', $cita->estado) == 'en_atencion' ? 'selected' : '' }}>En Atención</option>
-                        <option value="completada" {{ old('estado', $cita->estado) == 'completada' ? 'selected' : '' }}>Completada</option>
-                        <option value="cancelada" {{ old('estado', $cita->estado) == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
-                    </select>
-                </div>
-
-                <!-- Método de Pago -->
-                <div>
-                    <label for="metodo_pago" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                        💳 Método de Pago <span class="text-rose-500">*</span>
-                    </label>
-                    <select name="metodo_pago" id="metodo_pago" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-slate-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 transition">
-                        <option value="efectivo" {{ old('metodo_pago', $cita->metodo_pago) == 'efectivo' ? 'selected' : '' }}>Efectivo en Caja</option>
-                        <option value="qr_fachada" {{ old('metodo_pago', $cita->metodo_pago) == 'qr_fachada' ? 'selected' : '' }}>📱 QR de Pago (Escaneo)</option>
-                        <option value="transferencia" {{ old('metodo_pago', $cita->metodo_pago) == 'transferencia' ? 'selected' : '' }}>Transferencia Bancaria / Nequi / Daviplata</option>
-                        <option value="pendiente" {{ old('metodo_pago', $cita->metodo_pago) == 'pendiente' ? 'selected' : '' }}>Pendiente por Pagar</option>
-                    </select>
-                </div>
-
-            </div>
-
-            <!-- Notas -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Fecha y Hora -->
             <div>
-                <label for="notas" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    📝 Observaciones / Notas
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    📅 Fecha y Hora *
                 </label>
-                <textarea name="notas" id="notas" rows="3" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-slate-900 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 transition">{{ old('notas', $cita->notas) }}</textarea>
+                <input type="datetime-local" name="fecha_hora" required value="{{ old('fecha_hora', $cita->fecha_hora ? $cita->fecha_hora->format('Y-m-d\TH:i') : '') }}" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm bg-slate-50 font-medium">
+                @error('fecha_hora')
+                    <p class="text-xs text-rose-600 mt-1 font-semibold">{{ $message }}</p>
+                @enderror
             </div>
 
-            <!-- Botones de Acción -->
-            <div class="flex items-center justify-end gap-3 pt-4">
-                <a href="{{ route('citas.index') }}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition">
-                    Cancelar
-                </a>
-                <button type="submit" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl shadow-md transition">
-                    🔄 Actualizar Cita
-                </button>
+            <!-- Estado -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    📊 Estado del Turno *
+                </label>
+                <select name="estado" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm bg-slate-50 font-medium">
+                    <option value="PROGRAMADA" {{ old('estado', $cita->estado) == 'PROGRAMADA' ? 'selected' : '' }}>⏳ Programada</option>
+                    <option value="EN_ATENCION" {{ old('estado', $cita->estado) == 'EN_ATENCION' ? 'selected' : '' }}>✂️ En Atención</option>
+                    <option value="COMPLETADA" {{ old('estado', $cita->estado) == 'COMPLETADA' ? 'selected' : '' }}>✅ Completada & Cobrada</option>
+                    <option value="CANCELADA" {{ old('estado', $cita->estado) == 'CANCELADA' ? 'selected' : '' }}>❌ Cancelada</option>
+                </select>
             </div>
 
-        </form>
-    </div>
+            <!-- Pasarela de Pago -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    💳 Pasarela de Pago *
+                </label>
+                @php
+                    $pasarelaActual = $cita->transaccionPago->pasarela ?? 'EFECTIVO';
+                @endphp
+                <select name="pasarela" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm bg-slate-50 font-medium">
+                    <option value="EFECTIVO" {{ old('pasarela', $pasarelaActual) == 'EFECTIVO' ? 'selected' : '' }}>💵 Efectivo en Caja</option>
+                    <option value="NEQUI" {{ old('pasarela', $pasarelaActual) == 'NEQUI' ? 'selected' : '' }}>📱 Nequi Dinámico</option>
+                    <option value="WOMPI" {{ old('pasarela', $pasarelaActual) == 'WOMPI' ? 'selected' : '' }}>💳 WOMPI (PSE / Tarjeta)</option>
+                    <option value="TRANSFERENCIA" {{ old('pasarela', $pasarelaActual) == 'TRANSFERENCIA' ? 'selected' : '' }}>🏦 Transferencia</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Notas / Observaciones -->
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                📝 Notas de Atención / Requerimientos Técnicos
+            </label>
+            <textarea name="notas" rows="3" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm bg-slate-50 font-medium" placeholder="Detalles de diseño, corte, productos a utilizar...">{{ old('notas', $cita->notas) }}</textarea>
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <a href="{{ route('citas.index') }}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition">
+                Cancelar
+            </a>
+            <button type="submit" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl shadow-md transition">
+                🔄 Guardar Cambios
+            </button>
+        </div>
+
+    </form>
 
 </div>
 @endsection

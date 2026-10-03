@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Builder;
 
 class Cita extends Model
 {
@@ -13,13 +15,15 @@ class Cita extends Model
     protected $table = 'citas';
 
     protected $fillable = [
-        'cliente_id',
+        'empresa_id',
+        'sucursal_id',
+        'tercero_cliente_id',
+        'tercero_especialista_id',
         'servicio_id',
-        'estilista',
+        'venta_id',
         'fecha_hora',
-        'estado',
         'total',
-        'metodo_pago',
+        'estado',
         'notas',
     ];
 
@@ -28,43 +32,60 @@ class Cita extends Model
         'total' => 'decimal:2',
     ];
 
-    /**
-     * Relación: La cita pertenece a un cliente
-     */
+    // Relaciones
+    public function empresa(): BelongsTo
+    {
+        return $this->belongsTo(Empresa::class);
+    }
+
+    public function sucursal(): BelongsTo
+    {
+        return $this->belongsTo(Sucursal::class);
+    }
+
     public function cliente(): BelongsTo
     {
-        return $this->belongsTo(Cliente::class, 'cliente_id');
+        return $this->belongsTo(Tercero::class, 'tercero_cliente_id');
     }
 
-    /**
-     * Relación: La cita pertenece a un servicio
-     */
+    public function especialista(): BelongsTo
+    {
+        return $this->belongsTo(Tercero::class, 'tercero_especialista_id');
+    }
+
     public function servicio(): BelongsTo
     {
-        return $this->belongsTo(Servicio::class, 'servicio_id');
+        return $this->belongsTo(Servicio::class);
     }
 
-    /**
-     * Scope local: Filtrar citas programadas para hoy
-     */
-    public function scopeHoy($query)
+    public function venta(): BelongsTo
+    {
+        return $this->belongsTo(Venta::class);
+    }
+
+    public function transaccionPago(): HasOne
+    {
+        return $this->hasOne(TransaccionPago::class, 'cita_id');
+    }
+
+    // Scopes de Negocio Reutilizables
+    public function scopeHoy(Builder $query): Builder
     {
         return $query->whereDate('fecha_hora', today());
     }
 
-    /**
-     * Scope local: Filtrar citas en espera o confirmadas
-     */
-    public function scopePendientes($query)
+    public function scopeProgramadas(Builder $query): Builder
     {
-        return $query->whereIn('estado', ['pendiente', 'confirmada']);
+        return $query->where('estado', 'PROGRAMADA');
     }
 
-    /**
-     * Scope local: Filtrar citas completadas y facturadas
-     */
-    public function scopeCompletadas($query)
+    public function scopeEnAtencion(Builder $query): Builder
     {
-        return $query->where('estado', 'completada');
+        return $query->where('estado', 'EN_ATENCION');
+    }
+
+    public function scopeCompletadas(Builder $query): Builder
+    {
+        return $query->where('estado', 'COMPLETADA');
     }
 }
