@@ -3,24 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
+
+    protected $table = 'products';
+
     protected $fillable = [
-        'name',
-        'description',
-        'price',
-        'stock',
-        'category_id',
-        'active'
+        'name', 'description', 'price', 'stock', 'category_id', 'active',
     ];
 
-    /**
-     * Relación 1:N inversa: Product pertenece a Category
-     */
-    public function category(): BelongsTo
+    protected function casts(): array
     {
-        return $this->belongsTo(Category::class);
+        return [
+            'price' => 'decimal:2',
+            'stock' => 'integer',
+            'active' => 'boolean',
+        ];
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class)->withTrashed();
     }
 }
