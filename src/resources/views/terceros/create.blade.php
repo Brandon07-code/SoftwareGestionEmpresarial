@@ -47,8 +47,8 @@
                     </div>
                 </label>
 
-                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-slate-200 cursor-pointer hover:border-amber-500 transition">
-                    <input type="checkbox" name="es_proveedor" value="1" {{ old('es_proveedor') ? 'checked' : '' }} class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500">
+                <label class="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-slate-200 cursor-pointer hover:border-cyan-500 transition">
+                    <input type="checkbox" name="es_proveedor" value="1" {{ old('es_proveedor') ? 'checked' : '' }} class="w-4 h-4 rounded text-cyan-600 focus:ring-cyan-500">
                     <div>
                         <span class="block text-xs font-bold text-slate-900">📦 Proveedor</span>
                         <span class="block text-[10px] text-slate-400">Suministro de insumos</span>
