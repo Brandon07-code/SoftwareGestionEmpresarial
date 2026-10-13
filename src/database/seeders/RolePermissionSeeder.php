@@ -35,6 +35,7 @@ class RolePermissionSeeder extends Seeder
             'ver-productos',
             'ver-clientes',
             'crear-clientes',
+            'editar-clientes',
             'ver-ventas',
             'crear-ventas',
         ]);

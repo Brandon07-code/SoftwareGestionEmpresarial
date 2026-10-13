@@ -35,6 +35,15 @@ Route::middleware('auth')->group(function () {
         ->name('categories.restore');
     Route::resource('categories', CategoryController::class)->except('show');
 
+    // Clientes
+    Route::patch('clients/{client}/restore', [\App\Http\Controllers\ClientController::class, 'restore'])
+        ->withTrashed()
+        ->name('clients.restore');
+    Route::resource('clients', \App\Http\Controllers\ClientController::class)->except('show');
+
+    // Ventas
+    Route::resource('sales', \App\Http\Controllers\SaleController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
+
     // Rutas operativas del ERP
     Route::resource('citas', CitaController::class);
     Route::resource('terceros', TerceroController::class);

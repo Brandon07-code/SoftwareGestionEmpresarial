@@ -112,6 +112,38 @@
                 </div>
             @endif
 
+            <!-- Top 5 Productos Más Vendidos (Clase 9) -->
+            @if (isset($topProducts) && $topProducts->isNotEmpty())
+                <div class="bg-slate-900/80 rounded-2xl p-6 shadow-xl border border-slate-800/80 backdrop-blur-sm">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-800/80 pb-3">
+                        <h3 class="font-bold text-base text-white flex items-center gap-2">
+                            <span>🔥 Top 5 Productos Más Vendidos Este Mes</span>
+                        </h3>
+                        <span class="text-xs text-slate-400 font-medium">Ranking en tiempo real por unidades facturadas</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs">
+                            <thead class="bg-slate-950/80 text-[11px] uppercase font-bold text-slate-400 border-b border-slate-800/80">
+                                <tr>
+                                    <th class="py-3 px-4 text-left w-14"># Puesto</th>
+                                    <th class="py-3 px-4 text-left">Producto</th>
+                                    <th class="py-3 px-4 text-right">Unidades Vendidas</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/80 text-slate-300">
+                                @foreach ($topProducts as $i => $item)
+                                    <tr class="hover:bg-slate-800/50 transition">
+                                        <td class="py-3 px-4 font-mono font-black text-indigo-400 text-sm">#{{ $i + 1 }}</td>
+                                        <td class="py-3 px-4 font-bold text-white text-sm">{{ $item->product?->name }}</td>
+                                        <td class="py-3 px-4 text-right font-mono font-bold text-emerald-400 text-sm">{{ $item->total_sold }} uds</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+
             <!-- Cuadrícula Modular de Operaciones ERP -->
             <div class="bg-slate-900/80 rounded-2xl p-6 md:p-8 shadow-xl border border-slate-800/80 space-y-6 backdrop-blur-sm">
                 <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
@@ -122,6 +154,36 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    @can('ver-ventas')
+                        <a href="{{ route('sales.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition duration-200">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold group-hover:bg-emerald-600 group-hover:text-white transition duration-200 shadow-2xs">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                </div>
+                                <span class="text-xs font-semibold text-slate-400 group-hover:text-emerald-300 flex items-center gap-1">
+                                    Ir al módulo <span class="group-hover:translate-x-1 transition-transform">→</span>
+                                </span>
+                            </div>
+                            <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-emerald-300 transition">Ventas & Facturación</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Registro de transacciones, liquidación con IVA 19% y descuento automático de inventario.</p>
+                        </a>
+                    @endcan
+
+                    @can('ver-clientes')
+                        <a href="{{ route('clients.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/5 transition duration-200">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center font-bold group-hover:bg-cyan-600 group-hover:text-white transition duration-200 shadow-2xs">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                </div>
+                                <span class="text-xs font-semibold text-slate-400 group-hover:text-cyan-300 flex items-center gap-1">
+                                    Ir al módulo <span class="group-hover:translate-x-1 transition-transform">→</span>
+                                </span>
+                            </div>
+                            <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-cyan-300 transition">Directorio de Clientes</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Cuentas comerciales, datos tributarios (NIT/CC) y vinculación de ventas.</p>
+                        </a>
+                    @endcan
+
                     @can('ver-productos')
                         <a href="{{ route('products.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5 transition duration-200">
                             <div class="flex items-start justify-between">

@@ -516,7 +516,11 @@ class DatabaseSeeder extends Seeder
             'notas' => 'Reserva agendada por WhatsApp.',
         ]);
 
-        // Seeder de Categorías y Productos para la práctica guiada
-        $this->call(CategorySeeder::class);
+        // Seeder de Categorías, Productos y Clientes para la práctica guiada
+        $this->call([
+            CategorySeeder::class,
+            ProductSeeder::class,
+            ClientSeeder::class,
+        ]);
     }
 }
