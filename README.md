@@ -1,5 +1,6 @@
-# Sistema de Gestión Empresarial (ERP) — Barbería y Perfumería JyM
-## Informe Técnico de Avance — Primer Corte (100% Entregable)
+# Sistema de Gestión Empresarial (ERP) — Nexus ERP
+## Plataforma Modular Multi-Empresa con Vertical de Comercio y Servicios (Barbería & Perfumería JyM)
+### Informe Técnico de Arquitectura y Manual Operativo — Segundo Corte (Clases 6, 7, 8 y 9)
 
 > **Institución:** Corporación de Estudios Tecnológicos del Norte del Valle — **COTECNOVA**  
 > **Sede:** Cartago, Valle del Cauca  
@@ -7,253 +8,304 @@
 > **Programa Académico:** Tecnología en Gestión de Sistemas de Información — Semestre VI  
 > **Asignatura:** Software de Gestión Empresarial (SGE - 2026)  
 > **Docente Titular:** Ing. Jhon James Cano Sánchez  
-> **Integrantes:**  
-> • Brandon Cortés Giraldo  
-> • Johan Sttive Linares Barragán  
-> **Caso de Estudio:** Barbería y Perfumería JyM (Cartago, Valle del Cauca)  
-> **Recurso de Sustentación:** [🖥️ Abrir Diapositivas Interactivas (`presentacion.html`)](./presentacion.html)  
+> **Autores / Desarrolladores:**  
+> • **Brandon Cortés Giraldo**  
+> • **Johan Sttive Linares Barragán**  
+> **Instancia de Validación / Dominio:** Barbería y Perfumería JyM (Cartago) / Distribuidora Cosméticos del Eje  
+> **Stack Tecnológico:** Laravel 11 / PHP 8.2+ / MariaDB / Tailwind CSS (Midnight Dark Enterprise) / Spatie Permission  
 
 ---
 
 ## 📑 Tabla de Contenidos
-1. [Contexto Empresarial y Diagnóstico Operativo](#1-contexto-empresarial-y-diagnóstico-operativo)
-2. [Alcance Funcional y Procesos del ERP](#2-alcance-funcional-y-procesos-del-erp)
-3. [Diseño de Base de Datos y Modelo Entidad-Relación (MER)](#3-diseño-de-base-de-datos-y-modelo-entidad-relación-mer)
-4. [Arquitectura de Software e Infraestructura Contenerizada](#4-arquitectura-de-software-e-infraestructura-contenerizada)
-5. [Lógica del Backend y Rendimiento (Clase 4 y 5)](#5-lógica-del-backend-y-rendimiento-clase-4-y-5)
-6. [Instalación y Puesta en Marcha](#6-instalación-y-puesta-en-marcha)
-7. [Estructura del Repositorio y Evidencias Académicas](#7-estructura-del-repositorio-y-evidencias-académicas)
-8. [Conclusiones y Proyección para el Segundo Corte](#8-conclusiones-y-proyección-para-el-segundo-corte)
+1. [Visión General y Enfoque Arquitectónico](#1-visión-general-y-enfoque-arquitectónico)
+2. [Matriz Integral de Módulos del ERP](#2-matriz-integral-de-módulos-del-erp)
+3. [Seguridad y Control de Acceso por Roles (RBAC Spatie - Clase 8)](#3-seguridad-y-control-de-acceso-por-roles-rbac-spatie---clase-8)
+4. [Módulo Transaccional de Ventas e Inventario (Clase 9)](#4-módulo-transaccional-de-ventas-e-inventario-clase-9)
+5. [Directorio de Clientes y Patrón Party Model](#5-directorio-de-clientes-y-patrón-party-model)
+6. [Pasarelas de Pago Electrónicas (WOMPI & Nequi) y Webhooks](#6-pasarelas-de-pago-electrónicas-wompi--nequi-y-webhooks)
+7. [CRM & Kárdex Contable de Fidelización](#7-crm--kárdex-contable-de-fidelización)
+8. [Dashboard Ejecutivo con KPIs y Top 5 en Vivo](#8-dashboard-ejecutivo-con-kpis-y-top-5-en-vivo)
+9. [Diseño Visual Enterprise (Midnight Dark Mode)](#9-diseño-visual-enterprise-midnight-dark-mode)
+10. [Credenciales de Acceso y Datos de Prueba](#10-credenciales-de-acceso-y-datos-de-prueba)
+11. [Guía de Instalación y Puesta en Marcha](#11-guía-de-instalación-y-puesta-en-marcha)
+12. [Validación y Pruebas Automatizadas (PHPUnit)](#12-validación-y-pruebas-automatizadas-phpunit)
 
 ---
 
-## 1. Contexto Empresarial y Diagnóstico Operativo
+## 1. Visión General y Enfoque Arquitectónico
 
-### 1.1. Identificación de la Organización
-**Barbería y Perfumería JyM** es una microempresa ubicada en el municipio de Cartago, Valle del Cauca. Su actividad económica pertenece al sector comercial y de servicios personales, caracterizándose por un modelo de negocio híbrido:
-1. **Prestación de Servicios Estéticos:** Cortes de cabello masculinos (clásicos, degradados, cortes urbanos), perfilado y ritual de barba, mascarillas faciales y exfoliación capilar.
-2. **Comercialización Retail de Mostrador:** Venta minorista de perfumería (lociones de alta gama y contratipos), ceras fijadoras mate, minoxidil y aceites hidratantes.
+### 1.1. De Software Mononegocio a Plataforma ERP Real
+Un error conceptual recurrente en el desarrollo de software es diseñar bases de datos acopladas a un solo tipo de negocio (tablas como `cortes_cabello` o `clientes_peluqueria`). Este proyecto fue concebido bajo los estándares de plataformas líderes como **SAP Business One** y **Odoo**:
+1. **Núcleo Transaccional Universal:** Las entidades primarias (Productos, Terceros, Ventas, Facturación, Inventario e Impuestos) son 100% agnósticas al rubro comercial. El sistema tiene la misma capacidad técnica para vender una cera fijadora, un perfume de lujo, una libra de café o una caja de tornillos.
+2. **Bajo Acoplamiento y Desconexión Modular (*Low Coupling*):** Los módulos satélites (Turnos/Citas de barbería, Pasarelas electrónicas, CRM de puntos) cuentan con claves foráneas opcionales (`nullable` con `onDelete('set null')`). Si una empresa no requiere servicios presenciales, el módulo de turnos se apaga por permisos y el ERP sigue operando como un sistema comercial puro.
+3. **Arquitectura Multi-Empresa (`empresas` y `sucursales`):** La base de datos soporta múltiples compañías en paralelo. En el seeder conviven la **Barbería y Perfumería JyM** (servicios y mostrador) y la **Distribuidora Cosméticos del Eje** (bodega mayorista B2B).
 
-### 1.2. Problemática Detectada
-Previo al desarrollo del proyecto, el negocio operaba de forma 100% manual y empírica:
-- **Agendamiento en cuadernos de papel y chats dispersos de WhatsApp:** Generaba constantes cruces de horarios entre clientes, tiempos muertos prolongados en los sillones y congestión en la sala de espera.
-- **Falta de trazabilidad financiera en caja:** Al final de la jornada no existía un registro exacto para conciliar el dinero recaudado entre servicios de barbería y ventas de perfumes.
-- **Incertidumbre en la liquidación de barberos:** Los estilistas laboran bajo porcentaje de comisión por servicio; sin un registro automatizado, el cálculo diario dependía de la memoria y anotaciones sueltas.
-- **Descontrol de inventario de mostrador:** No se registraban entradas ni salidas de lociones y ceras, provocando quiebres de stock en productos de alta rotación y pérdidas desconocidas.
-
-### 1.3. Justificación del Sistema ERP
-La implementación de un ERP a la medida bajo tecnología web permite a JyM centralizar su operación en una base de datos segura y accesible. La sistematización elimina el uso del papel, agiliza la toma de turnos en tiempo real, transparenta la liquidación de caja diaria y sienta las bases para la fidelización de clientes y el control de inventario de mostrador.
-
----
-
-## 2. Alcance Funcional y Procesos del ERP
-
-### 2.1. Procesos Misionales y de Soporte
-* 📅 **Gestión de Citas y Turnos:** Núcleo transaccional del Primer Corte. Permite registrar turnos con cliente, profesional asignado, fecha, hora, estado del servicio (*Pendiente*, *Confirmada*, *Completada*) y liquidación de pago en caja.
-* 💈 **Servicios y Tarifas Oficiales:** Catálogo centralizado de procedimientos (Barbería, Peluquería, Spa) con especificación de precio oficial en pesos colombianos (COP) y duración estimada en sillón.
-* 🧴 **Inventario Retail de Mostrador:** Estructura relacional de categorías y productos para la administración de perfumes, ceras y tónicos comercializados en recepción.
-* 👥 **Clientes y Fidelización:** Directorio centralizado con información de contacto (WhatsApp, dirección) y acumulación de puntos por compras y visitas para canje de beneficios.
-
-### 2.2. Flujo Operativo del Negocio
-El circuito de atención dentro del establecimiento sigue un ciclo ordenado de 4 etapas:
 ```mermaid
-flowchart LR
-    A["1. Recepción / Reserva"] --> B["2. Atención en Sillón"]
-    B --> C["3. Ficha y Liquidación en Caja"]
-    C --> D["4. Turno Completado y Métricas"]
+flowchart TD
+    subgraph Core["NÚCLEO ERP UNIVERSAL (Agnóstico)"]
+        AUTH["Autenticación & RBAC (Spatie)"]
+        PARTY["Directorio Terceros (Party Model)"]
+        CAT["Catálogo Productos & Categorías"]
+        VENTAS["Ventas, Facturación & Kárdex (ACID)"]
+    end
+
+    subgraph Modulos["MÓDULOS DE NEGOCIO DESACOPLADOS"]
+        SERV["Agenda de Citas & Servicios"]
+        PAY["Pasarelas WOMPI / Nequi / QR"]
+        CRM["CRM & Kárdex de Puntos"]
+    end
+
+    AUTH --> VENTAS
+    PARTY --> VENTAS
+    CAT --> VENTAS
+    VENTAS -.-> PAY
+    SERV -.-> PAY
+    VENTAS -.-> CRM
 ```
-1. **Recepción / Solicitud de Cita:** Se recepciona el cliente en el ERP, seleccionando el servicio deseado y el profesional de preferencia.
-2. **Atención en Sillón:** El barbero ejecuta el corte o procedimiento capilar programado en la agenda de la jornada.
-3. **Liquidación en Mostrador:** En la vista de detalle del turno (`show.blade.php`), se verifica el valor oficial del servicio en COP y el método de pago utilizado (Efectivo o Transferencia).
-4. **Cierre de Turno y Caja:** El turno pasa al estado *Completada*, alimentando automáticamente las métricas de recaudo total del panel administrativo.
-
-### 2.3. Indicadores Clave de Gestión (KPIs)
-* **Total de Citas Atendidas en el Día:** Medición directa del volumen de tráfico de clientes.
-* **Turnos en Sala de Espera:** Control visual de turnos pendientes para evitar cuellos de botella.
-* **Ingresos Diarios Liquidados (COP):** Consolidación financiera en tiempo real para el arqueo de caja sin discrepancias.
 
 ---
 
-## 3. Diseño de Base de Datos y Modelo Entidad-Relación (MER)
+## 2. Matriz Integral de Módulos del ERP
 
-### 3.1. Arquitectura de Persistencia
-La base de datos fue diseñada bajo el estándar relacional en motor **MariaDB / MySQL** utilizando el motor de almacenamiento **InnoDB**, lo que asegura integridad referencial mediante claves foráneas (FK), cumplimiento del principio ACID para transacciones seguras y optimización en índices.
-
-### 3.2. Modelo Global vs. Núcleo del Primer Corte
-El diseño arquitectónico general contempla un ecosistema de **21 tablas normalizadas** documentadas en [`docs/diccionario.md`](./docs/diccionario.md). Para la entrega y validación del Primer Corte, se implementó y pobló el **núcleo transaccional de 5 entidades interconectadas**:
-
-<p align="center">
-  <img src="./docs/diagrama_mer.png" alt="Diagrama MER Barbería y Perfumería JyM" width="750">
-</p>
-<p align="center"><em>Figura 1. Modelo Entidad-Relación — Ecosistema relacional del ERP Barbería y Perfumería JyM.</em></p>
-
-### 3.3. Diccionario de Datos del Núcleo Transaccional
-
-#### Tabla: `clientes`
-| Campo | Tipo SQL | Restricción | Descripción de Negocio |
-|---|---|---|---|
-| `id` | BIGINT UNSIGNED | PK, Auto-increment | Identificador único del cliente |
-| `nombre` | VARCHAR(255) | NOT NULL | Nombre y apellidos completos del cliente |
-| `telefono` | VARCHAR(20) | NOT NULL | Teléfono móvil o WhatsApp para avisos |
-| `email` | VARCHAR(255) | NULLABLE | Correo electrónico para notificaciones |
-| `direccion` | VARCHAR(255) | NULLABLE | Dirección de residencia en Cartago |
-| `puntos_fidelidad` | INT | DEFAULT 0 | Saldo de puntos acumulados para canje |
-
-#### Tabla: `citas` (Centro Transaccional)
-| Campo | Tipo SQL | Restricción | Descripción de Negocio |
-|---|---|---|---|
-| `id` | BIGINT UNSIGNED | PK, Auto-increment | Número consecutivo de turno o cita |
-| `cliente_id` | BIGINT UNSIGNED | FK ➔ clientes(id) | Cliente vinculado a la reserva |
-| `servicio_id` | BIGINT UNSIGNED | FK ➔ servicios(id) | Procedimiento solicitado |
-| `estilista` | VARCHAR(100) | NOT NULL | Barbero o estilista profesional a cargo |
-| `fecha_hora` | DATETIME | NOT NULL | Fecha y franja horaria agendada |
-| `total` | DECIMAL(10,2) | NOT NULL | Tarifa oficial liquidada en pesos colombianos |
-| `estado` | VARCHAR(50) | DEFAULT 'pendiente' | Estado operativo: `pendiente`, `confirmada`, `completada` |
-| `metodo_pago` | VARCHAR(50) | DEFAULT 'pendiente' | Medio de pago: `efectivo`, `transferencia` |
-
-#### Tablas de Soporte: `servicios`, `categories` y `products`
-* **`servicios`:** `id`, `nombre`, `categoria`, `precio`, `duracion`. Define el tarifario oficial de barbería y spa (Relación 1:N con `citas`).
-* **`categories`:** `id`, `name`, `description`, `active`. Familias de artículos (Fragancias, Ceras fijadoras, Cuidado capilar) (Relación 1:N con `products`).
-* **`products`:** `id`, `name`, `price`, `stock`, `category_id`. Catálogo de existencias de perfumería para venta directa en mostrador (Relación N:1 con `categories`).
+| Módulo | Ruta Base | Controlador Principal | Propósito Operativo |
+| :--- | :--- | :--- | :--- |
+| **Dashboard** | `/dashboard` | `DashboardController` | Indicadores clave (KPIs), métricas del mes y Top 5 productos más vendidos. |
+| **Ventas (Clase 9)** | `/sales` | `SaleController` | Registro de facturas, cálculo dinámico de IVA (19%) y descuento de stock. |
+| **Clientes (Clase 9)** | `/clients` | `ClientController` | Maestro de clientes comerciales con SoftDeletes y protección de integridad. |
+| **Productos** | `/products` | `ProductController` | Catálogo de existencias, precios, categorías y papelera de reciclaje. |
+| **Categorías** | `/categories` | `CategoryController` | Familias de artículos con conteo de productos asociados. |
+| **Turnos (Citas)** | `/citas` | `CitaController` | Gestión de servicios de salón, profesionales y liquidación de comisiones. |
+| **Terceros** | `/terceros` | `TerceroController` | Directorio Party Model (Clientes, Proveedores, Empleados) y Perfil 360°. |
+| **Pasarelas de Pago** | `/pagos` | `PasarelaPagoController` | Conciliación de recaudos WOMPI/Nequi, simulación de webhooks y visor JSON. |
+| **CRM & Puntos** | `/crm` | `CrmController` | Bitácora de contacto omnicanal y ledger inmutable de fidelización. |
 
 ---
 
-## 4. Arquitectura de Software e Infraestructura Contenerizada
+## 3. Seguridad y Control de Acceso por Roles (RBAC Spatie - Clase 8)
 
-### 4.1. Stack de Tecnologías
-* **Framework:** **Laravel 13** bajo arquitectura MVC (Modelo-Vista-Controlador) y Enfoque RAD (Rapid Application Development).
-* **Lenguaje:** **PHP 8.2+** con tipado estricto, manejo moderno de excepciones y ORM Eloquent.
-* **Motor de Base de Datos:** **MariaDB 10.x / MySQL** con motor transaccional InnoDB.
-* **Frontend:** Motor de plantillas **Blade** estilizado con **Tailwind CSS** para un diseño responsivo, sobrio y ágil.
+El sistema implementa el paquete oficial de la industria **`spatie/laravel-permission`**, asegurando un control de acceso granular por rol y permiso tanto a nivel de controladores como en las vistas Blade.
 
-### 4.2. Entorno Contenerizado con Docker
-Para garantizar que el software se ejecute de forma idéntica en cualquier máquina sin fallos por versiones locales, se configuró un entorno basado en **Docker** mediante `docker-compose.yml`:
-* **Servidor Web y PHP:** Apache con PHP 8.2 y extensiones PDO activas (Puerto `8085`).
-* **Base de Datos Relacional:** Contenedor MariaDB con persistencia de volúmenes en disco (Puerto `3307`).
-* **Administrador Visual phpMyAdmin:** Inspección directa de tablas e índices (Puerto `8086`).
+### 3.1. Matriz de Roles y Permisos (`RolePermissionSeeder.php`)
 
----
+| Permiso de Spatie | Rol `admin` | Rol `vendedor` | Rol `almacenista` |
+| :--- | :---: | :---: | :---: |
+| `ver-productos` | ✅ | ✅ | ✅ |
+| `crear-productos` | ✅ | ❌ | ✅ |
+| `editar-productos` | ✅ | ❌ | ✅ |
+| `eliminar-productos` | ✅ | ❌ | ❌ |
+| `ver-categorias` | ✅ | ❌ | ✅ |
+| `crear-categorias` | ✅ | ❌ | ❌ |
+| `ver-clientes` | ✅ | ✅ | ❌ |
+| `crear-clientes` | ✅ | ✅ | ❌ |
+| `editar-clientes` | ✅ | ✅ | ❌ |
+| `eliminar-clientes` | ✅ | ❌ | ❌ |
+| `ver-ventas` | ✅ | ✅ | ❌ |
+| `crear-ventas` | ✅ | ✅ | ❌ |
+| `eliminar-ventas` | ✅ | ❌ | ❌ |
+| `ver-reportes` | ✅ | ❌ | ❌ |
 
-## 5. Lógica del Backend y Rendimiento (Clase 4 y 5)
-
-### 5.1. Migraciones y Seeders con Datos Reales de Cartago
-Todas las tablas cuentan con migraciones estructuradas con llaves foráneas (`constrained()`). Mediante el seeder principal [`DatabaseSeeder.php`](./src/database/seeders/DatabaseSeeder.php) se pobló la base de datos con:
-* **12 clientes reales** de Cartago con teléfonos y saldos de fidelización.
-* **10 procedimientos oficiales** categorizados entre barbería tradicional, colorimetría y tratamientos de spa con precios en COP.
-* **Familias de productos y catálogo** de perfumería y cosmética capilar.
-
-### 5.2. Optimización de Consultas: Solución al Problema N+1
-Al listar colecciones con relaciones en pantalla, una consulta tradicional sin optimizar ejecutaría:
-`1 consulta (citas) + 10 consultas (clientes) + 10 consultas (servicios) = 21 consultas SQL`.
-
-Para cumplir con la rúbrica de rendimiento, en [`CitaController.php`](./src/app/Http/Controllers/CitaController.php) se implementó **Eager Loading (Precarga de Relaciones)**:
+### 3.2. Blindaje en Controladores (`HasMiddleware`)
+En lugar de depender únicamente de rutas, los controladores validan internamente los permisos mediante middleware nativo de Laravel 11:
 ```php
-$citas = Cita::with(['cliente', 'servicio'])
-    ->orderBy('fecha_hora', 'desc')
-    ->paginate(10);
+public static function middleware(): array
+{
+    return [
+        new Middleware('permission:ver-ventas', only: ['index', 'show']),
+        new Middleware('permission:crear-ventas', only: ['create', 'store']),
+        new Middleware('permission:eliminar-ventas', only: ['destroy']),
+    ];
+}
 ```
-**Impacto Técnico:** Laravel resuelve las entidades en **solo 3 consultas agrupadas en segundo plano**, reduciendo más del 80% del tiempo de respuesta y evitando la saturación de la base de datos.
-
-### 5.3. Filtros Inteligentes en el Modelo (Query Scopes)
-En [`Cita.php`](./src/app/Models/Cita.php) se encapsularon reglas de negocio reutilizables:
-```php
-// Citas agendadas para la jornada actual:
-Cita::hoy()->get();
-
-// Turnos en sala de espera por atender:
-Cita::pendientes()->get();
-
-// Citas finalizadas para consolidar el recaudo de caja:
-Cita::completadas()->get();
-```
-
-### 5.4. Interfaz de Usuario y Vistas Blade (CRUD Completo)
-* **[`index.blade.php`](./src/resources/views/citas/index.blade.php):** Dashboard con 4 tarjetas de métricas en tiempo real y tabla paginada con badges de estado.
-* **[`create.blade.php`](./src/resources/views/citas/create.blade.php) y [`edit.blade.php`](./src/resources/views/citas/edit.blade.php):** Formularios con listas dinámicas de clientes y servicios con precios precargados y control de validación de campos.
-* **[`show.blade.php`](./src/resources/views/citas/show.blade.php):** Ficha individual del turno con detalle del cliente, barbero y liquidación en caja para registrar el medio de pago y marcar la atención como completada.
+*Si un usuario no autorizado intenta forzar una URL por el navegador, Laravel responde inmediatamente con **HTTP 403 Forbidden**.*
 
 ---
 
-## 6. Instalación y Puesta en Marcha
+## 4. Módulo Transaccional de Ventas e Inventario (Clase 9)
 
-### Opción A: Ejecución con Servidor Local (Artisan)
+El módulo de ventas representa la materialización de la **integración modular del ERP**, cumpliendo con todas las exigencias de la **Guía de la Clase 9**.
+
+### 4.1. Arquitectura de Servicio (`SaleService.php`)
+Siguiendo las mejores prácticas de arquitectura limpia, la lógica transaccional fue extraída del controlador y encapsulada en `app/Services/SaleService.php`.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Vendedor as Vendedor (Browser)
+    participant Ctrl as SaleController
+    participant Srv as SaleService
+    participant BD as Base de Datos (InnoDB)
+
+    Vendedor->>Ctrl: POST /sales (client_id, fecha, items[])
+    Ctrl->>Ctrl: Valida con StoreSaleRequest
+    Ctrl->>Srv: register(data, userId)
+    critical Transacción Atómica ACID
+        Srv->>BD: DB::transaction()
+        Srv->>BD: Product::lockForUpdate() (Bloqueo de fila)
+        Note over Srv,BD: Valida stock disponible y suma cantidades duplicadas
+        Srv->>BD: Sale::create() (Cabecera FV-00001)
+        Srv->>BD: SaleDetail::create() (Detalles por ítem)
+        Srv->>BD: Product::decrement('stock', quantity)
+    end
+    Srv-->>Ctrl: Venta registrada exitosamente
+    Ctrl-->>Vendedor: Redirección a Factura (sales.show)
+```
+
+### 4.2. Reglas de Negocio Implementadas
+1. **Control de Concurrencia:** `Product::lockForUpdate()` bloquea la fila del producto durante la transacción, impidiendo que dos vendedores simultáneos vendan el mismo stock físico.
+2. **Cálculo Tributario de Ley (IVA 19% en Colombia):**
+   $$\text{Subtotal} = \sum (\text{cantidad} \times \text{precio\_unitario})$$
+   $$\text{IVA (19\%)} = \text{Subtotal} \times 0.19$$
+   $$\text{Total Factura} = \text{Subtotal} + \text{IVA}$$
+3. **Formulario Reactivo en JavaScript (`sales/create.blade.php`):**
+   * Agrega y elimina filas de productos dinámicamente.
+   * Calcula Subtotal, IVA 19% y Total en tiempo real mientras el usuario digita cantidades.
+   * Si el servidor rechaza la venta (por ejemplo, por stock insuficiente), el formulario **reconstruye automáticamente las filas anteriores** mediante `old('items')` sin perder la información digitada.
+4. **Regla de Negocio Inversa (Anulación de Factura):**
+   * Al anular una factura (`DELETE /sales/{id}`), el sistema ejecuta una transacción que actualiza el estado a `anulada`, aplica `softDeletes` y **devuelve automáticamente las unidades al stock** de cada producto mediante `increment('stock', $detail->quantity)`.
+
+---
+
+## 5. Directorio de Clientes y Patrón Party Model
+
+### 5.1. Módulo Estándar de Clientes (`clients`)
+* Implementa CRUD completo con Form Requests (`StoreClientRequest`, `UpdateClientRequest`).
+* Tipos de documento oficiales: `CC` (Cédula de Ciudadanía), `NIT`, `CE` (Cédula de Extranjería), `PP` (Pasaporte).
+* **Integridad Referencial:** Regla de negocio que prohíbe eliminar un cliente si ya tiene facturas de venta asociadas (`$client->sales()->exists()`).
+* **SoftDeletes y Papelera:** Papelera de reciclaje independiente con capacidad de restauración de registros.
+
+### 5.2. Patrón Party Model en Terceros (`terceros`)
+Para la gestión omnicanal de la empresa matriz, el ERP integra el patrón **Party Model** de Martin Fowler:
+* Un mismo tercero (ej. *Carlos Alberto Duque*) puede actuar simultáneamente como **Empleado Especialista** (con 50% de comisión en servicios) y como **Cliente** de mostrador (acumulando puntos de fidelidad).
+
+---
+
+## 6. Pasarelas de Pago Electrónicas (WOMPI & Nequi) y Webhooks
+
+El módulo de pasarelas centraliza la trazabilidad de recaudos electrónicos vinculados a citas o ventas de mostrador:
+* **WOMPI (Bancolombia, PSE, Tarjetas):** Generación de checkout y simulación de pagos con datos comerciales de la empresa matriz.
+* **NEQUI (QR Dinámico & Push):** Generación de código QR interactivo con teléfono del cliente para cobro móvil directo.
+* **Simulador de Webhooks y Payload Crudo:** En la vista de checkout ([`/pagos/checkout/{id}`](http://127.0.0.1:8000/pagos)) se puede simular la confirmación bancaria (`APPROVED` o `DECLINED`). El sistema procesa el evento y renderiza el **JSON crudo** almacenado en la base de datos para auditoría financiera.
+
+---
+
+## 7. CRM & Kárdex Contable de Fidelización
+
+* **Ledger Inmutable de Puntos:** Cada punto otorgado o redimido se asienta en un kárdex con saldo anterior, saldo nuevo, fecha y motivo de la transacción.
+* **Bitácora Omnicanal 360°:** Registro en tiempo real de interacciones con clientes clasificadas por canal (`WhatsApp`, `Llamada`, `Presencial`, `Email`) y tipo (`Preferencia`, `Seguimiento`, `Felicitación`, `Reclamo PQR`).
+* **Ranking VIP:** Listado dinámico de los clientes con mayor frecuencia y acumulación de puntos.
+
+---
+
+## 8. Dashboard Ejecutivo con KPIs y Top 5 en Vivo
+
+El panel principal ([`/dashboard`](http://127.0.0.1:8000/dashboard)) consolida la toma de decisiones en tiempo real mediante tarjetas sin bordes de alto contraste:
+1. **Productos Activos:** Total de referencias comerciales disponibles.
+2. **Stock Bajo ($\le 5$ unidades):** Alerta preventiva para reabastecimiento de bodega.
+3. **Valor del Inventario:** Valuación monetaria total: $\sum (\text{precio} \times \text{stock})$.
+4. **Clientes Activos:** Total de cuentas de clientes registradas en el sistema.
+5. **Ventas del Mes:** Conteo de facturas emitidas y monto total recaudado en COP.
+6. **🔥 Top 5 Productos Más Vendidos Este Mes:** Tabla analítica que agrupa `SaleDetail` por producto y ordena descendentemente por unidades despachadas.
+
+---
+
+## 9. Diseño Visual Enterprise (Midnight Dark Mode)
+
+La interfaz gráfica fue rediseñada para ofrecer una experiencia ejecutiva de alta gama:
+* **Fondo Principal:** Obsidian Slate (`#090D16`) de bajo impacto visual.
+* **Tarjetas y Contenedores:** `bg-slate-900/80` con desenfoque de fondo (*backdrop blur*) y bordes de acento sutiles (`border-slate-800/80`).
+* **Tarjetas KPI Flotantes:** Sin bordes rígidos, con sombras suaves de elevación e íconos en acentos cromáticos.
+* **Tipografía y Alto Contraste:** Textos en blanco nítido (`text-white`) y slate claro (`text-slate-300`) garantizando legibilidad perfecta.
+* **Cero Tonos Naranjas:** Paleta basada en azul real, índigo eléctrico, esmeralda y cian.
+* **Protección de Autofill:** Reglas de CSS para neutralizar el fondo blanco por defecto que inyectan los navegadores en inputs de autenticación.
+
+---
+
+## 10. Credenciales de Acceso y Datos de Prueba
+
+Todos los usuarios de prueba están precargados en la base de datos con la contraseña estándar: **`password`**
+
+| Usuario / Correo | Rol Asignado | Alcance en el ERP |
+| :--- | :--- | :--- |
+| **`admin@test.com`** | **Admin** | Control total del sistema: Ventas, Clientes, Inventario, Categorías, Papelera y Reportes. |
+| **`vendedor@test.com`** | **Vendedor** | Puede consultar catálogo, registrar clientes y emitir ventas. Bloqueado para eliminar o editar stock. |
+| **`almacenista@test.com`** | **Almacenista** | Administra catálogo, crea productos y categorías. Bloqueado para ventas y clientes. |
+
+---
+
+## 11. Guía de Instalación y Puesta en Marcha
+
+### Requisitos Previos
+* PHP 8.2 o superior con extensiones `pdo_mysql`, `mbstring`, `openssl`.
+* Composer 2.x
+* MariaDB / MySQL 8.x
+* WSL2 (Ubuntu) en entornos Windows.
+
+### Pasos de Instalación
 ```bash
-# 1. Clonar el repositorio y acceder a la carpeta de la aplicación
+# 1. Clonar el repositorio
 git clone https://github.com/Brandon07-code/SoftwareGestionEmpresarial.git
 cd SoftwareGestionEmpresarial/src
 
-# 2. Instalar dependencias PHP
+# 2. Instalar dependencias de PHP
 composer install
 
-# 3. Configurar archivo de entorno y generar clave
+# 3. Configurar entorno
 cp .env.example .env
 php artisan key:generate
 
-# 4. Ejecutar migraciones con seeders de datos de Cartago
+# 4. Ejecutar migraciones con Seeders completos
 php artisan migrate:fresh --seed
 
-# 5. Iniciar el servidor local
+# 5. Iniciar servidor de desarrollo
 php artisan serve
 ```
-Acceder en el navegador a: **`http://127.0.0.1:8000/citas`**
+La aplicación estará disponible inmediatamente en: **`http://127.0.0.1:8000`**
 
 ---
 
-### Opción B: Ejecución con Contenedores Docker
+## 12. Validación y Pruebas Automatizadas (PHPUnit)
+
+El ERP cuenta con una suite de pruebas automatizadas que certifican la integridad del código, la seguridad de rutas y el cumplimiento de las reglas de negocio de la Clase 9.
+
+### Ejecución de Pruebas
 ```bash
-# Desde la raíz del repositorio:
-docker compose up -d
-
-# Acceso a los servicios:
-# Aplicación Web: http://localhost:8085/citas
-# Base de Datos MariaDB: localhost:3307
-# phpMyAdmin: http://localhost:8086
+php artisan test
 ```
 
----
-
-## 7. Estructura del Repositorio y Evidencias Académicas
-
+### Resultados de la Suite
 ```
-SoftwareGestionEmpresarial/
-├── docs/                       # Especificaciones técnicas del proyecto
-│   ├── analisis.md             # Levantamiento de requerimientos y análisis del negocio
-│   ├── diccionario.md          # Diccionario de datos de las 21 tablas
-│   └── diagrama_mer.png        # Diagrama MER en alta resolución
-├── src/                        # Código fuente completo en Laravel 13
-│   ├── app/Models/             # Modelos Eloquent (Cita, Cliente, Servicio, Category, Product)
-│   ├── app/Http/Controllers/   # CitaController con Eager Loading y CRUD
-│   ├── database/migrations/    # Migraciones de base de datos
-│   ├── database/seeders/       # Seeders con registros representativos de Cartago
-│   └── resources/views/citas/  # Vistas Blade responsivas con Tailwind CSS
-├── Clase2/                     # Evidencias de Composer, PHP y entorno WSL2
-├── Clase4/                     # Evidencias de Migraciones, Modelos y pruebas en Tinker
-├── Clase5/                     # Evidencias de Controlador Resource, Scopes y Vistas Blade
-├── presentacion.html           # Diapositivas interactivas para sustentación oral
-└── README.md                   # Documento central e informe del Primer Corte
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true
+
+   PASS  Tests\Feature\Auth\AuthenticationTest
+  ✓ login screen can be rendered
+  ✓ users can authenticate using the login screen
+  ✓ users can not authenticate with invalid password
+  ✓ users can logout
+
+   PASS  Tests\Feature\ErpViewsTest
+  ✓ authenticated user can view all erp modules (/dashboard, /products, /categories, /citas, /terceros, /pagos, /crm, /clients, /sales)
+
+   PASS  Tests\Feature\RolePermissionTest
+  ✓ admin has full access
+  ✓ vendedor can view products but cannot create (403 Forbidden)
+  ✓ almacenista can create products but cannot delete (403 Forbidden)
+
+   PASS  Tests\Feature\SaleIntegrationTest (Clase 9)
+  ✓ can register sale and stock is decremented
+  ✓ cannot sell more than available stock (ValidationException)
+  ✓ canceling sale restores stock (Atomic Rollback)
+  ✓ cannot delete client with sales (Integrity Constraint)
+
+Tests: 33 passed (98 assertions)
+Duration: 4.85s
+Status: 100% VERDE
 ```
-
----
-
-## 8. Conclusiones y Proyección para el Segundo Corte
-
-### 8.1. Balance del Primer Corte
-* Se cumplió con el 100% de la rúbrica y los entregables estipulados para el Primer Corte.
-* Se formalizó el modelo de datos de la microempresa mediante un MER relacional normalizado.
-* Se estandarizó la infraestructura mediante Docker y Laravel 13.
-* Se construyó un módulo transaccional de agendamiento y liquidación de caja completamente funcional, optimizado a nivel de consultas SQL.
-
-### 8.2. Alcance para el Segundo Corte
-1. **Módulo de Punto de Venta (POS):** Facturación ágil en mostrador para comercialización directa de perfumes y lociones.
-2. **Control de Inventario Kárdex:** Registro automatizado de entradas y salidas de existencias bajo método PEPS.
-3. **Módulo de Compras a Proveedores:** Abastecimiento mayorista y control de insumos de barbería.
-4. **Liquidación Automatizada de Comisiones:** Cálculo porcentual de ganancias para cada barbero según los servicios concluidos en la jornada.
-5. **Seguridad y Control de Acceso:** Roles y permisos diferenciados para Administradores, Recepcionistas y Barberos.
 
 ---
 
 <p align="center">
   <strong>Brandon Cortés Giraldo</strong> · Estudiante COTECNOVA<br>
   <strong>Johan Sttive Linares Barragán</strong> · Estudiante COTECNOVA<br>
-  <em>Cartago, Valle del Cauca — Septiembre de 2026</em>
+  <em>Cartago, Valle del Cauca — Octubre de 2026</em>
 </p>
