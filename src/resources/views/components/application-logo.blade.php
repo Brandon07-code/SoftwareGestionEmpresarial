@@ -30,7 +30,7 @@
     </div>
     <div class="flex flex-col leading-tight shrink-0">
         <div class="flex items-center gap-1.5">
-            <span class="font-black text-[15px] tracking-tight {{ $titleColor }}">NEXUS</span>
+            <span class="font-black text-[15px] tracking-tight {{ $titleColor }}">TURNIX</span>
             <span class="px-1.5 py-0.5 rounded-md text-[9px] font-black tracking-wider bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs">ERP</span>
         </div>
         <span class="text-[9px] uppercase tracking-widest font-semibold hidden xl:inline whitespace-nowrap {{ $subtitleColor }}">Gestión & Operaciones</span>

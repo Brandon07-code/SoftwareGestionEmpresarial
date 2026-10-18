@@ -1,270 +1,222 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="font-black text-2xl text-white tracking-tight">Panel de Gestión ERP</h1>
-                <p class="text-xs text-slate-400 mt-0.5 font-medium">Sede Principal Cartago • Sistema Centralizado de Operaciones</p>
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">
+                    Plataforma Modular Transaccional
+                </span>
+                <h2 class="font-black text-2xl text-white tracking-tight leading-tight mt-1">
+                    Panel Ejecutivo — Bienvenido, {{ auth()->user()->name }}
+                </h2>
+                <div class="flex items-center gap-2 mt-1 text-xs text-slate-400">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Empresa Activa: <strong class="text-white">Barbería & Perfumería JyM</strong> (Sede Cartago)</span>
+                    <span class="text-slate-600">|</span>
+                    <span>Roles: <strong class="text-indigo-300">{{ $roles->isEmpty() ? 'Sin rol asignado' : $roles->join(', ') }}</strong></span>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-950/80 text-indigo-300 border border-indigo-700/50 shadow-sm">
-                    <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-                    Rol Activo: {{ $roles->isNotEmpty() ? ucfirst($roles->first()) : 'Sin rol' }}
+            <div class="flex items-center gap-2 shrink-0">
+                <span class="px-3 py-1 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-mono text-slate-300">
+                    {{ now()->translatedFormat('l, d \d\e F \d\e Y') }}
                 </span>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="py-8 bg-[#090D16] min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
-            <!-- Banner de Bienvenida Ejecutivo con Iluminación Ambiental -->
-            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white p-6 md:p-8 shadow-2xl border border-indigo-900/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <!-- Orbes de luz ambiental de fondo -->
-                <div class="absolute -top-24 -right-24 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
-
-                <div class="space-y-2.5 relative z-10">
-                    <div class="flex items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-                            ERP EN LÍNEA
-                        </span>
-                        <span class="text-xs text-slate-400">• {{ ucfirst(\Carbon\Carbon::now()->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY')) }}</span>
-                    </div>
-                    <h2 class="text-2xl md:text-3xl font-black text-white tracking-tight">
-                        Bienvenido, {{ $user->name }}
-                    </h2>
-                    <p class="text-sm text-slate-300 max-w-2xl leading-relaxed">
-                        Control integral de servicios de belleza, catálogo comercial, inventario con auditoría segura y pasarelas de recaudo digital.
-                    </p>
-                </div>
-                <div class="flex flex-wrap items-center gap-3 relative z-10">
-                    <a href="{{ route('citas.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-indigo-600/30 transition transform hover:-translate-y-0.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                        Agendar Cita
-                    </a>
-                    @can('crear-productos')
-                        <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/15 text-white border border-white/15 font-semibold text-xs tracking-wider rounded-xl backdrop-blur-sm transition">
-                            + Producto
-                        </a>
-                    @endcan
-                </div>
-            </div>
-
-            <!-- Tarjetas KPI de Métricas Profesionales (Sin Bordes) -->
+            {{-- 1. Tarjetas de Métricas Clave (KPIs) Dinámicas por Permiso --}}
             @if ($stats->isNotEmpty())
                 <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Métricas Clave del Negocio</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        Métricas Operativas & Financieras en Vivo
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                         @foreach ($stats as $stat)
-                            @php
-                                $isProduct = str_contains(strtolower($stat['label']), 'producto');
-                                $isStock = str_contains(strtolower($stat['label']), 'stock');
-                                $isValue = str_contains(strtolower($stat['label']), 'valor');
-                                $isCategory = str_contains(strtolower($stat['label']), 'categor');
-
-                                if ($isProduct) {
-                                    $iconBg = 'bg-blue-500/15 text-blue-400';
-                                    $pillBg = 'bg-blue-500/10 text-blue-300 border border-blue-500/20';
-                                    $pillText = 'Catálogo';
-                                } elseif ($isStock) {
-                                    $isAlert = (int) $stat['value'] > 0;
-                                    $iconBg = $isAlert ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/15 text-emerald-400';
-                                    $pillBg = $isAlert ? 'bg-rose-500/15 text-rose-300 border border-rose-500/20' : 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20';
-                                    $pillText = $isAlert ? 'Alerta' : 'En orden';
-                                } elseif ($isValue) {
-                                    $iconBg = 'bg-emerald-500/15 text-emerald-400';
-                                    $pillBg = 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20';
-                                    $pillText = 'Valuado';
-                                } else {
-                                    $iconBg = 'bg-indigo-500/15 text-indigo-400';
-                                    $pillBg = 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20';
-                                    $pillText = 'Departamentos';
-                                }
-                            @endphp
-                            <div class="bg-slate-900/90 rounded-2xl p-5 shadow-lg hover:shadow-2xl hover:bg-slate-900 transition duration-200 group backdrop-blur-sm">
-                                <div class="flex items-center justify-between">
-                                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">{{ $stat['label'] }}</p>
-                                    <span class="w-9 h-9 rounded-xl {{ $iconBg }} flex items-center justify-center transition-transform group-hover:scale-110">
-                                        @if ($isProduct)
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                                        @elseif ($isStock)
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                        @elseif ($isValue)
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11-0.208-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        @else
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-                                        @endif
-                                    </span>
-                                </div>
-                                <p class="text-2xl md:text-3xl font-black text-white mt-2 tracking-tight">{{ $stat['value'] }}</p>
-                                <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-400">
-                                    <span class="flex items-center gap-1 font-medium">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Datos en vivo
-                                    </span>
-                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold {{ $pillBg }}">
-                                        {{ $pillText }}
-                                    </span>
-                                </div>
+                            <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-xl backdrop-blur-sm transition duration-200 hover:border-slate-700">
+                                <span class="text-xs font-medium text-slate-400 block">{{ $stat['label'] }}</span>
+                                <p class="text-xl font-black text-white mt-1 font-mono tracking-tight">{{ $stat['value'] }}</p>
                             </div>
                         @endforeach
                     </div>
                 </div>
             @endif
 
-            <!-- Top 5 Productos Más Vendidos (Clase 9) -->
-            @if (isset($topProducts) && $topProducts->isNotEmpty())
-                <div class="bg-slate-900/80 rounded-2xl p-6 shadow-xl border border-slate-800/80 backdrop-blur-sm">
-                    <div class="flex items-center justify-between mb-4 border-b border-slate-800/80 pb-3">
-                        <h3 class="font-bold text-base text-white flex items-center gap-2">
-                            <span>🔥 Top 5 Productos Más Vendidos Este Mes</span>
-                        </h3>
-                        <span class="text-xs text-slate-400 font-medium">Ranking en tiempo real por unidades facturadas</span>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-xs">
-                            <thead class="bg-slate-950/80 text-[11px] uppercase font-bold text-slate-400 border-b border-slate-800/80">
-                                <tr>
-                                    <th class="py-3 px-4 text-left w-14"># Puesto</th>
-                                    <th class="py-3 px-4 text-left">Producto</th>
-                                    <th class="py-3 px-4 text-right">Unidades Vendidas</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-800/80 text-slate-300">
-                                @foreach ($topProducts as $i => $item)
-                                    <tr class="hover:bg-slate-800/50 transition">
-                                        <td class="py-3 px-4 font-mono font-black text-indigo-400 text-sm">#{{ $i + 1 }}</td>
-                                        <td class="py-3 px-4 font-bold text-white text-sm">{{ $item->product?->name }}</td>
-                                        <td class="py-3 px-4 text-right font-mono font-bold text-emerald-400 text-sm">{{ $item->total_sold }} uds</td>
+            {{-- 2. Sección Analítica: Top 5 Vendidos y Sugerencia de Reabastecimiento --}}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {{-- Top 5 Vendidos --}}
+                @if (isset($topProducts) && $topProducts->isNotEmpty())
+                    <div class="bg-slate-900/80 border border-slate-800/80 rounded-2xl shadow-xl backdrop-blur-sm p-6 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div>
+                                <h3 class="font-bold text-white text-base flex items-center gap-2">
+                                    <span>🔥</span> Top 5 Productos Más Vendidos Este Mes
+                                </h3>
+                                <p class="text-xs text-slate-400">Ranking acumulado según detalles de venta liquidados</p>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800/80">
+                                    <tr>
+                                        <th class="py-2.5 px-3">#</th>
+                                        <th class="py-2.5 px-3">Producto</th>
+                                        <th class="py-2.5 px-3 text-right">Unidades Vendidas</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                                    @foreach ($topProducts as $i => $item)
+                                        <tr class="hover:bg-slate-800/30 transition">
+                                            <td class="py-2.5 px-3 font-mono font-bold text-indigo-400">
+                                                #{{ $i + 1 }}
+                                            </td>
+                                            <td class="py-2.5 px-3 font-semibold text-white">
+                                                {{ $item->product?->name ?? 'Producto no disponible' }}
+                                            </td>
+                                            <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-400">
+                                                {{ $item->total_sold }} uds
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-            @endif
+                @endif
 
-            <!-- Cuadrícula Modular de Operaciones ERP -->
-            <div class="bg-slate-900/80 rounded-2xl p-6 md:p-8 shadow-xl border border-slate-800/80 space-y-6 backdrop-blur-sm">
-                <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
-                    <div>
-                        <h3 class="font-bold text-lg text-white">Módulos del Sistema ERP</h3>
-                        <p class="text-xs text-slate-400">Accede directamente a los módulos operacionales según tus permisos asignados.</p>
+                {{-- Reabastecimiento: Stock Crítico (≤ 5) --}}
+                @if (isset($lowStock) && $lowStock->isNotEmpty())
+                    <div class="bg-slate-900/80 border border-amber-500/30 rounded-2xl shadow-xl backdrop-blur-sm p-6 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div>
+                                <h3 class="font-bold text-amber-300 text-base flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                    Productos para Reabastecer (Stock ≤ 5)
+                                </h3>
+                                <p class="text-xs text-slate-400">Referencias en riesgo de desabastecimiento comercial</p>
+                            </div>
+                            @can('crear-compras')
+                                <a href="{{ route('purchases.create') }}" class="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold transition flex items-center gap-1 shadow-sm">
+                                    + Crear Orden de Compra
+                                </a>
+                            @endcan
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800/80">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Producto</th>
+                                        <th class="py-2.5 px-3 text-right">Stock Actual</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                                    @foreach ($lowStock as $prod)
+                                        <tr class="hover:bg-slate-800/30 transition">
+                                            <td class="py-2.5 px-3 font-semibold text-white">
+                                                {{ $prod->name }}
+                                            </td>
+                                            <td class="py-2.5 px-3 text-right font-mono font-black {{ $prod->stock === 0 ? 'text-rose-400' : 'text-amber-400' }}">
+                                                {{ $prod->stock }} uds {{ $prod->stock === 0 ? '(AGOTADO)' : '' }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                @endif
 
+            </div>
+
+            {{-- 3. Módulos Operativos del ERP --}}
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    Módulos Operativos de Turnix ERP
+                </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     @can('ver-ventas')
-                        <a href="{{ route('sales.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition duration-200">
+                        <a href="{{ route('sales.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-emerald-500/50 hover:shadow-xl transition duration-200">
                             <div class="flex items-start justify-between">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold group-hover:bg-emerald-600 group-hover:text-white transition duration-200 shadow-2xs">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold group-hover:bg-emerald-600 group-hover:text-white transition duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                                 </div>
-                                <span class="text-xs font-semibold text-slate-400 group-hover:text-emerald-300 flex items-center gap-1">
-                                    Ir al módulo <span class="group-hover:translate-x-1 transition-transform">→</span>
-                                </span>
+                                <span class="text-xs font-semibold text-slate-400 group-hover:text-emerald-300">Ir al módulo →</span>
                             </div>
                             <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-emerald-300 transition">Ventas & Facturación</h4>
-                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Registro de transacciones, liquidación con IVA 19% y descuento automático de inventario.</p>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Registro de transacciones, IVA 19%, descuento automático de inventario y PDFs.</p>
+                        </a>
+                    @endcan
+
+                    @can('ver-compras')
+                        <a href="{{ route('purchases.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-indigo-500/50 hover:shadow-xl transition duration-200">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center font-bold group-hover:bg-indigo-600 group-hover:text-white transition duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                </div>
+                                <span class="text-xs font-semibold text-slate-400 group-hover:text-indigo-300">Ir al módulo →</span>
+                            </div>
+                            <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-indigo-300 transition">Compras & Abastecimiento</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Órdenes de compra, recepción total/parcial con aumento de stock y órdenes PDF.</p>
+                        </a>
+                    @endcan
+
+                    @can('ver-proveedores')
+                        <a href="{{ route('providers.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-cyan-500/50 hover:shadow-xl transition duration-200">
+                            <div class="flex items-start justify-between">
+                                <div class="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center font-bold group-hover:bg-cyan-600 group-hover:text-white transition duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                </div>
+                                <span class="text-xs font-semibold text-slate-400 group-hover:text-cyan-300">Ir al módulo →</span>
+                            </div>
+                            <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-cyan-300 transition">Proveedores</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Directorio de laboratorios, distribuidores e importadores con control de borrado.</p>
                         </a>
                     @endcan
 
                     @can('ver-clientes')
-                        <a href="{{ route('clients.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/5 transition duration-200">
+                        <a href="{{ route('clients.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-blue-500/50 hover:shadow-xl transition duration-200">
                             <div class="flex items-start justify-between">
-                                <div class="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center font-bold group-hover:bg-cyan-600 group-hover:text-white transition duration-200 shadow-2xs">
+                                <div class="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center font-bold group-hover:bg-blue-600 group-hover:text-white transition duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                 </div>
-                                <span class="text-xs font-semibold text-slate-400 group-hover:text-cyan-300 flex items-center gap-1">
-                                    Ir al módulo <span class="group-hover:translate-x-1 transition-transform">→</span>
-                                </span>
+                                <span class="text-xs font-semibold text-slate-400 group-hover:text-blue-300">Ir al módulo →</span>
                             </div>
-                            <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-cyan-300 transition">Directorio de Clientes</h4>
-                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Cuentas comerciales, datos tributarios (NIT/CC) y vinculación de ventas.</p>
+                            <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-blue-300 transition">Clientes</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Gestión de cédulas, NITs, historial de compras y papelera de reciclaje.</p>
                         </a>
                     @endcan
 
                     @can('ver-productos')
-                        <a href="{{ route('products.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5 transition duration-200">
+                        <a href="{{ route('products.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-purple-500/50 hover:shadow-xl transition duration-200">
                             <div class="flex items-start justify-between">
-                                <div class="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center font-bold group-hover:bg-blue-600 group-hover:text-white transition duration-200 shadow-2xs">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center font-bold group-hover:bg-purple-600 group-hover:text-white transition duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                                 </div>
-                                <span class="text-xs font-semibold text-slate-400 group-hover:text-blue-300 flex items-center gap-1">
-                                    Ir al módulo <span class="group-hover:translate-x-1 transition-transform">→</span>
-                                </span>
+                                <span class="text-xs font-semibold text-slate-400 group-hover:text-purple-300">Ir al módulo →</span>
                             </div>
-                            <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-blue-300 transition">Inventario de Productos</h4>
-                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Administración de existencias, precios de lociones, ceras, navajas y papelera con Soft Delete.</p>
+                            <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-purple-300 transition">Inventario & Catálogo</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Control de existencias físicas en bodega, precios comerciales y alertas de stock bajo.</p>
                         </a>
                     @endcan
 
                     @can('ver-categorias')
-                        <a href="{{ route('categories.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition duration-200">
+                        <a href="{{ route('categories.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-pink-500/50 hover:shadow-xl transition duration-200">
                             <div class="flex items-start justify-between">
-                                <div class="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center font-bold group-hover:bg-indigo-600 group-hover:text-white transition duration-200 shadow-2xs">
+                                <div class="w-10 h-10 rounded-xl bg-pink-500/15 text-pink-400 flex items-center justify-center font-bold group-hover:bg-pink-600 group-hover:text-white transition duration-200">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
                                 </div>
-                                <span class="text-xs font-semibold text-slate-400 group-hover:text-indigo-300 flex items-center gap-1">
-                                    Ir al módulo <span class="group-hover:translate-x-1 transition-transform">→</span>
-                                </span>
+                                <span class="text-xs font-semibold text-slate-400 group-hover:text-pink-300">Ir al módulo →</span>
                             </div>
-                            <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-indigo-300 transition">Categorías de Catálogo</h4>
-                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Organización por líneas de negocio (Perfumería, Barbería & Afeitado, Cuidado Capilar).</p>
+                            <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-pink-300 transition">Categorías</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">Familias de productos: Perfumería, Barbería & Afeitado, Cuidado Capilar.</p>
                         </a>
                     @endcan
-
-                    <a href="{{ route('citas.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition duration-200">
-                        <div class="flex items-start justify-between">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold group-hover:bg-emerald-600 group-hover:text-white transition duration-200 shadow-2xs">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            </div>
-                            <span class="text-xs font-semibold text-slate-400 group-hover:text-emerald-300 flex items-center gap-1">
-                                Ir al módulo <span class="group-hover:translate-x-1 transition-transform">→</span>
-                            </span>
-                        </div>
-                        <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-emerald-300 transition">Agenda de Turnos</h4>
-                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Programación de citas para cortes, degradés, rituales de barba y asignación de barberos.</p>
-                    </a>
-
-                    <a href="{{ route('terceros.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-violet-500/50 hover:shadow-xl hover:shadow-violet-500/5 transition duration-200">
-                        <div class="flex items-start justify-between">
-                            <div class="w-10 h-10 rounded-xl bg-violet-500/15 text-violet-400 flex items-center justify-center font-bold group-hover:bg-violet-600 group-hover:text-white transition duration-200 shadow-2xs">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                            </div>
-                            <span class="text-xs font-semibold text-slate-400 group-hover:text-violet-300 flex items-center gap-1">
-                                Ir al módulo <span class="group-hover:translate-x-1 transition-transform">→</span>
-                            </span>
-                        </div>
-                        <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-violet-300 transition">Gestión de Terceros</h4>
-                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Directorio unificado de Clientes frecuentes, Proveedores de insumos y Personal de salón.</p>
-                    </a>
-
-                    <a href="{{ route('pagos.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-sky-500/50 hover:shadow-xl hover:shadow-sky-500/5 transition duration-200">
-                        <div class="flex items-start justify-between">
-                            <div class="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center font-bold group-hover:bg-sky-600 group-hover:text-white transition duration-200 shadow-2xs">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                            </div>
-                            <span class="text-xs font-semibold text-slate-400 group-hover:text-sky-300 flex items-center gap-1">
-                                Ir al módulo <span class="group-hover:translate-x-1 transition-transform">→</span>
-                            </span>
-                        </div>
-                        <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-sky-300 transition">Pasarelas de Pago QR</h4>
-                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Cobros rápidos mediante Nequi y transferencias con generación de código QR dinámico.</p>
-                    </a>
-
-                    <a href="{{ route('crm.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-rose-500/50 hover:shadow-xl hover:shadow-rose-500/5 transition duration-200">
-                        <div class="flex items-start justify-between">
-                            <div class="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center font-bold group-hover:bg-rose-600 group-hover:text-white transition duration-200 shadow-2xs">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                            </div>
-                            <span class="text-xs font-semibold text-slate-400 group-hover:text-rose-300 flex items-center gap-1">
-                                Ir al módulo <span class="group-hover:translate-x-1 transition-transform">→</span>
-                            </span>
-                        </div>
-                        <h4 class="font-bold text-white text-base mt-3.5 group-hover:text-rose-300 transition">CRM & Fidelización</h4>
-                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Registro de interacciones, acumulación de puntos de fidelidad y canjes de recompensas.</p>
-                    </a>
                 </div>
             </div>
 
