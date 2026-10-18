@@ -1,6 +1,6 @@
-# Sistema de Gestión Empresarial (ERP) — Nexus ERP
+# Sistema de Gestión Empresarial (ERP) — Turnix ERP
 ## Plataforma Modular Multi-Empresa con Vertical de Comercio y Servicios (Barbería & Perfumería JyM)
-### Informe Técnico de Arquitectura y Manual Operativo — Segundo Corte (Clases 6, 7, 8 y 9)
+### Informe Técnico de Arquitectura y Manual Operativo — Segundo Corte (Clases 6, 7, 8, 9 y 10)
 
 > **Institución:** Corporación de Estudios Tecnológicos del Norte del Valle — **COTECNOVA**  
 > **Sede:** Cartago, Valle del Cauca  
@@ -11,268 +11,235 @@
 > **Autores / Desarrolladores:**  
 > • **Brandon Cortés Giraldo**  
 > • **Johan Sttive Linares Barragán**  
+> **Identidad Comercial de la Plataforma:** **Turnix ERP**  
 > **Instancia de Validación / Dominio:** Barbería y Perfumería JyM (Cartago) / Distribuidora Cosméticos del Eje  
-> **Stack Tecnológico:** Laravel 11 / PHP 8.2+ / MariaDB / Tailwind CSS (Midnight Dark Enterprise) / Spatie Permission  
+> **Stack Tecnológico:** Laravel 11 / PHP 8.2+ / MariaDB / Tailwind CSS (Midnight Dark Enterprise) / Spatie Permission / Barryvdh DomPDF  
 
 ---
 
 ## 📑 Tabla de Contenidos
 1. [Visión General y Enfoque Arquitectónico](#1-visión-general-y-enfoque-arquitectónico)
-2. [Matriz Integral de Módulos del ERP](#2-matriz-integral-de-módulos-del-erp)
-3. [Seguridad y Control de Acceso por Roles (RBAC Spatie - Clase 8)](#3-seguridad-y-control-de-acceso-por-roles-rbac-spatie---clase-8)
+2. [Matriz Integral de Módulos de Turnix ERP](#2-matriz-integral-de-módulos-de-turnix-erp)
+3. [Seguridad y Control de Acceso por Roles (RBAC Spatie - Clases 8 y 10)](#3-seguridad-y-control-de-acceso-por-roles-rbac-spatie---clases-8-y-10)
 4. [Módulo Transaccional de Ventas e Inventario (Clase 9)](#4-módulo-transaccional-de-ventas-e-inventario-clase-9)
-5. [Directorio de Clientes y Patrón Party Model](#5-directorio-de-clientes-y-patrón-party-model)
-6. [Pasarelas de Pago Electrónicas (WOMPI & Nequi) y Webhooks](#6-pasarelas-de-pago-electrónicas-wompi--nequi-y-webhooks)
-7. [CRM & Kárdex Contable de Fidelización](#7-crm--kárdex-contable-de-fidelización)
-8. [Dashboard Ejecutivo con KPIs y Top 5 en Vivo](#8-dashboard-ejecutivo-con-kpis-y-top-5-en-vivo)
-9. [Diseño Visual Enterprise (Midnight Dark Mode)](#9-diseño-visual-enterprise-midnight-dark-mode)
-10. [Credenciales de Acceso y Datos de Prueba](#10-credenciales-de-acceso-y-datos-de-prueba)
-11. [Guía de Instalación y Puesta en Marcha](#11-guía-de-instalación-y-puesta-en-marcha)
-12. [Validación y Pruebas Automatizadas (PHPUnit)](#12-validación-y-pruebas-automatizadas-phpunit)
+5. [Módulo de Compras, Proveedores y Recepción de Mercancía (Clase 10)](#5-módulo-de-compras-proveedores-y-recepción-de-mercancía-clase-10)
+6. [Reportes Oficiales en PDF (DomPDF - Clase 10)](#6-reportes-oficiales-en-pdf-dompdf---clase-10)
+7. [Directorio de Clientes y Patrón Party Model en Terceros](#7-directorio-de-clientes-y-patrón-party-model-en-terceros)
+8. [Pasarelas de Pago Electrónicas (WOMPI & Nequi) y Webhooks](#8-pasarelas-de-pago-electrónicas-wompi--nequi-y-webhooks)
+9. [CRM & Kárdex Contable de Fidelización](#9-crm--kárdex-contable-de-fidelización)
+10. [Dashboard Ejecutivo Accionable con KPIs en Vivo](#10-dashboard-ejecutivo-accionable-con-kpis-en-vivo)
+11. [Diseño Visual Enterprise (Midnight Dark Mode)](#11-diseño-visual-enterprise-midnight-dark-mode)
+12. [Credenciales de Acceso y Datos de Prueba](#12-credenciales-de-acceso-y-datos-de-prueba)
+13. [Guía de Instalación y Puesta en Marcha](#13-guía-de-instalación-y-puesta-en-marcha)
+14. [Validación y Pruebas Automatizadas (PHPUnit - 41 Tests)](#14-validación-y-pruebas-automatizadas-phpunit---41-tests)
+15. [Estructura de Entregables de la Clase 10](#15-estructura-de-entregables-de-la-clase-10)
 
 ---
 
 ## 1. Visión General y Enfoque Arquitectónico
 
-### 1.1. De Software Mononegocio a Plataforma ERP Real
-Un error conceptual recurrente en el desarrollo de software es diseñar bases de datos acopladas a un solo tipo de negocio (tablas como `cortes_cabello` o `clientes_peluqueria`). Este proyecto fue concebido bajo los estándares de plataformas líderes como **SAP Business One** y **Odoo**:
-1. **Núcleo Transaccional Universal:** Las entidades primarias (Productos, Terceros, Ventas, Facturación, Inventario e Impuestos) son 100% agnósticas al rubro comercial. El sistema tiene la misma capacidad técnica para vender una cera fijadora, un perfume de lujo, una libra de café o una caja de tornillos.
-2. **Bajo Acoplamiento y Desconexión Modular (*Low Coupling*):** Los módulos satélites (Turnos/Citas de barbería, Pasarelas electrónicas, CRM de puntos) cuentan con claves foráneas opcionales (`nullable` con `onDelete('set null')`). Si una empresa no requiere servicios presenciales, el módulo de turnos se apaga por permisos y el ERP sigue operando como un sistema comercial puro.
-3. **Arquitectura Multi-Empresa (`empresas` y `sucursales`):** La base de datos soporta múltiples compañías en paralelo. En el seeder conviven la **Barbería y Perfumería JyM** (servicios y mostrador) y la **Distribuidora Cosméticos del Eje** (bodega mayorista B2B).
+### 1.1. De Software Mononegocio a Plataforma ERP Real (Turnix ERP)
+Un error recurrente en el desarrollo de software es diseñar bases de datos acopladas a un solo tipo de negocio (como tablas fijas `cortes_cabello` o `citas_barberia`). **Turnix ERP** fue estructurado siguiendo los lineamientos de arquitecturas de software empresarial como **SAP Business One** y **Odoo**:
+1. **Núcleo Transaccional Universal:** Las entidades primarias (Productos, Proveedores, Clientes/Terceros, Compras, Ventas, Inventario e Impuestos) son 100% agnósticas al rubro comercial. El sistema procesa con la misma exactitud contable una cera estilizadora, una loción de lujo, una libra de café o una caja de tornillos industriales.
+2. **Bajo Acoplamiento y Desconexión Modular (*Low Coupling*):** Los módulos satélites (Turnos/Citas presenciales, Pasarelas digitales de recaudo, CRM omnicanal de puntos) operan con claves foráneas opcionales (`nullable` con `onDelete('set null')`). Si una empresa de retail o ferretería usa el sistema, el módulo de turnos simplemente se apaga por permisos y el ERP sigue operando como un sistema comercial de inventarios impecable.
 
-```mermaid
-flowchart TD
-    subgraph Core["NÚCLEO ERP UNIVERSAL (Agnóstico)"]
-        AUTH["Autenticación & RBAC (Spatie)"]
-        PARTY["Directorio Terceros (Party Model)"]
-        CAT["Catálogo Productos & Categorías"]
-        VENTAS["Ventas, Facturación & Kárdex (ACID)"]
-    end
+---
 
-    subgraph Modulos["MÓDULOS DE NEGOCIO DESACOPLADOS"]
-        SERV["Agenda de Citas & Servicios"]
-        PAY["Pasarelas WOMPI / Nequi / QR"]
-        CRM["CRM & Kárdex de Puntos"]
-    end
+## 2. Matriz Integral de Módulos de Turnix ERP
 
-    AUTH --> VENTAS
-    PARTY --> VENTAS
-    CAT --> VENTAS
-    VENTAS -.-> PAY
-    SERV -.-> PAY
-    VENTAS -.-> CRM
+```
+                        ┌────────────────────────────────────────────────────────┐
+                        │              TURNIX ERP - NÚCLEO MODULAR               │
+                        └──────────────────────────┬─────────────────────────────┘
+                                                   │
+        ┌─────────────────────────┬────────────────┼─────────────────────────┬─────────────────────────┐
+        ▼                         ▼                ▼                         ▼                         ▼
+┌──────────────┐          ┌──────────────┐  ┌──────────────┐          ┌──────────────┐          ┌──────────────┐
+│ PROVEEDORES  │          │   COMPRAS    │  │  INVENTARIO  │          │    VENTAS    │          │   CLIENTES   │
+│  (providers) │─────────▶│ (purchases)  │─▶│  (products)  │◀─────────│   (sales)    │◀─────────│   (clients)  │
+└──────────────┘          └──────────────┘  └──────────────┘          └──────────────┘          └──────────────┘
+                                 │                 ▲                         │
+                                 │                 │                         │
+                          (Aumenta stock     (Punto Central             (Disminuye
+                            al RECIBIR)        de Verdad)             stock al VENDER)
+                                 │                                           │
+                                 ▼                                           ▼
+                        ┌────────────────┐                          ┌────────────────┐
+                        │ Orden Compra   │                          │ Factura Venta  │
+                        │    en PDF      │                          │    en PDF      │
+                        └────────────────┘                          └────────────────┘
 ```
 
 ---
 
-## 2. Matriz Integral de Módulos del ERP
+## 3. Seguridad y Control de Acceso por Roles (RBAC Spatie - Clases 8 y 10)
 
-| Módulo | Ruta Base | Controlador Principal | Propósito Operativo |
-| :--- | :--- | :--- | :--- |
-| **Dashboard** | `/dashboard` | `DashboardController` | Indicadores clave (KPIs), métricas del mes y Top 5 productos más vendidos. |
-| **Ventas (Clase 9)** | `/sales` | `SaleController` | Registro de facturas, cálculo dinámico de IVA (19%) y descuento de stock. |
-| **Clientes (Clase 9)** | `/clients` | `ClientController` | Maestro de clientes comerciales con SoftDeletes y protección de integridad. |
-| **Productos** | `/products` | `ProductController` | Catálogo de existencias, precios, categorías y papelera de reciclaje. |
-| **Categorías** | `/categories` | `CategoryController` | Familias de artículos con conteo de productos asociados. |
-| **Turnos (Citas)** | `/citas` | `CitaController` | Gestión de servicios de salón, profesionales y liquidación de comisiones. |
-| **Terceros** | `/terceros` | `TerceroController` | Directorio Party Model (Clientes, Proveedores, Empleados) y Perfil 360°. |
-| **Pasarelas de Pago** | `/pagos` | `PasarelaPagoController` | Conciliación de recaudos WOMPI/Nequi, simulación de webhooks y visor JSON. |
-| **CRM & Puntos** | `/crm` | `CrmController` | Bitácora de contacto omnicanal y ledger inmutable de fidelización. |
+Turnix ERP cuenta con control de acceso basado en roles con el paquete `spatie/laravel-permission`:
 
----
-
-## 3. Seguridad y Control de Acceso por Roles (RBAC Spatie - Clase 8)
-
-El sistema implementa el paquete oficial de la industria **`spatie/laravel-permission`**, asegurando un control de acceso granular por rol y permiso tanto a nivel de controladores como en las vistas Blade.
-
-### 3.1. Matriz de Roles y Permisos (`RolePermissionSeeder.php`)
-
-| Permiso de Spatie | Rol `admin` | Rol `vendedor` | Rol `almacenista` |
-| :--- | :---: | :---: | :---: |
-| `ver-productos` | ✅ | ✅ | ✅ |
-| `crear-productos` | ✅ | ❌ | ✅ |
-| `editar-productos` | ✅ | ❌ | ✅ |
-| `eliminar-productos` | ✅ | ❌ | ❌ |
-| `ver-categorias` | ✅ | ❌ | ✅ |
-| `crear-categorias` | ✅ | ❌ | ❌ |
-| `ver-clientes` | ✅ | ✅ | ❌ |
-| `crear-clientes` | ✅ | ✅ | ❌ |
-| `editar-clientes` | ✅ | ✅ | ❌ |
-| `eliminar-clientes` | ✅ | ❌ | ❌ |
-| `ver-ventas` | ✅ | ✅ | ❌ |
-| `crear-ventas` | ✅ | ✅ | ❌ |
-| `eliminar-ventas` | ✅ | ❌ | ❌ |
-| `ver-reportes` | ✅ | ❌ | ❌ |
-
-### 3.2. Blindaje en Controladores (`HasMiddleware`)
-En lugar de depender únicamente de rutas, los controladores validan internamente los permisos mediante middleware nativo de Laravel 11:
-```php
-public static function middleware(): array
-{
-    return [
-        new Middleware('permission:ver-ventas', only: ['index', 'show']),
-        new Middleware('permission:crear-ventas', only: ['create', 'store']),
-        new Middleware('permission:eliminar-ventas', only: ['destroy']),
-    ];
-}
-```
-*Si un usuario no autorizado intenta forzar una URL por el navegador, Laravel responde inmediatamente con **HTTP 403 Forbidden**.*
+| Módulo / Acción | Permiso Técnico Spatie | Admin | Almacenista | Vendedor |
+| :--- | :--- | :---: | :---: | :---: |
+| **Catálogo de Productos** | `ver-productos`, `crear-productos`, `editar-productos` | ✅ | ✅ | Solo Ver |
+| **Eliminar Productos** | `eliminar-productos` | ✅ | ❌ (403) | ❌ (403) |
+| **Categorías** | `ver-categorias`, `crear-categorias`, etc. | ✅ | ✅ | ❌ (403) |
+| **Directorio de Clientes** | `ver-clientes`, `crear-clientes`, `editar-clientes` | ✅ | ❌ (403) | ✅ |
+| **Ventas / Facturación** | `ver-ventas`, `crear-ventas`, `eliminar-ventas` | ✅ | ❌ (403) | ✅ (No anula) |
+| **Factura de Venta en PDF** | `ver-ventas` | ✅ | ❌ (403) | ✅ |
+| **Directorio de Proveedores** | `ver-proveedores`, `crear/editar-proveedores` | ✅ | ✅ | ❌ (403) |
+| **Eliminar Proveedores** | `eliminar-proveedores` | ✅ | ❌ (403) | ❌ (403) |
+| **Órdenes de Compra** | `ver-compras`, `crear-compras` | ✅ | ✅ | ❌ (403) |
+| **Recepción de Mercancía** | `recibir-compras` *(Clase 10)* | ✅ | ✅ | ❌ (403) |
+| **Anular Orden de Compra** | `eliminar-compras` *(Solo si está pendiente)* | ✅ | ❌ (403) | ❌ (403) |
+| **Reportes y Balance Neto** | `ver-reportes` *(Ventas − Compras)* | ✅ | ❌ | ❌ |
 
 ---
 
 ## 4. Módulo Transaccional de Ventas e Inventario (Clase 9)
 
-El módulo de ventas representa la materialización de la **integración modular del ERP**, cumpliendo con todas las exigencias de la **Guía de la Clase 9**.
-
-### 4.1. Arquitectura de Servicio (`SaleService.php`)
-Siguiendo las mejores prácticas de arquitectura limpia, la lógica transaccional fue extraída del controlador y encapsulada en `app/Services/SaleService.php`.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Vendedor as Vendedor (Browser)
-    participant Ctrl as SaleController
-    participant Srv as SaleService
-    participant BD as Base de Datos (InnoDB)
-
-    Vendedor->>Ctrl: POST /sales (client_id, fecha, items[])
-    Ctrl->>Ctrl: Valida con StoreSaleRequest
-    Ctrl->>Srv: register(data, userId)
-    critical Transacción Atómica ACID
-        Srv->>BD: DB::transaction()
-        Srv->>BD: Product::lockForUpdate() (Bloqueo de fila)
-        Note over Srv,BD: Valida stock disponible y suma cantidades duplicadas
-        Srv->>BD: Sale::create() (Cabecera FV-00001)
-        Srv->>BD: SaleDetail::create() (Detalles por ítem)
-        Srv->>BD: Product::decrement('stock', quantity)
-    end
-    Srv-->>Ctrl: Venta registrada exitosamente
-    Ctrl-->>Vendedor: Redirección a Factura (sales.show)
+* **Servicio Transaccional (`SaleService.php`):** Desacopla la lógica del controlador dentro de `DB::transaction()`.
+* **Concurrencia Pesimista:** `Product::lockForUpdate()` garantiza que dos vendedores simultáneos no vendan el mismo stock disponible.
+* **Cálculo Tributario de Ley (IVA 19% Colombia):**
+```text
+Subtotal      = ∑ (Cantidad × Precio Unitario)
+IVA (19%)     = Subtotal × 0.19
+Total Factura = Subtotal + IVA
 ```
-
-### 4.2. Reglas de Negocio Implementadas
-1. **Control de Concurrencia:** `Product::lockForUpdate()` bloquea la fila del producto durante la transacción, impidiendo que dos vendedores simultáneos vendan el mismo stock físico.
-2. **Cálculo Tributario de Ley (IVA 19% en Colombia):**
-   $$\text{Subtotal} = \sum (\text{cantidad} \times \text{precio\_unitario})$$
-   $$\text{IVA (19\%)} = \text{Subtotal} \times 0.19$$
-   $$\text{Total Factura} = \text{Subtotal} + \text{IVA}$$
-3. **Formulario Reactivo en JavaScript (`sales/create.blade.php`):**
-   * Agrega y elimina filas de productos dinámicamente.
-   * Calcula Subtotal, IVA 19% y Total en tiempo real mientras el usuario digita cantidades.
-   * Si el servidor rechaza la venta (por ejemplo, por stock insuficiente), el formulario **reconstruye automáticamente las filas anteriores** mediante `old('items')` sin perder la información digitada.
-4. **Regla de Negocio Inversa (Anulación de Factura):**
-   * Al anular una factura (`DELETE /sales/{id}`), el sistema ejecuta una transacción que actualiza el estado a `anulada`, aplica `softDeletes` y **devuelve automáticamente las unidades al stock** de cada producto mediante `increment('stock', $detail->quantity)`.
+* **Reversión Atómica:** Al anular una factura, el sistema actualiza el estado a `anulada`, aplica `softDeletes` y devuelve las unidades al catálogo mediante `Product::increment('stock', $cant)`.
 
 ---
 
-## 5. Directorio de Clientes y Patrón Party Model
+## 5. Módulo de Compras, Proveedores y Recepción de Mercancía (Clase 10)
 
-### 5.1. Módulo Estándar de Clientes (`clients`)
-* Implementa CRUD completo con Form Requests (`StoreClientRequest`, `UpdateClientRequest`).
-* Tipos de documento oficiales: `CC` (Cédula de Ciudadanía), `NIT`, `CE` (Cédula de Extranjería), `PP` (Pasaporte).
-* **Integridad Referencial:** Regla de negocio que prohíbe eliminar un cliente si ya tiene facturas de venta asociadas (`$client->sales()->exists()`).
-* **SoftDeletes y Papelera:** Papelera de reciclaje independiente con capacidad de restauración de registros.
+El ciclo **Procure-to-Pay** cierra el flujo de inventario real: *Una venta saca mercancía; una compra la vuelve a llenar*.
 
-### 5.2. Patrón Party Model en Terceros (`terceros`)
-Para la gestión omnicanal de la empresa matriz, el ERP integra el patrón **Party Model** de Martin Fowler:
-* Un mismo tercero (ej. *Carlos Alberto Duque*) puede actuar simultáneamente como **Empleado Especialista** (con 50% de comisión en servicios) y como **Cliente** de mostrador (acumulando puntos de fidelidad).
+### 5.1. Máquina de Estados de la Orden de Compra
+Una orden de compra no es un registro estático; evoluciona según la operación real del negocio:
+1. **`pendiente`:** La orden fue emitida al proveedor con código correlativo (ej. `OC-00001`). **No toca el stock físico** (*pedir no es recibir*). Puede anularse formalmente.
+2. **`parcial`:** El proveedor despacha una entrega incompleta. El stock en bodega incrementa **únicamente** con las unidades que llegaron físicamente (`received_quantity`). La orden no se puede anular.
+3. **`recibida`:** Se completó el 100% de lo solicitado. El sistema registra la marca de tiempo `received_at` y cierra la orden.
+4. **`anulada`:** Se canceló antes de recibir mercancía (`softDeletes`). No hay stock que revertir.
 
----
+### 5.2. Tablas Nuevas en la Base de Datos
+* **`providers`:** Documento (`NIT`, `CC`, `CE`, `PP`), número único, razón social, persona de contacto, teléfono, correo, dirección, estado activo y soft deletes.
+* **`purchases`:** Número de orden (`OC-00001`), llave foránea a `providers`, llave foránea a `users`, fecha de compra, factura del proveedor, subtotal, IVA 19%, total, estado, marca de tiempo `received_at`, notas y soft deletes.
+* **`purchase_details`:** Llave foránea a `purchases`, llave foránea a `products`, cantidad pedida (`quantity`), cantidad recibida acumulada (`received_quantity`), costo unitario (`unit_cost`) y subtotal.
 
-## 6. Pasarelas de Pago Electrónicas (WOMPI & Nequi) y Webhooks
-
-El módulo de pasarelas centraliza la trazabilidad de recaudos electrónicos vinculados a citas o ventas de mostrador:
-* **WOMPI (Bancolombia, PSE, Tarjetas):** Generación de checkout y simulación de pagos con datos comerciales de la empresa matriz.
-* **NEQUI (QR Dinámico & Push):** Generación de código QR interactivo con teléfono del cliente para cobro móvil directo.
-* **Simulador de Webhooks y Payload Crudo:** En la vista de checkout ([`/pagos/checkout/{id}`](http://127.0.0.1:8000/pagos)) se puede simular la confirmación bancaria (`APPROVED` o `DECLINED`). El sistema procesa el evento y renderiza el **JSON crudo** almacenado en la base de datos para auditoría financiera.
-
----
-
-## 7. CRM & Kárdex Contable de Fidelización
-
-* **Ledger Inmutable de Puntos:** Cada punto otorgado o redimido se asienta en un kárdex con saldo anterior, saldo nuevo, fecha y motivo de la transacción.
-* **Bitácora Omnicanal 360°:** Registro en tiempo real de interacciones con clientes clasificadas por canal (`WhatsApp`, `Llamada`, `Presencial`, `Email`) y tipo (`Preferencia`, `Seguimiento`, `Felicitación`, `Reclamo PQR`).
-* **Ranking VIP:** Listado dinámico de los clientes con mayor frecuencia y acumulación de puntos.
+### 5.3. Reglas de Negocio Implementadas en `PurchaseService.php`
+1. **Regla de Oro de Recepción:** No se puede recibir más de lo pendiente por entregar:
+   $$\text{Cantidad Pendiente} = \text{Cantidad Pedida} - \text{Cantidad Recibida}$$
+   Si un usuario manipula el HTML o intenta ingresar más unidades de las pendientes, el servidor arroja `ValidationException` y cancela la transacción.
+2. **Recepción Atómica:** Una recepción debe ingresar al menos una unidad mayor a cero.
+3. **Bloqueo de Concurrencia en Recepción:** `Purchase::lockForUpdate()` y `Product::lockForUpdate()` impiden que dos almacenistas registren la misma entrega al mismo tiempo.
+4. **Regla Propia del Dominio (Protección de Margen Comercial):**
+   * En el formulario de compra dinámico en JavaScript, el sistema muestra el precio de venta al público (PVP) del catálogo. Si el costo unitario negociado es $\ge$ al precio de venta, el sistema activa una **alerta visual en rojo** advirtiendo que se operaría a pérdida.
+   * Validación en servidor: No se permiten órdenes a proveedores inactivos o suspendidos.
+5. **Integridad Referencial:** Se impide eliminar físicamente o enviar a papelera a un proveedor que posea compras asociadas (`$provider->purchases()->exists()`).
 
 ---
 
-## 8. Dashboard Ejecutivo con KPIs y Top 5 en Vivo
+## 6. Reportes Oficiales en PDF (DomPDF - Clase 10)
 
-El panel principal ([`/dashboard`](http://127.0.0.1:8000/dashboard)) consolida la toma de decisiones en tiempo real mediante tarjetas sin bordes de alto contraste:
-1. **Productos Activos:** Total de referencias comerciales disponibles.
-2. **Stock Bajo ($\le 5$ unidades):** Alerta preventiva para reabastecimiento de bodega.
-3. **Valor del Inventario:** Valuación monetaria total: $\sum (\text{precio} \times \text{stock})$.
-4. **Clientes Activos:** Total de cuentas de clientes registradas en el sistema.
-5. **Ventas del Mes:** Conteo de facturas emitidas y monto total recaudado en COP.
-6. **🔥 Top 5 Productos Más Vendidos Este Mes:** Tabla analítica que agrupa `SaleDetail` por producto y ordena descendentemente por unidades despachadas.
-
----
-
-## 9. Diseño Visual Enterprise (Midnight Dark Mode)
-
-La interfaz gráfica fue rediseñada para ofrecer una experiencia ejecutiva de alta gama:
-* **Fondo Principal:** Obsidian Slate (`#090D16`) de bajo impacto visual.
-* **Tarjetas y Contenedores:** `bg-slate-900/80` con desenfoque de fondo (*backdrop blur*) y bordes de acento sutiles (`border-slate-800/80`).
-* **Tarjetas KPI Flotantes:** Sin bordes rígidos, con sombras suaves de elevación e íconos en acentos cromáticos.
-* **Tipografía y Alto Contraste:** Textos en blanco nítido (`text-white`) y slate claro (`text-slate-300`) garantizando legibilidad perfecta.
-* **Cero Tonos Naranjas:** Paleta basada en azul real, índigo eléctrico, esmeralda y cian.
-* **Protección de Autofill:** Reglas de CSS para neutralizar el fondo blanco por defecto que inyectan los navegadores en inputs de autenticación.
+Integración con `barryvdh/laravel-dompdf` para la expedición de documentos empresariales para impresión o archivo:
+* **Plantilla Base Universal (`resources/views/pdf/layout.blade.php`):**
+  * Maquetación mediante CSS clásico y tablas (100% compatible con el motor de renderizado de DomPDF sin depender de Vite ni Tailwind).
+  * Fuente tipográfica con soporte UTF-8 nativo (`DejaVu Sans`) para tildes y caracteres especiales en español.
+  * Membrete corporativo oficial: **Turnix ERP — Barbería y Perfumería JyM / Distribuidora Cosméticos del Eje**, NIT 900.887.654-2, Cartago Valle del Cauca.
+* **Documentos Generados:**
+  1. **Orden de Compra (`/purchases/{id}/pdf`):** Encabezado de proveedor, tabla de productos pedidos vs recibidos, costos, discriminación de IVA 19%, totales y firmas de responsabilidad (*Elaboró* y *Recibió Almacén*).
+  2. **Factura de Venta (`/sales/{id}/pdf`):** Encabezado del cliente, referencias facturadas, IVA desglosado, totales y leyenda DIAN académica.
 
 ---
 
-## 10. Credenciales de Acceso y Datos de Prueba
+## 7. Directorio de Clientes y Patrón Party Model en Terceros
 
-Todos los usuarios de prueba están precargados en la base de datos con la contraseña estándar: **`password`**
+* **Módulo Estándar de Clientes (`clients`):** CRUD con Form Requests, validación de cédulas/NITs y bloqueo de borrado si tienen facturas.
+* **Patrón Party Model (`terceros`):** Un mismo registro de persona (ej. *Carlos Alberto Duque*) puede actuar simultáneamente como **Empleado Especialista** (comisión del 50% en servicios de barbería) y como **Cliente** en compras de mostrador (acumulando puntos de fidelización).
 
-| Usuario / Correo | Rol Asignado | Alcance en el ERP |
+---
+
+## 8. Pasarelas de Pago Electrónicas (WOMPI & Nequi) y Webhooks
+
+* **WOMPI (Bancolombia, PSE, Tarjetas):** Generación de checkout y simulación de pagos digitales.
+* **NEQUI (QR Dinámico & Push):** Generación interactiva de QR para transferencias móviles.
+* **Visor de Payload Crudo:** Almacenamiento y renderizado del JSON bancario en base de datos para auditoría fiscal.
+
+---
+
+## 9. CRM & Kárdex Contable de Fidelización
+
+* **Ledger Inmutable de Puntos:** Kárdex con saldo anterior, saldo nuevo, fecha y motivo de la transacción.
+* **Bitácora Omnicanal 360°:** Registro de interacciones (`WhatsApp`, `Llamada`, `Presencial`, `Email`) categorizadas por preferencia, seguimiento o PQR.
+* **Ranking VIP:** Visualización de clientes con mayor fidelidad.
+
+---
+
+## 10. Dashboard Ejecutivo Accionable con KPIs en Vivo
+
+El panel principal ([`/dashboard`](http://127.0.0.1:8000/dashboard)) ofrece información procesable en tiempo real:
+1. **KPIs Operativos:** Productos activos, Clientes activos, Stock bajo ($\le 5$), Valoración monetaria total del inventario: `∑ (Precio × Stock)`.
+2. **KPIs de Abastecimiento (Clase 10):**
+   * **Compras del Mes:** Monto acumulado en COP de órdenes registradas.
+   * **Órdenes por Recibir:** Total de órdenes en estado `pendiente` o `parcial` que esperan ingreso a bodega.
+   * **Proveedores Activos:** Total de empresas proveedoras habilitadas.
+   * **Balance Financiero:** Indicador neto: *Ventas del mes − Compras del mes* (exclusivo para usuarios con `ver-reportes`).
+3. **Tabla Analítica:** Top 5 productos más vendidos del mes en unidades.
+4. **Tabla Accionable de Reabastecimiento:** Listado de referencias con stock crítico ($\le 5$ unidades o agotadas en rojo) con botón de acceso directo a `+ Crear orden de compra`.
+
+---
+
+## 11. Diseño Visual Enterprise (Midnight Dark Mode)
+
+* **Paleta Principal:** Obsidian Slate (`#090D16`) con tarjetas traslúcidas (`bg-slate-900/80 border border-slate-800/80 backdrop-blur-sm`).
+* **Tarjetas KPI Borderless:** Sin bordes duros, con elevación suave de sombras y tipografía de alto contraste en blanco (`text-white`).
+* **Branding Unificado:** Logotipo tecnológico **Turnix ERP (Gestión & Operaciones)** con isotipo tridimensional en gradiente índigo y cian.
+* **Cero Tonos Naranjas:** Diseñado exclusivamente con tonos azules, esmeralda, índigo y cian.
+
+---
+
+## 12. Credenciales de Acceso y Datos de Prueba
+
+Contraseña estándar para todos los usuarios: **`password`**
+
+| Usuario / Correo | Rol Asignado | Alcance en Turnix ERP |
 | :--- | :--- | :--- |
-| **`admin@test.com`** | **Admin** | Control total del sistema: Ventas, Clientes, Inventario, Categorías, Papelera y Reportes. |
-| **`vendedor@test.com`** | **Vendedor** | Puede consultar catálogo, registrar clientes y emitir ventas. Bloqueado para eliminar o editar stock. |
-| **`almacenista@test.com`** | **Almacenista** | Administra catálogo, crea productos y categorías. Bloqueado para ventas y clientes. |
+| **`admin@test.com`** | **Admin** | Control total: Ventas, Compras, Proveedores, Clientes, Inventario, Papelera y Balance Financiero. |
+| **`almacenista@test.com`** | **Almacenista** | Crea y edita productos/categorías; administra proveedores; emite y recibe compras en bodega. Bloqueado para ventas y anulación de órdenes. |
+| **`vendedor@test.com`** | **Vendedor** | Consulta catálogo, administra clientes y emite facturas de venta con descarga PDF. Bloqueado para compras y proveedores (403). |
 
 ---
 
-## 11. Guía de Instalación y Puesta en Marcha
+## 13. Guía de Instalación y Puesta en Marcha
 
-### Requisitos Previos
-* PHP 8.2 o superior con extensiones `pdo_mysql`, `mbstring`, `openssl`.
-* Composer 2.x
-* MariaDB / MySQL 8.x
-* WSL2 (Ubuntu) en entornos Windows.
-
-### Pasos de Instalación
 ```bash
 # 1. Clonar el repositorio
 git clone https://github.com/Brandon07-code/SoftwareGestionEmpresarial.git
 cd SoftwareGestionEmpresarial/src
 
-# 2. Instalar dependencias de PHP
+# 2. Instalar dependencias
 composer install
 
-# 3. Configurar entorno
+# 3. Configurar variables de entorno y generar clave
 cp .env.example .env
 php artisan key:generate
 
-# 4. Ejecutar migraciones con Seeders completos
+# 4. Migrar base de datos y cargar Seeders completos
 php artisan migrate:fresh --seed
 
-# 5. Iniciar servidor de desarrollo
+# 5. Iniciar servidor local
 php artisan serve
 ```
-La aplicación estará disponible inmediatamente en: **`http://127.0.0.1:8000`**
+La aplicación queda disponible en: **`http://127.0.0.1:8000`**
 
 ---
 
-## 12. Validación y Pruebas Automatizadas (PHPUnit)
+## 14. Validación y Pruebas Automatizadas (PHPUnit - 41 Tests)
 
-El ERP cuenta con una suite de pruebas automatizadas que certifican la integridad del código, la seguridad de rutas y el cumplimiento de las reglas de negocio de la Clase 9.
+Turnix ERP cuenta con una cobertura integral de pruebas automatizadas que certifican la integridad del código, el control de acceso y las reglas de negocio de compras y ventas:
 
-### Ejecución de Pruebas
 ```bash
 php artisan test
 ```
 
-### Resultados de la Suite
+### Resultados de la Suite Completa
 ```
    PASS  Tests\Unit\ExampleTest
   ✓ that true is true
@@ -283,8 +250,42 @@ php artisan test
   ✓ users can not authenticate with invalid password
   ✓ users can logout
 
+   PASS  Tests\Feature\Auth\EmailVerificationTest
+  ✓ email verification screen can be rendered
+  ✓ email can be verified
+  ✓ email is not verified with invalid hash
+
+   PASS  Tests\Feature\Auth\PasswordConfirmationTest
+  ✓ confirm password screen can be rendered
+  ✓ password can be confirmed
+  ✓ password is not confirmed with invalid password
+
+   PASS  Tests\Feature\Auth\PasswordResetTest
+  ✓ reset password link screen can be rendered
+  ✓ reset password link can be requested
+  ✓ reset password screen can be rendered
+  ✓ password can be reset with valid token
+
+   PASS  Tests\Feature\Auth\PasswordUpdateTest
+  ✓ password can be updated
+  ✓ correct password must be provided to update password
+
+   PASS  Tests\Feature\Auth\RegistrationTest
+  ✓ registration screen can be rendered
+  ✓ new users can register
+
    PASS  Tests\Feature\ErpViewsTest
-  ✓ authenticated user can view all erp modules (/dashboard, /products, /categories, /citas, /terceros, /pagos, /crm, /clients, /sales)
+  ✓ authenticated user can view all erp modules
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application returns a successful response
+
+   PASS  Tests\Feature\ProfileTest
+  ✓ profile page is displayed
+  ✓ profile information can be updated
+  ✓ email verification status is unchanged when the email address is unchanged
+  ✓ user can delete their account
+  ✓ correct password must be provided to delete account
 
    PASS  Tests\Feature\RolePermissionTest
   ✓ admin has full access
@@ -297,10 +298,34 @@ php artisan test
   ✓ canceling sale restores stock (Atomic Rollback)
   ✓ cannot delete client with sales (Integrity Constraint)
 
-Tests: 33 passed (98 assertions)
-Duration: 4.85s
-Status: 100% VERDE
+   PASS  Tests\Feature\PurchaseIntegrationTest (Clase 10)
+  ✓ can register purchase and stock does not change yet (Pedir no es recibir)
+  ✓ can receive purchase partially and stock increments (Recepción parcial)
+  ✓ can receive remaining purchase and order completes (Estado recibida)
+  ✓ cannot receive more than pending quantity (ValidationException)
+  ✓ can cancel pending purchase but cannot cancel received purchase
+  ✓ cannot delete provider with purchases
+  ✓ can generate purchase and sale pdfs (DomPDF 200 OK)
+  ✓ role permissions for purchases and providers (Almacenista vs Vendedor 403)
+
+Tests:    41 passed (143 assertions)
+Duration: 8.92s
+Estado:   100% VERDE
 ```
+
+---
+
+## 15. Estructura de Entregables de la Clase 10
+
+Las evidencias solicitadas por la rúbrica se encuentran organizadas en el directorio `docs/clase_10/capturas/`:
+1. `01_listado_proveedores.png`: Directorio de proveedores con filtros y contadores de compras.
+2. `02_nueva_orden_compra_js.png`: Formulario reactivo con cálculo en tiempo real de Subtotal, IVA 19% y Total.
+3. `03_orden_parcial_detalle.png`: Detalle de la orden en estado *Parcial* mostrando cantidades pedidas, recibidas y pendientes.
+4. `04_error_recepcion_excedida.png`: Captura de la regla de negocio del servidor rechazando recepciones superiores a lo pendiente.
+5. `05_mysql_purchases_stock.png`: Consulta SQL demostrando la actualización atómica de las tablas `purchases`, `purchase_details` y el campo `stock` de `products`.
+6. `06_orden_compra_pdf.png`: Visualización en pestaña de navegador del PDF generado para la orden de compra con membrete de Turnix ERP.
+7. `07_factura_venta_pdf.png`: Visualización en navegador de la factura de venta en PDF.
+8. `08_dashboard_kpis_reabastecer.png`: Panel con KPIs de compras y tabla accionable de productos con stock crítico ($\le 5$).
 
 ---
 
