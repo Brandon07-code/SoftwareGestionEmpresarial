@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Services\SaleService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -18,7 +19,7 @@ class SaleController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:ver-ventas', only: ['index', 'show']),
+            new Middleware('permission:ver-ventas', only: ['index', 'show', 'pdf']),
             new Middleware('permission:crear-ventas', only: ['create', 'store']),
             new Middleware('permission:eliminar-ventas', only: ['destroy']),
         ];
@@ -86,12 +87,21 @@ class SaleController extends Controller implements HasMiddleware
                     $detail->product->increment('stock', $detail->quantity);
                 }
             }
-
             $sale->update(['status' => 'anulada']);
             $sale->delete();
         });
 
         return redirect()->route('sales.index')
             ->with('success', "Venta «{$sale->invoice_number}» anulada y stock devuelto.");
+    }
+
+    // Clase 10: factura de venta en PDF
+    public function pdf(Sale $sale)
+    {
+        $sale->load(['client', 'user', 'details.product']);
+
+        return Pdf::loadView('pdf.sale', ['sale' => $sale])
+            ->setPaper('letter')
+            ->stream("{$sale->invoice_number}.pdf");
     }
 }
