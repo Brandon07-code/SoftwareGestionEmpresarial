@@ -10,11 +10,51 @@ class ClientSeeder extends Seeder
     public function run(): void
     {
         $clients = [
-            ['document_type' => 'CC', 'document_number' => '1088123456', 'name' => 'Juan Pérez', 'email' => 'juan@test.com', 'phone' => '3001234567', 'address' => 'Calle 10 #20-30'],
-            ['document_type' => 'NIT', 'document_number' => '900123456', 'name' => 'TecnoSolutions SAS', 'email' => 'contacto@tecno.com', 'phone' => '3109876543', 'address' => 'Carrera 5 #45-10'],
-            ['document_type' => 'CC', 'document_number' => '1098765432', 'name' => 'María Gómez', 'email' => 'maria@test.com', 'phone' => '3201112233', 'address' => 'Av. Principal #12-34'],
-            ['document_type' => 'CE', 'document_number' => 'E1234567', 'name' => 'Carlos Rodríguez', 'email' => 'carlos@test.com', 'phone' => '3154445566', 'address' => 'Transversal 8 #90-12'],
-            ['document_type' => 'CC', 'document_number' => '1055443322', 'name' => 'Ana Martínez', 'email' => 'ana@test.com', 'phone' => '3187778899', 'address' => 'Diagonal 15 #40-50'],
+            [
+                'document_type' => 'CC',
+                'document_number' => '1114771229',
+                'name' => 'Sebastián Rivera',
+                'email' => 'sebastian.rivera@test.com',
+                'phone' => '3171122334',
+                'address' => 'Cartago, Calle 10 #4-25',
+                'active' => true,
+            ],
+            [
+                'document_type' => 'CC',
+                'document_number' => '1115342901',
+                'name' => 'Juan David Henao',
+                'email' => 'juan.henao@test.com',
+                'phone' => '3168889900',
+                'address' => 'Cartago, Carrera 6 #14-50',
+                'active' => true,
+            ],
+            [
+                'document_type' => 'CC',
+                'document_number' => '1114445566',
+                'name' => 'Mateo Gómez Pérez',
+                'email' => 'mateo.gomez@test.com',
+                'phone' => '3114445566',
+                'address' => 'Cartago, Carrera 3 #8-12',
+                'active' => true,
+            ],
+            [
+                'document_type' => 'NIT',
+                'document_number' => '901555444-1',
+                'name' => 'Club Social & Spa Los Samanes S.A.S.',
+                'email' => 'administracion@lossamanes.com',
+                'phone' => '6022143322',
+                'address' => 'Cartago, Av. Los Samanes #20-10',
+                'active' => true,
+            ],
+            [
+                'document_type' => 'CC',
+                'document_number' => '1112450890',
+                'name' => 'Carlos Alberto Duque',
+                'email' => 'carlos.duque@test.com',
+                'phone' => '3145550011',
+                'address' => 'Cartago, Calle 15 #7-40',
+                'active' => true,
+            ],
         ];
 
         foreach ($clients as $client) {
