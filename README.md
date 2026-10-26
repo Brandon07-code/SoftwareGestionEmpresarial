@@ -329,8 +329,22 @@ Las evidencias solicitadas por la rúbrica se encuentran organizadas en el direc
 
 ---
 
+## 16. Entregables del Proyecto — Avance Segundo Corte (10%)
+
+Todos los entregables oficiales exigidos por la rúbrica del docente se encuentran consolidados en el directorio `docs/avance2/`:
+
+1. **Documento Técnico de Avance (13 páginas):** [`docs/avance2/Avance2_Turnix_Cortes_Linares.pdf`](docs/avance2/Avance2_Turnix_Cortes_Linares.pdf)
+   * 11 secciones formales: Resumen, Análisis de negocio, Modelo MER, 8 Reglas de negocio en tabla técnica, Matriz de seguridad RBAC Spatie y Rol Activo, Integración de procesos, Dashboard con justificación de KPIs, Catálogo de 10 figuras numeradas, Dificultades/Soluciones y Plan del Tercer Corte.
+2. **Video de Sustentación Oficial (Full HD 1080p, 5:28 min):** [`docs/avance2/Avance2_Turnix_Cortes_Linares.mp4`](docs/avance2/Avance2_Turnix_Cortes_Linares.mp4)
+   * Sustentación con voz sincronizada de ambos integrantes (**Brandon Cortés Giraldo** y **Johan Sttive Linares Barragán**) demostrando la operatividad real de Turnix ERP.
+3. **Diapositivas y Capturas de Sustentación:** Directorio [`docs/avance2/capturas/`](docs/avance2/capturas/) con las 14 diapositivas en alta resolución.
+4. **Etiqueta Git del Entregable:** Etiquetado oficial en el repositorio con el tag `avance-2`.
+
+---
+
 <p align="center">
   <strong>Brandon Cortés Giraldo</strong> · Estudiante COTECNOVA<br>
   <strong>Johan Sttive Linares Barragán</strong> · Estudiante COTECNOVA<br>
   <em>Cartago, Valle del Cauca — Octubre de 2026</em>
 </p>
+
