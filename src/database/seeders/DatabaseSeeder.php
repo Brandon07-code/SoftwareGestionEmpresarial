@@ -2,26 +2,25 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use App\Models\Empresa;
-use App\Models\Sucursal;
-use App\Models\Rol;
-use App\Models\User;
-use App\Models\CodigoOtp;
-use App\Models\Tercero;
-use App\Models\Categoria;
-use App\Models\Producto;
-use App\Models\Servicio;
 use App\Models\Caja;
+use App\Models\Categoria;
+use App\Models\Cita;
+use App\Models\CodigoOtp;
+use App\Models\CrmInteraccion;
+use App\Models\Empresa;
+use App\Models\InventarioMovimiento;
+use App\Models\Producto;
+use App\Models\PuntosMovimiento;
+use App\Models\Servicio;
 use App\Models\SesionCaja;
+use App\Models\Sucursal;
+use App\Models\Tercero;
+use App\Models\TransaccionPago;
+use App\Models\User;
 use App\Models\Venta;
 use App\Models\VentaDetalle;
-use App\Models\Cita;
-use App\Models\TransaccionPago;
-use App\Models\PuntosMovimiento;
-use App\Models\CrmInteraccion;
-use App\Models\InventarioMovimiento;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -123,7 +122,26 @@ class DatabaseSeeder extends Seeder
             'activo' => true,
         ]);
 
-        $userCajero = $userVendedor;
+        $userCajero = User::create([
+            'empresa_id' => $empresaJyM->id,
+            'name' => 'Cajero Mostrador',
+            'email' => 'cajero@test.com',
+            'password' => Hash::make('password'),
+            'telefono' => '3151234567',
+            'activo' => true,
+        ]);
+        $userCajero->assignRole('cajero');
+
+        $userAuditor = User::create([
+            'empresa_id' => $empresaJyM->id,
+            'name' => 'Auditor Control Interno',
+            'email' => 'auditor@test.com',
+            'password' => Hash::make('password'),
+            'telefono' => '3167890123',
+            'activo' => true,
+        ]);
+        $userAuditor->assignRole('auditor');
+
         $userBarbero = $userAlmacenista;
 
         // Código OTP de seguridad de prueba
@@ -138,7 +156,7 @@ class DatabaseSeeder extends Seeder
         // =====================================================================
         // 3. TERCEROS (PATRÓN PARTY MODEL: EMPLEADOS, PROVEEDORES Y CLIENTES)
         // =====================================================================
-        
+
         // Empleados
         $empleadoCarlos = Tercero::create([
             'empresa_id' => $empresaJyM->id,
@@ -261,7 +279,7 @@ class DatabaseSeeder extends Seeder
         // =====================================================================
         $catServBarberia = Categoria::create(['empresa_id' => $empresaJyM->id, 'nombre' => 'Barbería Tradicional', 'tipo' => 'SERVICIO', 'descripcion' => 'Cortes, degradados y estilos']);
         $catServSpa = Categoria::create(['empresa_id' => $empresaJyM->id, 'nombre' => 'Tratamientos & Spa', 'tipo' => 'SERVICIO', 'descripcion' => 'Ritual de barba y mascarillas']);
-        
+
         $catProdPerfumes = Categoria::create(['empresa_id' => $empresaJyM->id, 'nombre' => 'Perfumería Masculina', 'tipo' => 'PRODUCTO', 'descripcion' => 'Fragancias importadas y contratipos']);
         $catProdCuidado = Categoria::create(['empresa_id' => $empresaJyM->id, 'nombre' => 'Cuidado Capilar & Barba', 'tipo' => 'PRODUCTO', 'descripcion' => 'Pomadas, ceras mate y aceites']);
 
@@ -373,7 +391,7 @@ class DatabaseSeeder extends Seeder
         // =====================================================================
         // 6. VENTAS Y TRANSACCIONES CON PASARELA (WOMPI, NEQUI, EFECTIVO)
         // =====================================================================
-        
+
         // Venta 1: Pagada vía WOMPI (Perfume Bleu)
         $ventaWompi = Venta::create([
             'empresa_id' => $empresaJyM->id,
@@ -408,7 +426,7 @@ class DatabaseSeeder extends Seeder
             'empresa_id' => $empresaJyM->id,
             'venta_id' => $ventaWompi->id,
             'pasarela' => 'WOMPI',
-            'referencia_interna' => 'WOMPI-TRX-' . strtoupper(bin2hex(random_bytes(4))),
+            'referencia_interna' => 'WOMPI-TRX-'.strtoupper(bin2hex(random_bytes(4))),
             'referencia_pasarela' => 'WMP-9812739481',
             'monto' => 110000.00,
             'moneda' => 'COP',
@@ -452,7 +470,7 @@ class DatabaseSeeder extends Seeder
         // =====================================================================
         // 7. CITAS DEL DÍA (INTEGRADAS CON TERCEROS Y PASARELA NEQUI / EFECTIVO)
         // =====================================================================
-        
+
         // Cita 1: Atendida y Pagada en Efectivo
         $citaCompletada = Cita::create([
             'empresa_id' => $empresaJyM->id,
@@ -470,7 +488,7 @@ class DatabaseSeeder extends Seeder
             'empresa_id' => $empresaJyM->id,
             'cita_id' => $citaCompletada->id,
             'pasarela' => 'EFECTIVO',
-            'referencia_interna' => 'CASH-TURNO-' . $citaCompletada->id,
+            'referencia_interna' => 'CASH-TURNO-'.$citaCompletada->id,
             'monto' => 25000.00,
             'moneda' => 'COP',
             'estado' => 'APPROVED',
@@ -495,7 +513,7 @@ class DatabaseSeeder extends Seeder
             'empresa_id' => $empresaJyM->id,
             'cita_id' => $citaEnAtencion->id,
             'pasarela' => 'NEQUI',
-            'referencia_interna' => 'NEQ-DYQR-' . strtoupper(bin2hex(random_bytes(3))),
+            'referencia_interna' => 'NEQ-DYQR-'.strtoupper(bin2hex(random_bytes(3))),
             'monto' => 45000.00,
             'moneda' => 'COP',
             'estado' => 'PENDING',
