@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\LowStockDetected;
 use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Support\Facades\DB;
@@ -9,10 +10,14 @@ use Illuminate\Validation\ValidationException;
 
 class SaleService
 {
+    public function __construct(
+        protected KardexService $kardexService = new KardexService
+    ) {}
+
     /**
-     * Registra una venta completa dentro de una transacción.
+     * Registra una venta completa dentro de una transacción, actualizando stock vía Kárdex.
      *
-     * @param array $data ['client_id' => int, 'sale_date' => 'Y-m-d', 'notes' => string, 'items' => [['product_id' => int, 'quantity' => int], ...]]
+     * @param  array  $data  ['client_id' => int, 'sale_date' => 'Y-m-d', 'notes' => string, 'items' => [['product_id' => int, 'quantity' => int], ...]]
      */
     public function register(array $data, int $userId): Sale
     {
@@ -70,7 +75,7 @@ class SaleService
                 'notes' => $data['notes'] ?? null,
             ]);
 
-            // 3. Crear los detalles y descontar stock
+            // 3. Crear los detalles y registrar SALIDA en Kárdex (descuento trazable de existencias)
             foreach ($items as $item) {
                 $sale->details()->create([
                     'product_id' => $item['product']->id,
@@ -79,8 +84,22 @@ class SaleService
                     'subtotal' => $item['subtotal'],
                 ]);
 
-                // Descuento de stock
-                $item['product']->decrement('stock', $item['quantity']);
+                // Descuento de stock mediado por Kárdex
+                $this->kardexService->record(
+                    $item['product'],
+                    'SALIDA_VENTA',
+                    $item['quantity'],
+                    (float) $item['unit_price'],
+                    $sale->invoice_number,
+                    $userId,
+                    "Venta en caja factura «{$sale->invoice_number}»"
+                );
+
+                // Si el stock alcanza nivel crítico (<= 5), disparar evento de alerta (Clase 14)
+                $item['product']->refresh();
+                if ($item['product']->stock <= 5) {
+                    event(new LowStockDetected($item['product'], (int) $item['product']->stock));
+                }
             }
 
             return $sale;

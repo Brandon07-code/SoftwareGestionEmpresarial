@@ -10,18 +10,22 @@ use Illuminate\Validation\ValidationException;
 
 class PurchaseService
 {
+    public function __construct(
+        protected KardexService $kardexService = new KardexService
+    ) {}
+
     /**
      * Registra una ORDEN DE COMPRA (estado "pendiente"). Todavía NO mueve el inventario:
      * el stock solo aumenta cuando la mercancía llega físicamente (método receive).
      *
-     * @param array $data ['provider_id' => int, 'purchase_date' => 'Y-m-d', 'provider_invoice' => ?string, 'notes' => ?string,
-     *                     'items' => [['product_id' => int, 'quantity' => int, 'unit_cost' => float], ...]]
+     * @param  array  $data  ['provider_id' => int, 'purchase_date' => 'Y-m-d', 'provider_invoice' => ?string, 'notes' => ?string,
+     *                       'items' => [['product_id' => int, 'quantity' => int, 'unit_cost' => float], ...]]
      */
     public function register(array $data, int $userId): Purchase
     {
         // Regla propia del negocio: validar que el proveedor exista y esté activo
         $provider = Provider::whereNull('deleted_at')->findOrFail($data['provider_id']);
-        if (!$provider->active) {
+        if (! $provider->active) {
             throw ValidationException::withMessages([
                 'provider_id' => 'No se pueden generar órdenes de compra a proveedores inactivos.',
             ]);
@@ -72,16 +76,16 @@ class PurchaseService
     }
 
     /**
-     * Registra la RECEPCIÓN (total o parcial) de la mercancía y AUMENTA el stock.
+     * Registra la RECEPCIÓN (total o parcial) de la mercancía y AUMENTA el stock mediante Kárdex.
      *
-     * @param array $quantities [id_del_detalle => cantidad_que_llega, ...]
+     * @param  array  $quantities  [id_del_detalle => cantidad_que_llega, ...]
      */
     public function receive(Purchase $purchase, array $quantities, ?string $providerInvoice = null): Purchase
     {
         return DB::transaction(function () use ($purchase, $quantities, $providerInvoice) {
             // lockForUpdate(): dos almacenistas no pueden recibir la misma orden al mismo tiempo
             $purchase = Purchase::lockForUpdate()->findOrFail($purchase->id);
-            $purchase->load('details.product');
+            $purchase->load(['details.product', 'provider']);
 
             // Regla 1: solo se recibe mercancía de órdenes pendientes o parciales
             if (! $purchase->canBeReceived()) {
@@ -114,13 +118,23 @@ class PurchaseService
                     ]);
                 }
 
-                // Actualizar la línea y AUMENTAR el stock del producto
+                // Actualizar la línea
                 $detail->increment('received_quantity', $quantity);
 
-                Product::withTrashed()
+                // AUMENTAR el stock mediado por Kárdex (el recurso solo cambia por movimientos)
+                $product = Product::withTrashed()
                     ->lockForUpdate()
-                    ->findOrFail($detail->product_id)
-                    ->increment('stock', $quantity);
+                    ->findOrFail($detail->product_id);
+
+                $this->kardexService->record(
+                    $product,
+                    'ENTRADA_COMPRA',
+                    $quantity,
+                    (float) $detail->unit_cost,
+                    $purchase->purchase_number,
+                    auth()->id() ?? $purchase->user_id,
+                    "Recepción de compra «{$purchase->purchase_number}» ({$purchase->provider?->name})"
+                );
 
                 $receivedSomething = true;
             }

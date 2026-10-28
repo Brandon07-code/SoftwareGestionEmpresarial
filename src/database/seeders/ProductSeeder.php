@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Kardex;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 
@@ -116,7 +117,22 @@ class ProductSeeder extends Seeder
         ];
 
         foreach ($products as $prod) {
-            Product::firstOrCreate(['name' => $prod['name']], $prod);
+            $product = Product::firstOrCreate(['name' => $prod['name']], $prod);
+
+            // Registro automático en Kárdex del inventario inicial para trazabilidad completa
+            if ($prod['stock'] > 0 && $product->kardex()->count() === 0) {
+                Kardex::create([
+                    'product_id' => $product->id,
+                    'user_id' => null,
+                    'movement_type' => 'AJUSTE_INICIAL',
+                    'quantity' => $prod['stock'],
+                    'stock_before' => 0,
+                    'stock_after' => $prod['stock'],
+                    'unit_price' => $prod['price'],
+                    'document_reference' => 'INV-INICIAL',
+                    'description' => 'Saldo inicial de apertura de inventario',
+                ]);
+            }
         }
     }
 }
