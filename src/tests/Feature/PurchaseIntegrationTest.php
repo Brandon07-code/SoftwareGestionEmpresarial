@@ -17,9 +17,13 @@ class PurchaseIntegrationTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected User $vendedor;
+
     protected User $almacenista;
+
     protected Provider $provider;
+
     protected Product $product;
 
     protected function setUp(): void

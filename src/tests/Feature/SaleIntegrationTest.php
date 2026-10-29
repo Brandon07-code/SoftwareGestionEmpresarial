@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Category;
 use App\Models\Client;
 use App\Models\Product;
 use App\Models\Sale;
@@ -16,7 +15,9 @@ class SaleIntegrationTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected Client $client;
+
     protected Product $product;
 
     protected function setUp(): void
