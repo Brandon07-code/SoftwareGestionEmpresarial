@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Purchase extends Model
 {
-    use SoftDeletes;
+    use LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'purchase_number',
@@ -49,15 +51,23 @@ class Purchase extends Model
         return $this->hasMany(PurchaseDetail::class);
     }
 
-    // ¿Todavía se puede recibir mercancía de esta orden?
     public function canBeReceived(): bool
     {
         return in_array($this->status, ['pendiente', 'parcial']);
     }
 
-    // Regla de negocio: solo se anula una orden a la que no ha llegado nada
     public function canBeCancelled(): bool
     {
         return $this->status === 'pendiente';
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['purchase_number', 'provider_id', 'purchase_date', 'subtotal', 'tax', 'total', 'status'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges()
+            ->useLogName('compras')
+            ->setDescriptionForEvent(fn (string $eventName) => "Orden de compra «{$this->purchase_number}» fue {$eventName}");
     }
 }

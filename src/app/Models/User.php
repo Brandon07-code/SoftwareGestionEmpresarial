@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, HasRoles, LogsActivity, Notifiable;
 
     protected $fillable = [
         'empresa_id',
@@ -47,11 +50,6 @@ class User extends Authenticatable
         return $this->belongsTo(Rol::class, 'role_id');
     }
 
-    public function tercero(): HasOne
-    {
-        return $this->hasOne(Tercero::class);
-    }
-
     public function codigoOtps(): HasMany
     {
         return $this->hasMany(CodigoOtp::class);
@@ -60,5 +58,15 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->rol && in_array($this->rol->slug, ['superadmin', 'administrador', 'gerente']);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'email', 'telefono', 'activo'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges()
+            ->useLogName('seguridad')
+            ->setDescriptionForEvent(fn (string $eventName) => "Usuario «{$this->name}» fue {$eventName}");
     }
 }

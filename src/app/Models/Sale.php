@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Sale extends Model
 {
-    use SoftDeletes;
+    use LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'invoice_number',
@@ -51,5 +53,15 @@ class Sale extends Model
         return $this->belongsToMany(Product::class, 'sale_details')
             ->withPivot('quantity', 'unit_price', 'subtotal')
             ->withTimestamps();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['invoice_number', 'client_id', 'sale_date', 'subtotal', 'tax', 'total', 'status'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges()
+            ->useLogName('ventas')
+            ->setDescriptionForEvent(fn (string $eventName) => "Factura de venta «{$this->invoice_number}» fue {$eventName}");
     }
 }
