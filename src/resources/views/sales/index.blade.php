@@ -8,6 +8,10 @@
                 <p class="text-xs text-slate-400 mt-0.5 font-medium">Control transaccional con descuento automático de inventario e IVA del 19%</p>
             </div>
             <div class="flex items-center gap-2">
+                <a href="{{ route('sales.export.excel') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-300 font-bold text-xs rounded-xl border border-emerald-500/30 transition shadow-sm" title="Exportar reporte de ventas a Excel (.xlsx)">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Exportar Excel
+                </a>
                 @can('crear-ventas')
                     <a href="{{ route('sales.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-indigo-600/30 transition transform hover:-translate-y-0.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>

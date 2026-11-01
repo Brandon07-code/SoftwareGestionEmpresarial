@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ProductsExport;
+use App\Exports\ProductsTemplateExport;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Imports\ProductsImport;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class ProductController extends Controller implements HasMiddleware
 {
@@ -16,8 +21,8 @@ class ProductController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:ver-productos', only: ['index']),
-            new Middleware('permission:crear-productos', only: ['create', 'store']),
+            new Middleware('permission:ver-productos', only: ['index', 'exportExcel', 'exportTemplate']),
+            new Middleware('permission:crear-productos', only: ['create', 'store', 'importExcel']),
             new Middleware('permission:editar-productos', only: ['edit', 'update']),
             new Middleware('permission:eliminar-productos', only: ['destroy', 'restore']),
         ];
@@ -102,6 +107,70 @@ class ProductController extends Controller implements HasMiddleware
 
         return redirect()->route('products.index', ['trashed' => 1])
             ->with('success', "Producto «{$product->name}» restaurado.");
+    }
+
+    // Exportación a Excel (.xlsx)
+    public function exportExcel()
+    {
+        return Excel::download(
+            new ProductsExport,
+            'turnix_productos_'.now()->format('Y-m-d_His').'.xlsx'
+        );
+    }
+
+    // Descarga de plantilla de importación
+    public function exportTemplate()
+    {
+        return Excel::download(
+            new ProductsTemplateExport,
+            'plantilla_importacion_productos.xlsx'
+        );
+    }
+
+    // Importación masiva desde archivo Excel (.xlsx / .xls / .csv)
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
+        ], [
+            'file.required' => 'Debes adjuntar un archivo para importar.',
+            'file.mimes' => 'El formato del archivo debe ser .xlsx, .xls o .csv.',
+            'file.max' => 'El tamaño máximo permitido es 10 MB.',
+        ]);
+
+        $import = new ProductsImport;
+
+        try {
+            $import->import($request->file('file'));
+        } catch (ValidationException $e) {
+            // SkipsFailures handles individual row failures gracefully
+        }
+
+        $failures = $import->failures();
+        $importedCount = $import->importedCount;
+
+        if ($failures->isNotEmpty()) {
+            $failureReport = [];
+            foreach ($failures as $failure) {
+                $failureReport[] = [
+                    'row' => $failure->row(),
+                    'attribute' => $failure->attribute(),
+                    'errors' => $failure->errors(),
+                    'values' => $failure->values(),
+                ];
+            }
+
+            $message = $importedCount > 0
+                ? "Se importaron {$importedCount} productos correctamente, pero se detectaron errores en algunas filas."
+                : 'No se importaron productos. Revisa el reporte de errores por fila e intenta de nuevo.';
+
+            return redirect()->route('products.index')
+                ->with('warning', $message)
+                ->with('import_failures', $failureReport);
+        }
+
+        return redirect()->route('products.index')
+            ->with('success', "¡Importación exitosa! Se cargaron {$importedCount} productos correctamente con su Kárdex inicial.");
     }
 
     // Solo las categorías activas se pueden asignar a un producto

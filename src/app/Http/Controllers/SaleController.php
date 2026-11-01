@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SalesExport;
 use App\Http\Requests\StoreSaleRequest;
 use App\Models\Client;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Services\KardexService;
 use App\Services\SaleService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -13,13 +15,14 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SaleController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:ver-ventas', only: ['index', 'show', 'pdf']),
+            new Middleware('permission:ver-ventas', only: ['index', 'show', 'pdf', 'exportExcel']),
             new Middleware('permission:crear-ventas', only: ['create', 'store']),
             new Middleware('permission:eliminar-ventas', only: ['destroy']),
         ];
@@ -78,13 +81,21 @@ class SaleController extends Controller implements HasMiddleware
         return view('sales.show', ['sale' => $sale]);
     }
 
-    public function destroy(Sale $sale)
+    public function destroy(Sale $sale, KardexService $kardexService)
     {
-        // Regla de negocio: al anular, se devuelve el stock a los productos
-        DB::transaction(function () use ($sale) {
+        // Regla de negocio: al anular, se devuelve el stock a los productos a través de Kárdex
+        DB::transaction(function () use ($sale, $kardexService) {
             foreach ($sale->details as $detail) {
                 if ($detail->product) {
-                    $detail->product->increment('stock', $detail->quantity);
+                    $kardexService->record(
+                        $detail->product,
+                        'ANULACION_VENTA',
+                        $detail->quantity,
+                        (float) $detail->unit_price,
+                        $sale->invoice_number,
+                        auth()->id(),
+                        "Devolución por anulación de factura «{$sale->invoice_number}»"
+                    );
                 }
             }
             $sale->update(['status' => 'anulada']);
@@ -95,7 +106,7 @@ class SaleController extends Controller implements HasMiddleware
             ->with('success', "Venta «{$sale->invoice_number}» anulada y stock devuelto.");
     }
 
-    // Clase 10: factura de venta en PDF
+    // Factura de venta en PDF
     public function pdf(Sale $sale)
     {
         $sale->load(['client', 'user', 'details.product']);
@@ -103,5 +114,14 @@ class SaleController extends Controller implements HasMiddleware
         return Pdf::loadView('pdf.sale', ['sale' => $sale])
             ->setPaper('letter')
             ->stream("{$sale->invoice_number}.pdf");
+    }
+
+    // Exportación de reporte de ventas en Excel (.xlsx)
+    public function exportExcel()
+    {
+        return Excel::download(
+            new SalesExport,
+            'turnix_reporte_ventas_'.now()->format('Y-m-d_His').'.xlsx'
+        );
     }
 }
