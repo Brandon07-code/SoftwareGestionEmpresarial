@@ -1,10 +1,14 @@
 <?php
 
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\KardexController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasarelaPagoController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -25,7 +29,24 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Notificaciones del Sistema (Clase 14)
+    Route::post('notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::post('notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+
+    // Configuración de Organizaciones / Empresas (Multi-tenant)
+    Route::resource('empresas', EmpresaController::class)->except(['show', 'destroy']);
+
+    // Bitácora de Auditoría y Seguridad (Clase 12)
+    Route::get('auditoria', [AuditController::class, 'index'])->name('audit.index');
+
+    // Kárdex de Inventario (Clase 12)
+    Route::get('kardex', [KardexController::class, 'index'])->name('kardex.index');
+    Route::get('products/{product}/kardex', [KardexController::class, 'productKardex'])->name('products.kardex');
+
     // Productos
+    Route::get('products/export/excel', [ProductController::class, 'exportExcel'])->name('products.export.excel');
+    Route::get('products/import/template', [ProductController::class, 'exportTemplate'])->name('products.import.template');
+    Route::post('products/import/excel', [ProductController::class, 'importExcel'])->name('products.import.excel');
     Route::patch('products/{product}/restore', [ProductController::class, 'restore'])
         ->withTrashed()->name('products.restore');
     Route::resource('products', ProductController::class)->except('show');
@@ -41,6 +62,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('clients', ClientController::class)->except('show');
 
     // Ventas
+    Route::get('sales/export/excel', [SaleController::class, 'exportExcel'])->name('sales.export.excel');
     Route::get('sales/{sale}/pdf', [SaleController::class, 'pdf'])->name('sales.pdf');
     Route::resource('sales', SaleController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
 

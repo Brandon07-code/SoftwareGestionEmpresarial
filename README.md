@@ -202,7 +202,9 @@ Contraseña estándar para todos los usuarios: **`password`**
 | Usuario / Correo | Rol Asignado | Alcance en Turnix ERP |
 | :--- | :--- | :--- |
 | **`admin@test.com`** | **Admin** | Control total: Ventas, Compras, Proveedores, Clientes, Inventario, Papelera y Balance Financiero. |
-| **`almacenista@test.com`** | **Almacenista** | Crea y edita productos/categorías; administra proveedores; emite y recibe compras en bodega. Bloqueado para ventas y anulación de órdenes. |
+| **`almacenista@test.com`** | **Almacenista** | Crea y edita productos/categorías; administra proveedores; emite y recibe compras en bodega. Bloqueado para ventas y cobros en caja. |
+| **`cajero@test.com`** | **Cajero** | Operador de punto de venta (POS): consulta catálogo, administra clientes y cobra facturas de venta en mostrador con descarga PDF. Bloqueado para compras y proveedores (403). |
+| **`auditor@test.com`** | **Auditor** | Control interno y supervisión: acceso de solo lectura transversal a ventas, compras, inventario, clientes y reportes. Bloqueado para crear, editar o eliminar registros (403). |
 | **`vendedor@test.com`** | **Vendedor** | Consulta catálogo, administra clientes y emite facturas de venta con descarga PDF. Bloqueado para compras y proveedores (403). |
 
 ---
@@ -342,9 +344,68 @@ Todos los entregables oficiales exigidos por la rúbrica del docente se encuentr
 
 ---
 
+## 17. Entregables del Proyecto Final (40% de la Nota: 25% Proyecto + 15% Sustentación)
+
+Dando cumplimiento integral a los **Lineamientos del Proyecto Final de Software de Gestión Empresarial (COTECNOVA 2026)** orientados por el **Ing. Jhon James Cano Sánchez**, se consolidan todos los requisitos, entregables formales y evidencias técnicas del sistema:
+
+### 17.1 Documento Técnico Formal en Normas APA (7.ª Edición)
+* **Archivo PDF Oficial (29 páginas):** [`docs/final/InformeFinal_Turnix_APA7.pdf`](docs/final/InformeFinal_Turnix_APA7.pdf)
+* **Cumplimiento de Extensión Institucional:** 29 páginas (dentro del rango exigido de 25 a 40 páginas).
+* **Estructura Obligatoria Completa:**
+  1. Portada Institucional con datos de autores, docente, asignatura y enlaces a GitHub y video.
+  2. Resumen Ejecutivo (Abstract) en español e inglés con palabras clave (Keywords).
+  3. Tabla de Contenido General (Partes 1 y 2), Índice de Tablas e Índice de Figuras.
+  4. Capítulos 1 al 10: Introducción, Planteamiento del Problema, Objetivos, Marco Teórico con citas (Monk & Wagner, Fowler, Pressman), Metodología, Análisis y Diseño (con Diagrama MER), Desarrollo de Módulos (con código de Kárdex y transacciones), Pruebas y CI/CD, Resultados con KPIs y Conclusiones.
+  5. Capítulo 11: Referencias Bibliográficas en formato APA 7 estricto (15 fuentes académicas y técnicas).
+  6. Anexos Técnicos A al E: Manual de Usuario (A), Manual de Instalación (B), Matriz de los 17 Requisitos de la Rúbrica (C), Diccionario de Datos del MER (D) y Especificación de la API RESTful v1 (E).
+
+### 17.2 Interoperabilidad y Pruebas de API RESTful v1
+* **Colección Oficial de Endpoints:** [`docs/final/turnix_api_collection.json`](docs/final/turnix_api_collection.json)
+  * Compatible al 100% con **Postman** y **Thunder Client**.
+  * Incluye 11 endpoints con autenticación vía Bearer Tokens con Laravel Sanctum, variables dinámicas y escrituras transaccionales (`POST /api/v1/sales` y `POST /api/v1/clients`).
+
+### 17.3 Pipeline de Integración Continua (CI/CD) y Calidad de Código
+* **Flujo de Trabajo GitHub Actions:** [`.github/workflows/laravel-ci.yml`](.github/workflows/laravel-ci.yml)
+* **Estandarización PSR-12:** **164 archivos** verificados con `Laravel Pint` (**100% PASS**, 0 errores de estilo).
+* **Suite de Pruebas Automatizadas:** **81 pruebas aprobadas con 352 aserciones** en 23.67 segundos (**100% VERDE**).
+
+```text
+   PASS  Tests\Unit\ExampleTest (1 test, 1 assertion)
+   PASS  Tests\Feature\Api\ApiRestTest (11 tests, 70 assertions)
+   PASS  Tests\Feature\AuditLogTest (5 tests, 28 assertions)
+   PASS  Tests\Feature\Auth\... (19 tests, 41 assertions)
+   PASS  Tests\Feature\EmpresaManagementTest (5 tests, 17 assertions)
+   PASS  Tests\Feature\ErpViewsTest (1 test, 14 assertions)
+   PASS  Tests\Feature\ExampleTest (1 test, 1 assertion)
+   PASS  Tests\Feature\ExcelImportExportTest (6 tests, 35 assertions)
+   PASS  Tests\Feature\KardexTest (6 tests, 32 assertions)
+   PASS  Tests\Feature\NotificationAndSchedulerTest (5 tests, 24 assertions)
+   PASS  Tests\Feature\ProfileTest (5 tests, 15 assertions)
+   PASS  Tests\Feature\PurchaseIntegrationTest (8 tests, 44 assertions)
+   PASS  Tests\Feature\RolePermissionTest (5 tests, 25 assertions)
+   PASS  Tests\Feature\SaleIntegrationTest (4 tests, 20 assertions)
+
+  Tests:    81 passed (352 assertions)
+  Duration: 23.67s
+  Estado:   100% VERDE (0 fallas, 0 advertencias)
+```
+
+### 17.4 Usuarios y Credenciales Preconfiguradas para la Sustentación
+El seeder oficial (`php artisan migrate:fresh --seed`) inicializa la base de datos con los 4 roles y datos reales de Barbería y Perfumería JyM S.A.S. Contraseña unificada para todos los usuarios: `password`.
+
+| Rol Institucional | Correo Electrónico | Contraseña | Alcance y Módulos Autorizados |
+| :--- | :--- | :--- | :--- |
+| **Super Administrador** | `admin@test.com` | `password` | Control total del ERP, usuarios, roles, empresas multi-tenant y reportes. |
+| **Almacenista** | `almacenista@test.com` | `password` | Abastecimiento, compras, recepción parcial, catálogo de productos, Kárdex y Excel. |
+| **Cajero de Mostrador** | `cajero@test.com` | `password` | Punto de Venta (POS), escaneo de código de barras, facturación con IVA 19% y clientes. |
+| **Auditor Interno** | `auditor@test.com` | `password` | Supervisión en modo solo lectura de Kárdex físico, auditoría forense y bitácora de seguridad. |
+
+---
+
 <p align="center">
   <strong>Brandon Cortés Giraldo</strong> · Estudiante COTECNOVA<br>
   <strong>Johan Sttive Linares Barragán</strong> · Estudiante COTECNOVA<br>
-  <em>Cartago, Valle del Cauca — Octubre de 2026</em>
+  <em>Cartago, Valle del Cauca — Noviembre de 2026</em>
 </p>
+
 
