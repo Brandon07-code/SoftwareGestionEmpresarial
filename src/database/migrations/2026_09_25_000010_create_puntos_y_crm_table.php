@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('empresa_id')->constrained('empresas')->onDelete('cascade');
             $table->foreignId('tercero_id')->constrained('terceros')->onDelete('cascade');
             $table->foreignId('venta_id')->nullable()->constrained('ventas')->onDelete('set null');
-            
+
             $table->enum('tipo', ['ACUMULACION', 'REDENCION', 'AJUSTE_MANUAL', 'VENCIMIENTO']);
             $table->integer('puntos')->comment('Valor positivo para ingreso, negativo para redencion');
             $table->unsignedInteger('saldo_anterior');
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->foreignId('empresa_id')->constrained('empresas')->onDelete('cascade');
             $table->foreignId('tercero_id')->constrained('terceros')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->comment('Empleado que registro');
-            
+
             $table->enum('canal', ['WHATSAPP', 'LLAMADA', 'PRESENCIAL', 'EMAIL'])->default('PRESENCIAL');
             $table->enum('tipo', ['PREFERENCIA', 'SEGUIMIENTO', 'RECLAMO', 'FELICITACION'])->default('SEGUIMIENTO');
             $table->text('nota');

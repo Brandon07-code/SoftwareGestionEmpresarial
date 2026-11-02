@@ -15,13 +15,13 @@ return new class extends Migration
             $table->foreignId('sucursal_id')->constrained('sucursales')->onDelete('cascade');
             $table->foreignId('producto_id')->constrained('productos')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            
+
             $table->enum('tipo_movimiento', [
                 'ENTRADA_COMPRA',
                 'SALIDA_VENTA',
                 'AJUSTE_POSITIVO',
                 'AJUSTE_NEGATIVO',
-                'MERMA'
+                'MERMA',
             ]);
             $table->integer('cantidad');
             $table->decimal('costo_unitario', 12, 2);

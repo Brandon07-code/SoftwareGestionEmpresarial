@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tercero;
-use App\Models\PuntosMovimiento;
 use App\Models\CrmInteraccion;
 use App\Models\Empresa;
+use App\Models\PuntosMovimiento;
+use App\Models\Tercero;
 use App\Models\User;
 use Illuminate\Http\Request;
 

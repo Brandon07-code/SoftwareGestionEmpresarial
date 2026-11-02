@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
-use App\Models\Tercero;
-use App\Models\Servicio;
 use App\Models\Empresa;
-use App\Models\Sucursal;
-use App\Models\TransaccionPago;
 use App\Models\PuntosMovimiento;
+use App\Models\Servicio;
+use App\Models\Sucursal;
+use App\Models\Tercero;
+use App\Models\TransaccionPago;
 use Illuminate\Http\Request;
 
 class CitaController extends Controller
@@ -83,7 +83,7 @@ class CitaController extends Controller
         ]);
 
         $servicio = Servicio::findOrFail($validated['servicio_id']);
-        
+
         $cita = Cita::create([
             'empresa_id' => $empresa->id,
             'sucursal_id' => $sucursal->id,
@@ -99,12 +99,12 @@ class CitaController extends Controller
         // Crear la transacción de pago con pasarela
         $pasarela = $validated['pasarela'];
         $estadoPago = ($validated['estado'] === 'COMPLETADA' || $pasarela === 'EFECTIVO') ? 'APPROVED' : 'PENDING';
-        
+
         TransaccionPago::create([
             'empresa_id' => $empresa->id,
             'cita_id' => $cita->id,
             'pasarela' => $pasarela,
-            'referencia_interna' => strtoupper($pasarela) . '-TRX-' . strtoupper(bin2hex(random_bytes(4))),
+            'referencia_interna' => strtoupper($pasarela).'-TRX-'.strtoupper(bin2hex(random_bytes(4))),
             'monto' => $servicio->precio_venta,
             'moneda' => 'COP',
             'estado' => $estadoPago,
@@ -120,7 +120,7 @@ class CitaController extends Controller
                 if ($puntosGanados > 0) {
                     $saldoAnterior = $cliente->puntos_fidelidad;
                     $cliente->increment('puntos_fidelidad', $puntosGanados);
-                    
+
                     PuntosMovimiento::create([
                         'empresa_id' => $empresa->id,
                         'tercero_id' => $cliente->id,
@@ -128,14 +128,14 @@ class CitaController extends Controller
                         'puntos' => $puntosGanados,
                         'saldo_anterior' => $saldoAnterior,
                         'saldo_nuevo' => $saldoAnterior + $puntosGanados,
-                        'motivo' => 'Servicio ' . $servicio->nombre . ' (Turno #' . $cita->id . ')',
+                        'motivo' => 'Servicio '.$servicio->nombre.' (Turno #'.$cita->id.')',
                     ]);
                 }
             }
         }
 
         return redirect()->route('citas.index')
-            ->with('success', '¡Turno/Cita #' . $cita->id . ' agendado exitosamente con pasarela ' . $pasarela . '!');
+            ->with('success', '¡Turno/Cita #'.$cita->id.' agendado exitosamente con pasarela '.$pasarela.'!');
     }
 
     /**
@@ -144,6 +144,7 @@ class CitaController extends Controller
     public function show(Cita $cita)
     {
         $cita->load(['cliente', 'especialista', 'servicio', 'transaccionPago']);
+
         return view('citas.show', compact('cita'));
     }
 
@@ -214,14 +215,14 @@ class CitaController extends Controller
                         'puntos' => $puntosGanados,
                         'saldo_anterior' => $saldoAnterior,
                         'saldo_nuevo' => $saldoAnterior + $puntosGanados,
-                        'motivo' => 'Liquidación Turno #' . $cita->id,
+                        'motivo' => 'Liquidación Turno #'.$cita->id,
                     ]);
                 }
             }
         }
 
         return redirect()->route('citas.index')
-            ->with('success', '¡Turno/Cita #' . $cita->id . ' actualizado correctamente!');
+            ->with('success', '¡Turno/Cita #'.$cita->id.' actualizado correctamente!');
     }
 
     /**
@@ -233,6 +234,6 @@ class CitaController extends Controller
         $cita->delete();
 
         return redirect()->route('citas.index')
-            ->with('success', 'Cita #' . $id . ' eliminada correctamente del sistema.');
+            ->with('success', 'Cita #'.$id.' eliminada correctamente del sistema.');
     }
 }

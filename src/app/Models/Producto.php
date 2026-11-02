@@ -53,7 +53,10 @@ class Producto extends Model
 
     public function getMargenGananciaAttribute(): float
     {
-        if ($this->precio_costo <= 0) return 100.0;
+        if ($this->precio_costo <= 0) {
+            return 100.0;
+        }
+
         return round((($this->precio_venta - $this->precio_costo) / $this->precio_costo) * 100, 2);
     }
 }

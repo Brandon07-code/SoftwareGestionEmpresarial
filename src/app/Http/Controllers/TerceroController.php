@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tercero;
 use App\Models\Empresa;
+use App\Models\Tercero;
 use Illuminate\Http\Request;
 
 class TerceroController extends Controller
@@ -48,6 +48,7 @@ class TerceroController extends Controller
     public function create()
     {
         $empresas = Empresa::all();
+
         return view('terceros.create', compact('empresas'));
     }
 
@@ -104,6 +105,7 @@ class TerceroController extends Controller
     public function show(Tercero $tercero)
     {
         $tercero->load(['puntosMovimientos', 'crmInteracciones', 'citasComoCliente.servicio', 'citasComoEspecialista.servicio']);
+
         return view('terceros.show', compact('tercero'));
     }
 }

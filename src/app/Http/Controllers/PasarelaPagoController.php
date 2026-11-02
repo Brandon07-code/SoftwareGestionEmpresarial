@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TransaccionPago;
 use App\Models\Cita;
-use App\Models\Venta;
 use App\Models\PuntosMovimiento;
+use App\Models\TransaccionPago;
 use Illuminate\Http\Request;
 
 class PasarelaPagoController extends Controller
@@ -41,6 +40,7 @@ class PasarelaPagoController extends Controller
     public function checkout($id)
     {
         $transaccion = TransaccionPago::with(['cita.cliente', 'cita.servicio'])->findOrFail($id);
+
         return view('pagos.checkout', compact('transaccion'));
     }
 
@@ -55,7 +55,7 @@ class PasarelaPagoController extends Controller
         if ($accion === 'APPROVED') {
             $transaccion->update([
                 'estado' => 'APPROVED',
-                'referencia_pasarela' => strtoupper($transaccion->pasarela) . '-AUTH-' . rand(100000, 999999),
+                'referencia_pasarela' => strtoupper($transaccion->pasarela).'-AUTH-'.rand(100000, 999999),
                 'pagado_at' => now(),
                 'respuesta_payload' => [
                     'event' => 'transaction.updated',
@@ -67,9 +67,9 @@ class PasarelaPagoController extends Controller
                             'reference' => $transaccion->referencia_interna,
                             'currency' => 'COP',
                             'payment_method_type' => $transaccion->pasarela === 'NEQUI' ? 'NEQUI' : 'BANCOLOMBIA_TRANSFER',
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ]);
 
             // Si está vinculada a una cita, marcarla como completada y sumar puntos
@@ -77,7 +77,7 @@ class PasarelaPagoController extends Controller
                 $cita = Cita::find($transaccion->cita_id);
                 if ($cita) {
                     $cita->update(['estado' => 'COMPLETADA']);
-                    
+
                     // Fidelización de puntos
                     $cliente = $cita->cliente;
                     if ($cliente) {
@@ -92,7 +92,7 @@ class PasarelaPagoController extends Controller
                                 'puntos' => $puntos,
                                 'saldo_anterior' => $saldoAnt,
                                 'saldo_nuevo' => $saldoAnt + $puntos,
-                                'motivo' => 'Pago confirmado por ' . $transaccion->pasarela . ' (Turno #' . $cita->id . ')',
+                                'motivo' => 'Pago confirmado por '.$transaccion->pasarela.' (Turno #'.$cita->id.')',
                             ]);
                         }
                     }
@@ -100,7 +100,7 @@ class PasarelaPagoController extends Controller
             }
 
             return redirect()->route('pagos.index')
-                ->with('success', '¡Transacción ' . $transaccion->referencia_interna . ' aprobada exitosamente por pasarela ' . $transaccion->pasarela . '!');
+                ->with('success', '¡Transacción '.$transaccion->referencia_interna.' aprobada exitosamente por pasarela '.$transaccion->pasarela.'!');
         } else {
             $transaccion->update([
                 'estado' => 'DECLINED',
@@ -108,9 +108,9 @@ class PasarelaPagoController extends Controller
                     'event' => 'transaction.updated',
                     'data' => [
                         'status' => 'DECLINED',
-                        'error_message' => 'Fondos insuficientes o rechazo por el emisor'
-                    ]
-                ]
+                        'error_message' => 'Fondos insuficientes o rechazo por el emisor',
+                    ],
+                ],
             ]);
 
             return redirect()->route('pagos.index')

@@ -32,6 +32,6 @@ class CodigoOtp extends Model
 
     public function isValid(): bool
     {
-        return !$this->usado && $this->expira_at->isFuture();
+        return ! $this->usado && $this->expira_at->isFuture();
     }
 }

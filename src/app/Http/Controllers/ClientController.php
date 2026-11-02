@@ -29,15 +29,14 @@ class ClientController extends Controller implements HasMiddleware
             ->withCount('sales')
             ->when($showTrashed, fn ($q) => $q->onlyTrashed())
             ->when($request->filled('search'), function ($q) use ($request) {
-                $search = '%' . $request->string('search') . '%';
+                $search = '%'.$request->string('search').'%';
                 $q->where(function ($q) use ($search) {
                     $q->where('name', 'like', $search)
                         ->orWhere('document_number', 'like', $search)
                         ->orWhere('email', 'like', $search);
                 });
             })
-            ->when($request->filled('status'), fn ($q) =>
-                $q->where('active', $request->input('status') === 'active'))
+            ->when($request->filled('status'), fn ($q) => $q->where('active', $request->input('status') === 'active'))
             ->orderBy('name')
             ->paginate(10)
             ->withQueryString();

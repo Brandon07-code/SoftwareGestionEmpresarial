@@ -14,19 +14,19 @@ return new class extends Migration
             $table->foreignId('empresa_id')->constrained('empresas')->onDelete('cascade');
             $table->foreignId('sucursal_id')->constrained('sucursales')->onDelete('cascade');
             $table->foreignId('sesion_caja_id')->nullable()->constrained('sesiones_caja')->onDelete('set null');
-            
+
             $table->string('numero_factura', 50); // FAC-0001
             $table->foreignId('tercero_cliente_id')->constrained('terceros');
             $table->foreignId('tercero_vendedor_id')->nullable()->constrained('terceros');
-            
+
             $table->decimal('subtotal', 12, 2)->default(0.00);
             $table->decimal('descuento_puntos', 12, 2)->default(0.00);
             $table->decimal('impuesto_iva', 12, 2)->default(0.00);
             $table->decimal('total', 12, 2)->default(0.00);
-            
+
             $table->unsignedInteger('puntos_ganados')->default(0);
             $table->unsignedInteger('puntos_canjeados')->default(0);
-            
+
             $table->enum('estado', ['PENDIENTE', 'PAGADA', 'ANULADA'])->default('PENDIENTE');
             $table->text('notas')->nullable();
             $table->timestamps();
