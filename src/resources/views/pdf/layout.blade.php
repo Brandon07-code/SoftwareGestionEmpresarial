@@ -34,12 +34,15 @@
 <body>
     <header>
         <table>
+            @php
+                $activeCompany = Auth::user()?->empresa ?? \App\Models\Empresa::where('activo', true)->first();
+            @endphp
             <tr>
                 <td style="width: 65%;">
-                    <div class="company">TURNIX ERP · JyM & CIA S.A.S.</div>
-                    <div class="subcompany">Barbería y Perfumería JyM · Distribuidora Cosméticos del Eje</div>
-                    <div class="muted">NIT 900.887.654-2 · Cartago, Valle del Cauca · Colombia</div>
-                    <div class="muted">Tel. (602) 214-5500 · Cel. 320 665 4433 · contacto@turnixerp.co</div>
+                    <div class="company">{{ $activeCompany?->razon_social ?? 'TURNIX ERP · JyM & CIA S.A.S.' }}</div>
+                    <div class="subcompany">{{ $activeCompany?->nombre_comercial ?? 'Barbería y Perfumería JyM' }}</div>
+                    <div class="muted">NIT {{ $activeCompany?->nit ?? '901.884.231-1' }} · {{ $activeCompany?->ciudad ?? 'Cartago, Valle del Cauca' }} · Colombia</div>
+                    <div class="muted">Tel. {{ $activeCompany?->telefono ?? '3146789012' }} · {{ $activeCompany?->email ?? 'contacto@turnixerp.co' }} · {{ $activeCompany?->direccion ?? '' }}</div>
                 </td>
                 <td style="width: 35%;">
                     <div class="doc-box">
