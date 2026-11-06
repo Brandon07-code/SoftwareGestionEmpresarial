@@ -105,15 +105,17 @@ class ApiRestTest extends TestCase
             ->getJson('/api/v1/products?per_page=5');
 
         $response->assertOk()
-            ->assertJsonPath('success', true)
             ->assertJsonStructure([
-                'success',
-                'message',
                 'data' => [
-                    'current_page',
-                    'total_items',
-                    'items',
+                    '*' => [
+                        'id',
+                        'nombre',
+                        'precio',
+                        'stock',
+                    ],
                 ],
+                'links',
+                'meta',
             ]);
     }
 
@@ -126,15 +128,13 @@ class ApiRestTest extends TestCase
             ->getJson("/api/v1/products/{$product->id}");
 
         $response->assertOk()
-            ->assertJsonPath('success', true)
             ->assertJsonPath('data.id', $product->id);
 
         // Producto no existente (404)
         $responseNotFound = $this->withHeader('Authorization', 'Bearer '.$this->token)
             ->getJson('/api/v1/products/99999');
 
-        $responseNotFound->assertStatus(404)
-            ->assertJsonPath('success', false);
+        $responseNotFound->assertStatus(404);
     }
 
     public function test_kardex_api_returns_inventory_movements(): void
@@ -197,17 +197,15 @@ class ApiRestTest extends TestCase
             ->postJson('/api/v1/sales', $payload);
 
         $response->assertStatus(201)
-            ->assertJsonPath('success', true)
             ->assertJsonStructure([
-                'success',
                 'data' => [
                     'id',
-                    'invoice_number',
+                    'factura',
                     'subtotal',
-                    'tax',
+                    'iva',
                     'total',
-                    'status',
-                    'details',
+                    'estado',
+                    'detalle',
                 ],
             ]);
 
@@ -248,7 +246,7 @@ class ApiRestTest extends TestCase
             ->postJson('/api/v1/sales', $payload);
 
         $response->assertStatus(422)
-            ->assertJsonPath('success', false);
+            ->assertJsonValidationErrors(['items']);
     }
 
     public function test_client_creation_api_endpoint(): void

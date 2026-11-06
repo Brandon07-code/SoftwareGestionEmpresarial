@@ -1,6 +1,9 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\SaleController;
+use App\Http\Controllers\Api\V1\AuthController as LegacyAuthController;
 use App\Http\Controllers\Api\V1\ClientApiController;
 use App\Http\Controllers\Api\V1\KardexApiController;
 use App\Http\Controllers\Api\V1\ProductApiController;
@@ -11,34 +14,47 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | API Routes (Turnix ERP v1 - Clase 13)
 |--------------------------------------------------------------------------
+| Versionar la API (v1) permite cambiarla en el futuro sin romper las apps que ya la usan.
 */
 
 Route::prefix('v1')->group(function () {
-    // Autenticación pública con entrega de tokens Sanctum
-    Route::post('auth/login', [AuthController::class, 'login']);
+    // =========================================================================
+    // ENDPOINTS CANÓNICOS DE CLASE 13 (GUÍA OFICIAL)
+    // =========================================================================
 
-    // Endpoints protegidos mediante Bearer Token (Sanctum)
+    // Pública: máximo 5 intentos de login por minuto por IP
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+
+    // Protegidas con token Bearer de Sanctum: 60 peticiones por minuto
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+        Route::get('me', [AuthController::class, 'me']);
+        Route::post('logout', [AuthController::class, 'logout']);
+
+        Route::get('products', [ProductController::class, 'index']);
+        Route::get('products/{product}', [ProductController::class, 'show']);
+
+        Route::get('sales/today', [SaleApiController::class, 'today']);
+        Route::get('sales/{sale}', [SaleController::class, 'show']);
+        Route::post('sales', [SaleController::class, 'store']);
+    });
+
+    // =========================================================================
+    // ENDPOINTS EXTENDIDOS DEL ECOSISTEMA TURNIX ERP (COMPATIBILIDAD CON SUITE)
+    // =========================================================================
+    Route::post('auth/login', [LegacyAuthController::class, 'login']);
+
     Route::middleware('auth:sanctum')->group(function () {
-        // Gestión de sesión y perfil
-        Route::get('auth/me', [AuthController::class, 'me']);
-        Route::post('auth/logout', [AuthController::class, 'logout']);
+        Route::get('auth/me', [LegacyAuthController::class, 'me']);
+        Route::post('auth/logout', [LegacyAuthController::class, 'logout']);
 
-        // 1. Catálogo de Productos (consulta y registro)
-        Route::get('products', [ProductApiController::class, 'index']);
-        Route::get('products/{product}', [ProductApiController::class, 'show']);
         Route::post('products', [ProductApiController::class, 'store']);
 
-        // 2. Kárdex de Inventario y Existencias físicas
         Route::get('kardex', [KardexApiController::class, 'index']);
         Route::get('products/{product}/kardex', [KardexApiController::class, 'productKardex']);
 
-        // 3. Ventas y Facturación (Ventas del día y Registro transaccional)
         Route::get('sales', [SaleApiController::class, 'index']);
         Route::get('sales/today', [SaleApiController::class, 'today']);
-        Route::get('sales/{sale}', [SaleApiController::class, 'show']);
-        Route::post('sales', [SaleApiController::class, 'store']);
 
-        // 4. Directorio de Clientes (consulta y registro)
         Route::get('clients', [ClientApiController::class, 'index']);
         Route::get('clients/{client}', [ClientApiController::class, 'show']);
         Route::post('clients', [ClientApiController::class, 'store']);
