@@ -1,71 +1,62 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Exports;
 
 use App\Models\Sale;
-use Illuminate\Support\Enumerable;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SalesExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles
+/**
+ * Exporta las ventas de un periodo (para el contador o para análisis en Excel).
+ */
+class SalesExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping, WithStyles, WithTitle
 {
-    public function collection(): Enumerable
+    public function __construct(private ?string $from = null, private ?string $to = null) {}
+
+    // Excel v4 exige el tipo de retorno en query() y map()
+    public function query(): Builder
     {
-        return Sale::with(['client', 'user', 'details.product'])->orderByDesc('sale_date')->orderByDesc('id')->get();
+        return Sale::query()
+            ->with(['client', 'user'])
+            ->when($this->from, fn ($q) => $q->whereDate('sale_date', '>=', $this->from))
+            ->when($this->to, fn ($q) => $q->whereDate('sale_date', '<=', $this->to))
+            ->orderBy('sale_date')
+            ->orderBy('id');
     }
 
     public function headings(): array
     {
-        return [
-            'Factura',
-            'Fecha',
-            'Cliente',
-            'Documento Cliente',
-            'Vendedor',
-            'Subtotal ($)',
-            'IVA ($)',
-            'Total ($)',
-            'Estado',
-            'Observaciones',
-        ];
+        return ['Factura', 'Fecha', 'Cliente', 'Documento', 'Vendedor', 'Subtotal', 'IVA', 'Total', 'Estado'];
     }
 
-    /**
-     * @param  Sale|mixed  $sale
-     */
     public function map(mixed $sale): array
     {
         return [
             $sale->invoice_number,
-            $sale->sale_date ? $sale->sale_date->format('Y-m-d') : '',
-            $sale->client?->name ?? 'Cliente General',
-            $sale->client?->document_number ?? 'N/A',
-            $sale->user?->name ?? 'Sistema',
-            number_format((float) $sale->subtotal, 2, '.', ''),
-            number_format((float) $sale->tax, 2, '.', ''),
-            number_format((float) $sale->total, 2, '.', ''),
-            strtoupper($sale->status),
-            $sale->notes ?? '',
+            $sale->sale_date?->format('Y-m-d') ?? '',
+            $sale->client?->name,
+            $sale->client?->document_number,
+            $sale->user?->name,
+            (float) $sale->subtotal,
+            (float) $sale->tax,
+            (float) $sale->total,
+            $sale->status,
         ];
     }
 
-    public function styles(Worksheet $sheet): ?array
+    public function styles(Worksheet $sheet): array
     {
-        return [
-            1 => [
-                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '1D4ED8'],
-                ],
-            ],
-        ];
+        return [1 => ['font' => ['bold' => true]]];
+    }
+
+    public function title(): string
+    {
+        return 'Ventas';
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\KardexController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasarelaPagoController;
@@ -42,6 +43,13 @@ Route::middleware('auth')->group(function () {
     // Kárdex de Inventario (Clase 12)
     Route::get('kardex', [KardexController::class, 'index'])->name('kardex.index');
     Route::get('products/{product}/kardex', [KardexController::class, 'productKardex'])->name('products.kardex');
+
+    // Excel: exportar e importar (Clase 13). Se declaran ANTES de Route::resource
+    Route::get('products/exportar', [ExcelController::class, 'exportProducts'])->name('products.export');
+    Route::get('products/importar', [ExcelController::class, 'importForm'])->name('products.import');
+    Route::post('products/importar', [ExcelController::class, 'import'])->name('products.import.store');
+    Route::get('products/plantilla', [ExcelController::class, 'template'])->name('products.template');
+    Route::get('sales/exportar', [ExcelController::class, 'exportSales'])->name('sales.export');
 
     // Productos
     Route::get('products/export/excel', [ProductController::class, 'exportExcel'])->name('products.export.excel');
