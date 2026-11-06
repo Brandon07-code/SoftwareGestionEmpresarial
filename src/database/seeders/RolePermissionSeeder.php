@@ -29,6 +29,11 @@ class RolePermissionSeeder extends Seeder
             'ver-compras', 'crear-compras', 'editar-compras', 'eliminar-compras', 'recibir-compras',
             // Reportes
             'ver-reportes',
+            // Inventario (kardex) y auditoría (Clase 12)
+            'ver-inventario', 'ajustar-inventario',
+            'ver-auditoria',
+            // Excel (Clase 13)
+            'exportar-productos', 'importar-productos', 'exportar-ventas',
         ];
 
         foreach ($permissions as $permission) {
@@ -44,6 +49,8 @@ class RolePermissionSeeder extends Seeder
             'ver-categorias',
             'ver-proveedores', 'crear-proveedores', 'editar-proveedores',
             'ver-compras', 'crear-compras', 'recibir-compras',
+            'ver-inventario', 'ajustar-inventario',
+            'exportar-productos', 'importar-productos',
         ]);
 
         // 3. Cajero: Operador de caja y facturación POS en mostrador
@@ -51,6 +58,7 @@ class RolePermissionSeeder extends Seeder
             'ver-productos',
             'ver-clientes', 'crear-clientes', 'editar-clientes',
             'ver-ventas', 'crear-ventas',
+            'exportar-ventas',
         ]);
 
         // 4. Auditor: Control interno y supervisión (solo lectura de transacciones y reportes)
@@ -62,6 +70,10 @@ class RolePermissionSeeder extends Seeder
             'ver-proveedores',
             'ver-compras',
             'ver-reportes',
+            'ver-inventario',
+            'ver-auditoria',
+            'exportar-productos',
+            'exportar-ventas',
         ]);
 
         // Rol complementario: Vendedor (atención y cotización)
@@ -69,6 +81,7 @@ class RolePermissionSeeder extends Seeder
             'ver-productos',
             'ver-clientes', 'crear-clientes', 'editar-clientes',
             'ver-ventas', 'crear-ventas',
+            'exportar-ventas',
         ]);
     }
 }

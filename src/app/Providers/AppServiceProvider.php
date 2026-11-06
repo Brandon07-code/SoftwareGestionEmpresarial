@@ -6,6 +6,7 @@ use App\Events\LowStockDetected;
 use App\Listeners\SecurityAuditListener;
 use App\Listeners\SendLowStockNotification;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Control de permisos centralizado con soporte de rol activo
+        Gate::before(function ($user, string $ability) {
+            if ($user->hasRole('admin')) {
+                return true;
+            }
+
+            if (method_exists($user, 'hasPermissionInActiveRole')) {
+                return $user->hasPermissionInActiveRole($ability);
+            }
+
+            return null;
+        });
+
         // Bitácora de Auditoría y Seguridad
         Event::subscribe(SecurityAuditListener::class);
 
