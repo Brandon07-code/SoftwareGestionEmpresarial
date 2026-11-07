@@ -20,6 +20,7 @@ use App\Http\Controllers\TerceroController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect('/login'));
+Route::get('/api-tester', fn () => view('api-tester'))->name('api.tester');
 
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
