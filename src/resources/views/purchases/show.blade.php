@@ -9,7 +9,7 @@
         $canReceive = $purchase->canBeReceived() && auth()->user()->can('recibir-compras');
     @endphp
 
-    <div class="py-8 bg-[#090D16] min-h-screen">
+    <div class="py-8 bg-slate-900 min-h-screen">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             
             {{-- Top Bar --}}

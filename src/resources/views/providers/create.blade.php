@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="py-8 bg-[#090D16] min-h-screen">
+    <div class="py-8 bg-slate-900 min-h-screen">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             
             <div>

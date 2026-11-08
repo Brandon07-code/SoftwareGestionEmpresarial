@@ -33,7 +33,7 @@
         </script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
-    <body class="font-sans antialiased text-slate-100 bg-[#090D16] selection:bg-indigo-500 selection:text-white overflow-x-hidden min-h-screen">
+    <body class="font-sans antialiased text-slate-100 bg-slate-900 selection:bg-indigo-500 selection:text-white overflow-x-hidden min-h-screen">
         <div class="min-h-screen flex flex-col">
             @include('layouts.navigation')
 

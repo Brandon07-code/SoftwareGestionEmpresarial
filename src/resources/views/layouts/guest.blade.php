@@ -25,8 +25,8 @@
             }
         </style>
     </head>
-    <body class="font-sans text-slate-100 antialiased bg-[#090D16] selection:bg-indigo-500 selection:text-white">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-[#090D16] px-4 relative">
+    <body class="font-sans text-slate-100 antialiased bg-slate-900 selection:bg-indigo-500 selection:text-white">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-slate-900 px-4 relative">
             <!-- Ambient subtle glow -->
             <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
 

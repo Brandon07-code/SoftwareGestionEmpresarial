@@ -36,7 +36,7 @@ class ProductSeeder extends Seeder
         $products = [
             [
                 'name' => 'Wahl Magic Clip Cordless',
-                'description' => 'Máquina profesional inalámbrica con cuchilla fade de titanio',
+                'description' => 'Máquina profesional de barbería inalámbrica con cuchilla fade de titanio para cortes y degradados',
                 'price' => 450000.00,
                 'stock' => 8,
                 'category_id' => $maquinas->id,
