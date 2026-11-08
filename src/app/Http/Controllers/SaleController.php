@@ -58,7 +58,11 @@ class SaleController extends Controller implements HasMiddleware
     {
         return view('sales.create', [
             'clients' => Client::where('active', true)->orderBy('name')->get(['id', 'name', 'document_number']),
-            'products' => Product::where('active', true)->where('stock', '>', 0)->orderBy('name')->get(['id', 'name', 'price', 'stock']),
+            'products' => Product::where('active', true)
+                ->where('stock', '>', 0)
+                ->whereHas('category', fn ($q) => $q->where('active', true))
+                ->orderBy('name')
+                ->get(['id', 'name', 'price', 'stock']),
         ]);
     }
 

@@ -34,11 +34,17 @@ class SaleService
 
             foreach ($quantities as $productId => $quantity) {
                 // lockForUpdate(): bloquea la fila hasta terminar la transacción (evita vender el mismo stock dos veces)
-                $product = Product::lockForUpdate()->findOrFail($productId);
+                $product = Product::lockForUpdate()->with('category')->findOrFail($productId);
 
                 if (! $product->active) {
                     throw ValidationException::withMessages([
                         'items' => "El producto «{$product->name}» está inactivo y no se puede vender.",
+                    ]);
+                }
+
+                if ($product->category && ! $product->category->active) {
+                    throw ValidationException::withMessages([
+                        'items' => "El producto «{$product->name}» no se puede vender porque su categoría «{$product->category->name}» está inactiva.",
                     ]);
                 }
 

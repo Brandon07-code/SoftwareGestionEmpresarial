@@ -66,10 +66,17 @@ class CategoryController extends Controller implements HasMiddleware
 
     public function update(UpdateCategoryRequest $request, Category $category)
     {
+        $wasActive = (bool) $category->active;
         $category->update($request->validated());
 
+        $message = "Categoría «{$category->name}» actualizada exitosamente.";
+        if ($wasActive && ! $category->active && $category->products()->count() > 0) {
+            $count = $category->products()->count();
+            $message .= " Sus {$count} productos asociados permanecen en inventario de bodega pero quedan inhabilitados para venta.";
+        }
+
         return redirect()->route('categories.index')
-            ->with('success', 'Categoría actualizada exitosamente.');
+            ->with('success', $message);
     }
 
     public function destroy(Category $category)

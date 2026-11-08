@@ -170,9 +170,23 @@
                                             @endif
                                         </td>
                                         <td class="py-3.5 px-4">
-                                            <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 text-[11px]">
-                                                {{ $product->category?->name ?? 'Sin categoría' }}
-                                            </span>
+                                            @if ($product->category)
+                                                @if ($product->category->active)
+                                                    <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 text-[11px]">
+                                                        {{ $product->category->name }}
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[11px]" title="Categoría inactiva: sus productos quedan suspendidos para la venta">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                                        {{ $product->category->name }}
+                                                        <span class="text-[10px] text-amber-400 font-mono">(Inactiva)</span>
+                                                    </span>
+                                                @endif
+                                            @else
+                                                <span class="px-2 py-0.5 rounded-md bg-slate-800/50 text-slate-500 border border-slate-700/50 text-[11px]">
+                                                    Sin categoría
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="py-3.5 px-4 text-right font-mono font-bold text-white">
                                             $ {{ number_format((float) $product->price, 2) }}
@@ -183,9 +197,19 @@
                                             </span>
                                         </td>
                                         <td class="py-3.5 px-4 text-center">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $product->active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700' }}">
-                                                {{ $product->active ? '● Activo' : 'Inactivo' }}
-                                            </span>
+                                            @if (! $product->active)
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+                                                    Inactivo
+                                                </span>
+                                            @elseif ($product->category && ! $product->category->active)
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30" title="Producto pausado para venta porque su categoría está inactiva">
+                                                    ● Cat. Inactiva
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                    ● Activo
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
                                             @if ($product->trashed())
