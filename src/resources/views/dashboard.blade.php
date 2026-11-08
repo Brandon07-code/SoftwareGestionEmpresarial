@@ -35,10 +35,20 @@
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                         @foreach ($stats as $stat)
-                            <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-xl backdrop-blur-sm transition duration-200 hover:border-slate-700">
-                                <span class="text-xs font-medium text-slate-400 block">{{ $stat['label'] }}</span>
-                                <p class="text-xl font-black text-white mt-1 font-mono tracking-tight">{{ $stat['value'] }}</p>
-                            </div>
+                            <a href="{{ $stat['url'] ?? '#' }}" class="group block p-5 rounded-2xl bg-slate-800/90 border border-slate-700/80 shadow-xl backdrop-blur-sm transition-all duration-200 hover:border-indigo-500/60 hover:bg-slate-800 hover:-translate-y-1 hover:shadow-indigo-500/10 cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-semibold text-slate-400 block group-hover:text-slate-200 transition">{{ $stat['label'] }}</span>
+                                    <span class="text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all duration-200 text-xs font-bold flex items-center">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </span>
+                                </div>
+                                <p class="text-xl font-black text-white mt-1.5 font-mono tracking-tight group-hover:text-indigo-300 transition">{{ $stat['value'] }}</p>
+                                @if (isset($stat['hint']))
+                                    <span class="text-[11px] text-slate-400 mt-2 inline-flex items-center gap-1 group-hover:text-indigo-400 transition font-medium">
+                                        {{ $stat['hint'] }} →
+                                    </span>
+                                @endif
+                            </a>
                         @endforeach
                     </div>
                 </div>
@@ -90,7 +100,7 @@
 
                 {{-- Reabastecimiento: Stock Crítico (≤ 5) --}}
                 @if (isset($lowStock) && $lowStock->isNotEmpty())
-                    <div class="bg-slate-900/80 border border-amber-500/30 rounded-2xl shadow-xl backdrop-blur-sm p-6 space-y-4">
+                    <div id="reabastecimiento" class="bg-slate-900/80 border border-amber-500/30 rounded-2xl shadow-xl backdrop-blur-sm p-6 space-y-4 scroll-mt-6">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                             <div>
                                 <h3 class="font-bold text-amber-300 text-base flex items-center gap-2">

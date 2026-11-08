@@ -59,16 +59,33 @@ class DashboardController extends Controller
         $stats = collect();
 
         if ($user->can('ver-productos')) {
-            $stats->push(['label' => 'Productos activos', 'value' => Product::where('active', true)->count()]);
-            $stats->push(['label' => 'Stock bajo (≤ 5)', 'value' => Product::where('active', true)->where('stock', '<=', 5)->count()]);
+            $stats->push([
+                'label' => 'Productos activos',
+                'value' => Product::where('active', true)->count(),
+                'url' => route('products.index', ['status' => 'active']),
+                'hint' => 'Ver catálogo activo',
+            ]);
+            $stats->push([
+                'label' => 'Stock bajo (≤ 5)',
+                'value' => Product::where('active', true)->where('stock', '<=', 5)->count(),
+                'url' => '#reabastecimiento',
+                'hint' => 'Ver lista crítica',
+            ]);
             $stats->push([
                 'label' => 'Valor del inventario',
                 'value' => '$'.number_format((float) Product::where('active', true)->sum(DB::raw('price * stock')), 2),
+                'url' => route('kardex.index'),
+                'hint' => 'Consultar Kárdex',
             ]);
         }
 
         if ($user->can('ver-clientes')) {
-            $stats->push(['label' => 'Clientes activos', 'value' => Client::where('active', true)->count()]);
+            $stats->push([
+                'label' => 'Clientes activos',
+                'value' => Client::where('active', true)->count(),
+                'url' => route('clients.index'),
+                'hint' => 'Directorio de clientes',
+            ]);
         }
 
         $salesMonthTotal = 0;
@@ -79,6 +96,8 @@ class DashboardController extends Controller
             $stats->push([
                 'label' => 'Ventas del mes',
                 'value' => $salesThisMonth->count().' ($'.number_format($salesMonthTotal, 2).')',
+                'url' => route('sales.index'),
+                'hint' => 'Historial de ventas',
             ]);
         }
 
@@ -91,15 +110,24 @@ class DashboardController extends Controller
             $stats->push([
                 'label' => 'Compras del mes',
                 'value' => $purchasesThisMonth->count().' ($'.number_format($purchasesMonthTotal, 2).')',
+                'url' => route('purchases.index'),
+                'hint' => 'Órdenes de compra',
             ]);
             $stats->push([
                 'label' => 'Órdenes por recibir',
                 'value' => Purchase::whereIn('status', ['pendiente', 'parcial'])->count(),
+                'url' => route('purchases.index'),
+                'hint' => 'Recepción pendiente',
             ]);
         }
 
         if ($user->can('ver-proveedores')) {
-            $stats->push(['label' => 'Proveedores activos', 'value' => Provider::where('active', true)->count()]);
+            $stats->push([
+                'label' => 'Proveedores activos',
+                'value' => Provider::where('active', true)->count(),
+                'url' => route('providers.index'),
+                'hint' => 'Directorio proveedores',
+            ]);
         }
 
         // Indicador financiero simple: lo que entró por ventas menos lo que salió por compras en el mes
@@ -107,6 +135,8 @@ class DashboardController extends Controller
             $stats->push([
                 'label' => 'Ventas − Compras del mes',
                 'value' => '$'.number_format($salesMonthTotal - $purchasesMonthTotal, 2),
+                'url' => route('sales.index'),
+                'hint' => 'Balance comercial',
             ]);
         }
 

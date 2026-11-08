@@ -1,0 +1,192 @@
+================================================================================
+PROMPT DE EVALUACIÓN Y AUDITORÍA TÉCNICA DE SOFTWARE - TURNIX ERP
+INSTRUCCIÓN PARA LA IA EVALUADORA:
+Actúa como un Arquitecto de Software Empresarial Senior, Auditor Técnico de Código y
+Docente Evaluador de Proyecto de Grado / Asignatura Universitaria.
+Tu objetivo es auditar exhaustivamente la arquitectura, implementación, calidad y alcance
+del siguiente sistema, emitir un informe técnico detallado y asignar una calificación
+cuantitativa (en escala de 0.0 a 5.0 colombiana y de 0 a 100%) con justificación rigurosa.
+================================================================================
+
+1. INFORMACIÓN GENERAL DEL PROYECTO
+--------------------------------------------------------------------------------
+- Nombre de la Plataforma: Turnix ERP
+- Institución Académica: Corporación de Estudios Tecnológicos del Norte del Valle (COTECNOVA)
+- Sede: Cartago, Valle del Cauca, Colombia
+- Asignatura: Software de Gestión Empresarial (SGE - 2026)
+- Semestre: VI Semestre - Tecnología en Gestión de Sistemas de Información
+- Docente Titular: Ing. Jhon James Cano Sánchez
+- Desarrolladores: Brandon Cortés Giraldo & Johan Sttive Linares Barragán
+- Dominio Comercial Validado: Barbería & Perfumería JyM S.A.S. (Cartago) / Multi-empresa habilitada (Distribuidora Comercial del Valle S.A.S.)
+- Repositorio y Versionamiento: Git con historial lineal de 43 commits progresivos, sin prefijos artificiales ni ramas rotas.
+
+2. STACK TECNOLÓGICO Y PAQUETES
+--------------------------------------------------------------------------------
+- Framework Base: Laravel 12.x / PHP 8.3+
+- Motor de Base de Datos: SQLite para desarrollo y pruebas en memoria / Compatible con PostgreSQL y MariaDB / MySQL sin cambios de código
+- Frontend & UI: Blade + Tailwind CSS (Paleta Midnight Slate antirreflejo #0F172A / #1E293B) + Alpine.js
+- Autenticación: Laravel Breeze + Laravel Sanctum (Tokens Bearer para API REST)
+- Control de Acceso: Spatie Laravel Permission (RBAC basado en Roles y Permisos)
+- Auditoría Forense: Spatie Laravel Activitylog (Trazabilidad inmutable de cambios de estado, antes y después)
+- Reportes PDF: Barryvdh DomPDF (Generación server-side con membrete empresarial dinámico)
+- Procesamiento de Hojas de Cálculo: Maatwebsite Laravel Excel (Exportación e Importación masiva .xlsx/.csv)
+- Estandarización de Código: Laravel Pint (100% PSR-12 compliant, 181 archivos auditados)
+- Suite de Pruebas: PHPUnit / PEST (94 tests automatizados, 534 aserciones, 100% green)
+
+3. ARQUITECTURA Y PATRONES DE DISEÑO IMPLEMENTADOS
+--------------------------------------------------------------------------------
+A) Capa de Servicios (Service Layer Pattern):
+   - SaleService: Orquesta la venta transaccional en un bloque DB::transaction() atómico.
+   - PurchaseService: Gestiona el ciclo de vida de la orden de compra y las recepciones parciales/totales.
+   - KardexService: Motor contable centralizado que registra movimientos continuos de inventario con costo y saldo.
+
+B) Concurrencia y Control de Concurrencia Pesimista:
+   - Implementación de Product::lockForUpdate() durante la venta para evitar condiciones de carrera (Race Conditions) y sobreventas simultáneas entre múltiples terminales de caja.
+
+C) Form Requests y Validación Centralizada:
+   - StoreProductRequest, UpdateProductRequest, StoreSaleRequest, StorePurchaseRequest, etc.
+   - Separación estricta de validación HTTP de la lógica del controlador.
+
+D) API Resources (Transformación y Serialización):
+   - SaleResource, ProductResource, KardexResource para estandarizar respuestas JSON en la API REST v1.
+
+E) Localización y UX:
+   - 100% localizado al Español de Colombia (es_CO): atributos, mensajes de validación y textos del sistema.
+   - Manejador de errores corporativos personalizados: vistas blade para 403 (Acceso denegado RBAC), 404 (No encontrado), 419 (Sesión expirada) y 500 (Error de servidor).
+   - Switcher de usuarios de prueba en 1-clic en la pantalla de login (Admin, Vendedor, Almacenista, Auditor, Cajero).
+
+4. MATRIZ DE MÓDULOS OPERATIVOS DEL ERP
+--------------------------------------------------------------------------------
+Módulo 1: Seguridad y RBAC (Control de Acceso Basado en Roles)
+- 5 roles preconfigurados:
+  * Admin: Control total del sistema, configuración de empresas, usuarios y reportes financieros.
+  * Almacenista: Gestión de inventario, compras, recepción de mercancía y kárdex. Bloqueado para ventas y configuración.
+  * Vendedor: Punto de venta (POS), creación de ventas y consulta de clientes. Bloqueado para compras, costos y anulación.
+  * Cajero: Registro y cobro de ventas. Sin acceso a compras ni eliminación.
+  * Auditor: Acceso exclusivo de solo lectura transversal para inspección contable, kárdex y registro forense de auditoría.
+- 24 permisos granulares (`ver-productos`, `crear-productos`, `eliminar-productos`, `ver-compras`, `recibir-compras`, `ver-ventas`, `anular-ventas`, `ver-auditoria`, etc.).
+- Bloqueo en controladores mediante Middleware('permission:...') y en vistas Blade con directivas @can / @cannot.
+
+Módulo 2: Catálogo de Productos y Manejo de Categorías
+- CRUD completo de productos con nombre, descripción, precio comercial, stock físico y estado activo/inactivo.
+- Papelera de reciclaje (Soft Deletes) con restauración condicionada (no permite restaurar un producto si su categoría fue eliminada).
+- Regla de integridad ERP para Categorías Inactivas:
+  * Si una categoría se desactiva, sus productos NO se eliminan ni desaparecen del inventario (porque las unidades físicas existen en bodega y tienen valor contable).
+  * Quedan identificados con distintivo ámbar "(Inactiva)" y estado "Cat. Inactiva".
+  * Quedan inmediatamente inhabilitados para venta en mostrador y en la API (filtro automático en POS y validación 422 en SaleService).
+  * La categoría inactiva no aparece en el selector para crear nuevos productos.
+
+Módulo 3: Compras, Proveedores y Recepción de Mercancía
+- Directorio de proveedores con NIT/RUT, teléfono, correo y dirección.
+- Órdenes de compra con cálculo de IVA y subtotales.
+- Ciclo de compra formal: Estado inicial 'pendiente'. El stock NO sube al crear la orden.
+- Recepción física parcial o total: El stock solo se incrementa cuando el almacenista confirma la entrada física de mercancía en bodega.
+- Cada recepción genera automáticamente su movimiento contable de entrada en el Kárdex.
+- Generación de Orden de Compra oficial en PDF con logotipo empresarial.
+- Integridad referencial: Bloqueo de eliminación para proveedores que tengan compras históricas asociadas.
+
+Módulo 4: Kárdex Automatizado y Valoración de Inventario
+- Registro continuo de saldo por producto.
+- Tipos de movimientos auditados:
+  * Saldo Inicial (Carga de inventario base o migración).
+  * Entrada por Compra (Asociada al número de orden de compra y proveedor).
+  * Salida por Venta (Asociada al número de factura y cliente).
+  * Devolución / Reintegro por Anulación (Asociada a la anulación de factura).
+- Cálculo en tiempo real de unidades entrada/salida, saldo acumulado y valor total del inventario.
+- Filtros por producto, rango de fechas y tipo de movimiento.
+
+Módulo 5: Ventas, Facturación POS y Cobro
+- Interfaz dinámica de Punto de Venta (POS) con cálculo automático de subtotal, IVA (19% Colombia) y total.
+- Generación correlativa de factura: Formato único `FAC-YYYYMM-XXXX`.
+- Validación estricta de stock disponible (impide saldos negativos con excepción amigable 422).
+- Descarga atómica de stock y asiento en Kárdex en la misma transacción.
+- Impresión / Descarga de Factura de Venta oficial en PDF con resolución tributaria, NIT, régimen y datos del cliente.
+- Mecanismo de anulación con permiso especial: Al anular una factura, el sistema devuelve automáticamente el stock al inventario a través de un contra-asiento en Kárdex.
+- Integridad referencial: Bloqueo de eliminación para clientes con facturas históricas asociadas.
+
+Módulo 6: Importación y Exportación Masiva en Excel
+- Exportación completa del catálogo de productos y ventas en formato nativo .xlsx.
+- Descarga de plantilla oficial estructurada (`plantilla_importacion_productos.xlsx`).
+- Importador masivo resiliente con interfaz `SkipsOnFailure`:
+  * Si el archivo contiene 100 filas y 3 tienen datos inválidos, el sistema procesa las 97 correctas y no aborta el lote.
+  * Presenta en pantalla una tabla detallada con el número de fila, columna afectada y mensaje de error específico para cada fallo.
+  * Los productos nuevos importados generan automáticamente su saldo inicial en Kárdex.
+
+Módulo 7: Notificaciones en Vivo y Tareas Programadas (Scheduler)
+- Event-Driven Architecture: Evento `LowStockDetected` disparado automáticamente cuando el stock de un producto cae a 5 unidades o menos tras una venta.
+- Listener `NotifyLowStock` que alerta a los roles Administrador y Almacenista.
+- Campana de notificaciones en la barra superior con contador en vivo, menú desplegable y marcado de leídas.
+- Comando de consola Artisan `php artisan turnix:check-low-stock` para barrido proactivo de inventario.
+- Registro en el planificador de tareas de Laravel (`routes/console.php`) para ejecución automática periódica.
+
+Módulo 8: Auditoría Forense y Seguridad Operativa
+- Integración con Spatie Activitylog.
+- Bitácora inmutable de eventos: registra usuario, rol, IP, fecha/hora y diferencias exactas (valores anteriores y valores nuevos) ante creación, edición o anulación de productos, compras, ventas, proveedores y clientes.
+- Registro de auditoría de seguridad para inicios de sesión (login) y cierres de sesión (logout).
+- Vista protegida de auditoría accesible únicamente para los roles Admin y Auditor.
+
+Módulo 9: API RESTful v1 Empresarial
+- Autenticación mediante Laravel Sanctum (`POST /api/v1/auth/login`).
+- Soporte para usuarios con múltiples roles (exige especificar el rol activo para generar el token correspondiente).
+- Endpoints versionados documentados:
+  * `GET /api/v1/products` (Listado paginado con categoría y stock).
+  * `GET /api/v1/products/{id}` (Detalle del producto).
+  * `GET /api/v1/kardex/{productId}` (Trazabilidad de movimientos de inventario).
+  * `GET /api/v1/sales/today` (Métricas de ventas e ingresos del día).
+  * `POST /api/v1/sales` (Creación transaccional de venta con validación de stock y rebaja de inventario).
+  * `POST /api/v1/clients` (Creación de terceros).
+  * `POST /api/v1/auth/logout` (Revocación inmediata del token).
+- Respuestas normalizadas con códigos HTTP estándar (200, 201, 401, 403, 404, 422).
+
+Módulo 10: Multi-Empresa y Parametrización Corporativa
+- Soporte multi-organización (Sede Barbería & Perfumería JyM y Distribuidora Comercial del Valle).
+- Configuración de Razón Social, NIT, Teléfono, Correo, Dirección, Régimen Tributario y Logo corporativo.
+- Encabezados dinámicos en pantalla y en los reportes PDF según la empresa activa seleccionada.
+
+5. MÉTRICAS DE CALIDAD Y PRUEBAS AUTOMATIZADAS
+--------------------------------------------------------------------------------
+- Total de Tests Automatizados: 94 tests (Unit & Feature).
+- Total de Aserciones: 534 aserciones.
+- Tasa de Éxito: 100% PASS (0 fallos, 0 errores, 0 advertencias).
+- Cobertura de Pruebas:
+  * Autenticación, reseteo y confirmación de contraseñas.
+  * Permisos y matrices RBAC para los 5 roles.
+  * Transacciones ACID de compras, recepción y Kárdex.
+  * Transacciones ACID de ventas, bloqueo pesimista y stock insuficiente.
+  * Integridad referencial de base de datos (FK constraints).
+  * Generación y layout de PDFs.
+  * Importación y exportación de Excel con matriz de errores.
+  * Disparo y recepción de eventos/notificaciones de stock bajo.
+  * Endpoints de la API RESTful v1 con Sanctum.
+- Estándar de Código: 100% PSR-12 verificado con Laravel Pint en 181 archivos.
+
+================================================================================
+RÚBRICA DE EVALUACIÓN SOLICITADA A LA IA
+================================================================================
+Por favor, analiza la información anterior y responde con la siguiente estructura:
+
+1. DICTAMEN DE IDENTIDAD DEL SISTEMA:
+   ¿Este proyecto califica técnicamente como un verdadero ERP (Enterprise Resource Planning)
+   o es simplemente un CRUD comercial? Justifica tu respuesta citando al menos 4
+   características arquitectónicas que diferencian a un ERP real.
+
+2. EVALUACIÓN CUANTITATIVA DETALLADA (Escala 0.0 a 5.0 y 0 a 100%):
+   Evalúa y justifica la nota para cada uno de estos 5 pilares:
+   a) Arquitectura de Software y Patrones de Diseño (Service Layer, DRY, separación de capas) [0.0 - 5.0]
+   b) Lógica de Negocio, Integridad Transaccional y Kárdex (ACID, lockForUpdate, compras/ventas) [0.0 - 5.0]
+   c) Seguridad, Auditoría Forense y RBAC (Spatie, Sanctum, Activitylog, 403) [0.0 - 5.0]
+   d) Calidad de Código, Pruebas Automatizadas y Estándares (94 tests, PSR-12 Pint) [0.0 - 5.0]
+   e) Usabilidad, Reportabilidad y UX Empresarial (Excel, PDF, Notificaciones, Localización es_CO) [0.0 - 5.0]
+   -> NOTA FINAL PONDERADA: [0.0 - 5.0] y porcentaje global [0 - 100%].
+
+3. TOP 5 PUNTOS MÁS FUERTES DEL PROYECTO:
+   Los aspectos más destacados y de mayor nivel de ingeniería demostrados en la solución.
+
+4. SIMULACIÓN DE DEFENSA ANTE EL JURADO (3 PREGUNTAS CLAVE):
+   Formula las 3 preguntas técnicas más difíciles o capciosas que el docente evaluador
+   (Ing. Jhon James Cano Sánchez) podría hacer sobre este sistema, e indica la respuesta
+   técnica exacta y contundente que los estudiantes (Brandon Cortés y Johan Linares)
+   deben dar para demostrar dominio absoluto y asegurar la máxima nota (5.0).
+
+5. RECOMENDACIÓN FINAL Y CONCLUSIÓN DE AUDITORÍA.
+================================================================================
