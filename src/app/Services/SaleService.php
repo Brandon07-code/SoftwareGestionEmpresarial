@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Events\LowStockDetected;
+use App\Events\SaleRegistered;
 use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Support\Facades\DB;
@@ -100,13 +100,10 @@ class SaleService
                     $userId,
                     "Venta en caja factura «{$sale->invoice_number}»"
                 );
-
-                // Si el stock alcanza nivel crítico (<= 5), disparar evento de alerta (Clase 14)
-                $item['product']->refresh();
-                if ($item['product']->stock <= 5) {
-                    event(new LowStockDetected($item['product'], (int) $item['product']->stock));
-                }
             }
+
+            // Clase 14: avisar que hubo una venta (los listeners deciden qué hacer)
+            SaleRegistered::dispatch($sale);
 
             return $sale;
         });

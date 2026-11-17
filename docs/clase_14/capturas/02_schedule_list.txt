@@ -1,0 +1,5 @@
+
+  0 19 * * *  php artisan erp:resumen-diario ............. Next Due: en 1 hora
+  0 8  * * *  php artisan turnix:check-low-stock ....... Next Due: en 14 horas
+  0 0  1 * *  php artisan activitylog:clean ............ Next Due: en 1 semana
+

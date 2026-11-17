@@ -197,6 +197,12 @@
                                 </div>
                             @endforelse
                         </div>
+
+                        <div class="p-2.5 border-t border-slate-800 text-center bg-slate-950/40">
+                            <a href="{{ route('notifications.index') }}" class="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 transition">
+                                Ver todas las notificaciones →
+                            </a>
+                        </div>
                     </div>
                 </div>
 

@@ -32,6 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Notificaciones del Sistema (Clase 14)
+    Route::get('notificaciones', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('notificaciones/{id}', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::post('notificaciones/leer-todas', [NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::post('notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
     Route::post('notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 

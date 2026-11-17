@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Events\LowStockDetected;
+use App\Events\PurchaseReceived;
+use App\Events\SaleRegistered;
+use App\Listeners\CheckLowStock;
+use App\Listeners\NotifyPurchaseReceived;
 use App\Listeners\SecurityAuditListener;
 use App\Listeners\SendLowStockNotification;
 use Illuminate\Support\Facades\Event;
@@ -40,7 +44,9 @@ class AppServiceProvider extends ServiceProvider
         // Bitácora de Auditoría y Seguridad
         Event::subscribe(SecurityAuditListener::class);
 
-        // Notificaciones automáticas de inventario (Clase 14)
+        // Notificaciones automáticas de inventario y compras (Clase 14)
         Event::listen(LowStockDetected::class, SendLowStockNotification::class);
+        Event::listen(SaleRegistered::class, CheckLowStock::class);
+        Event::listen(PurchaseReceived::class, NotifyPurchaseReceived::class);
     }
 }
