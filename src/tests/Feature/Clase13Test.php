@@ -38,16 +38,18 @@ class Clase13Test extends TestCase
         $this->vendedor = User::where('email', 'vendedor@test.com')->first();
         $this->almacenista = User::where('email', 'almacenista@test.com')->first();
 
-        // Crear usuario supervisor con múltiples roles (vendedor y almacenista)
-        $this->supervisorMultiRol = User::create([
-            'empresa_id' => $this->vendedor->empresa_id,
-            'name' => 'Supervisor Dual',
-            'email' => 'supervisor@test.com',
-            'password' => bcrypt('password'),
-            'telefono' => '3119998877',
-            'activo' => true,
-        ]);
-        $this->supervisorMultiRol->assignRole(['vendedor', 'almacenista']);
+        // Crear o recuperar usuario supervisor con múltiples roles (vendedor y almacenista)
+        $this->supervisorMultiRol = User::firstOrCreate(
+            ['email' => 'supervisor@test.com'],
+            [
+                'empresa_id' => $this->vendedor->empresa_id,
+                'name' => 'Supervisor Dual',
+                'password' => bcrypt('password'),
+                'telefono' => '3119998877',
+                'activo' => true,
+            ]
+        );
+        $this->supervisorMultiRol->syncRoles(['vendedor', 'almacenista']);
 
         $this->categoriaGeneral = Category::firstOrCreate(['name' => 'Accesorios & Cuidado Personal'], ['description' => 'Test', 'active' => true]);
         $this->productoPrueba = Product::where('active', true)->where('stock', '>', 5)->first();

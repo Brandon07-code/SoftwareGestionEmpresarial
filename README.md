@@ -31,7 +31,7 @@
 11. [Diseño Visual Enterprise (Midnight Dark Mode)](#11-diseño-visual-enterprise-midnight-dark-mode)
 12. [Credenciales de Acceso y Datos de Prueba](#12-credenciales-de-acceso-y-datos-de-prueba)
 13. [Guía de Instalación y Puesta en Marcha](#13-guía-de-instalación-y-puesta-en-marcha)
-14. [Validación y Pruebas Automatizadas (PHPUnit - 41 Tests)](#14-validación-y-pruebas-automatizadas-phpunit---41-tests)
+14. [Validación y Pruebas Automatizadas (PHPUnit - 120 Tests / 783 Aserciones)](#14-validación-y-pruebas-automatizadas-phpunit---41-tests)
 15. [Estructura de Entregables de la Clase 10](#15-estructura-de-entregables-de-la-clase-10)
 
 ---
@@ -233,7 +233,7 @@ La aplicación queda disponible en: **`http://127.0.0.1:8000`**
 
 ---
 
-## 14. Validación y Pruebas Automatizadas (PHPUnit - 41 Tests)
+## 14. Validación y Pruebas Automatizadas (PHPUnit - 120 Tests / 783 Aserciones)
 
 Turnix ERP cuenta con una cobertura integral de pruebas automatizadas que certifican la integridad del código, el control de acceso y las reglas de negocio de compras y ventas:
 
@@ -409,3 +409,23 @@ El seeder oficial (`php artisan migrate:fresh --seed`) inicializa la base de dat
 </p>
 
 
+
+
+---
+
+## 16. Comando de Demostración en Consola (Criterio Oficial Clase 15)
+
+Para ejecutar en vivo la traza paso a paso en consola de **Compra → Recepción Parcial/Total → Kárdex** y **Venta POS → Validación de Sobreventa (Rollback) → Bloqueo `lockForUpdate` → Cálculo IVA 19% → Salida Kárdex**:
+
+```bash
+cd src
+php artisan erp:demo-test
+```
+
+Para ejecutar la suite completa de **120 pruebas automatizadas (783 aserciones)** y el verificador **Laravel Pint (PSR-12)**:
+
+```bash
+cd src
+php artisan test --compact
+./vendor/bin/pint --test
+```
