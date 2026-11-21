@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Directorio de Terceros - Party Model ERP')
+@section('title', 'Directorio de Terceros - Modelo Unificado de Terceros ERP')
 
 @section('content')
 <div class="space-y-6">
@@ -10,7 +10,7 @@
         <div>
             <div class="flex items-center gap-2">
                 <h1 class="text-2xl font-black text-white tracking-tight">Directorio Unificado de Terceros</h1>
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">Party Model</span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">Modelo Unificado de Terceros</span>
             </div>
             <p class="text-sm text-slate-400 mt-0.5 font-medium">
                 Gestión integral de actores empresariales: una sola entidad con múltiples roles (Cliente, Proveedor, Empleado).
@@ -79,7 +79,7 @@
                             </div>
                         </td>
 
-                        <!-- Roles Activos (Party Model) -->
+                        <!-- Roles Activos (Modelo Unificado de Terceros) -->
                         <td class="px-6 py-4">
                             <div class="flex flex-wrap gap-1.5">
                                 @if($t->es_cliente)

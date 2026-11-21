@@ -136,7 +136,7 @@
                                         @endif
                                     </td>
                                     <td class="py-3.5 px-4 font-semibold text-white">
-                                        {{ $act->description }}
+                                        {{ str_replace(['fue created', 'fue updated', 'fue deleted', 'fue restored'], ['fue registrado', 'fue actualizado', 'fue eliminado', 'fue restaurado'], $act->description) }}
                                     </td>
                                     <td class="py-3.5 px-4 whitespace-nowrap text-xs text-slate-400">
                                         {{ $act->causer?->name ?? 'Sistema / Externo' }}
@@ -152,11 +152,56 @@
                                             <div class="space-y-1">
                                                 @foreach ($attributes as $key => $newVal)
                                                     @if (array_key_exists($key, $old) && $old[$key] != $newVal)
+                                                        @php
+                                                            $auditKeyLabels = [
+                                                                'name' => 'nombre',
+                                                                'description' => 'descripción',
+                                                                'price' => 'precio',
+                                                                'stock' => 'stock',
+                                                                'category_id' => 'categoría_id',
+                                                                'active' => 'activo',
+                                                                'activo' => 'activo',
+                                                                'document_type' => 'tipo_documento',
+                                                                'document_number' => 'número_documento',
+                                                                'contact_name' => 'contacto',
+                                                                'email' => 'correo',
+                                                                'phone' => 'teléfono',
+                                                                'telefono' => 'teléfono',
+                                                                'address' => 'dirección',
+                                                                'purchase_number' => 'número_orden',
+                                                                'provider_id' => 'proveedor_id',
+                                                                'purchase_date' => 'fecha_compra',
+                                                                'invoice_number' => 'número_factura',
+                                                                'client_id' => 'cliente_id',
+                                                                'sale_date' => 'fecha_venta',
+                                                                'subtotal' => 'subtotal',
+                                                                'tax' => 'impuesto_iva',
+                                                                'total' => 'total',
+                                                                'status' => 'estado',
+                                                                'roles' => 'roles',
+                                                                'direct_permissions' => 'permisos_directos',
+                                                            ];
+                                                            $formatAuditValue = function ($val): string {
+                                                                if (is_bool($val)) {
+                                                                    return $val ? 'Sí' : 'No';
+                                                                }
+                                                                if (is_array($val)) {
+                                                                    return empty($val)
+                                                                        ? 'ninguno'
+                                                                        : implode(', ', array_map(
+                                                                            fn ($item) => is_scalar($item) ? (string) $item : json_encode($item, JSON_UNESCAPED_UNICODE),
+                                                                            $val
+                                                                        ));
+                                                                }
+
+                                                                return (string) ($val ?? '—');
+                                                            };
+                                                        @endphp
                                                         <div class="text-[11px] bg-slate-950/60 p-1.5 rounded border border-slate-800">
-                                                            <strong class="text-slate-400">{{ $key }}:</strong>
-                                                            <span class="text-rose-400 line-through">{{ is_bool($old[$key]) ? ($old[$key] ? 'true' : 'false') : $old[$key] }}</span>
+                                                            <strong class="text-slate-400">{{ $auditKeyLabels[$key] ?? $key }}:</strong>
+                                                            <span class="text-rose-400 line-through">{{ $formatAuditValue($old[$key]) }}</span>
                                                             <span class="text-slate-500 mx-1">→</span>
-                                                            <span class="text-emerald-400 font-bold">{{ is_bool($newVal) ? ($newVal ? 'true' : 'false') : $newVal }}</span>
+                                                            <span class="text-emerald-400 font-bold">{{ $formatAuditValue($newVal) }}</span>
                                                         </div>
                                                     @endif
                                                 @endforeach

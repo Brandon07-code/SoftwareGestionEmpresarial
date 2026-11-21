@@ -1,4 +1,4 @@
-@props(['dark' => null])
+@props(['dark' => true])
 
 @php
     $titleColor = $dark === true ? 'text-white' : ($dark === false ? 'text-slate-900' : 'text-slate-900 dark:text-white');
@@ -33,7 +33,7 @@
             <span class="font-black text-[15px] tracking-tight {{ $titleColor }}">TURNIX</span>
             <span class="px-1.5 py-0.5 rounded-md text-[9px] font-black tracking-wider bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs">ERP</span>
         </div>
-        <span class="text-[9px] uppercase tracking-widest font-semibold hidden xl:inline whitespace-nowrap {{ $subtitleColor }}">Gestión & Operaciones</span>
+        <span class="text-[9px] uppercase tracking-widest font-semibold hidden 2xl:inline whitespace-nowrap {{ $subtitleColor }}">Gestión & Operaciones</span>
     </div>
 </div>
 

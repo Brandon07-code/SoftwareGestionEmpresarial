@@ -40,6 +40,8 @@ class Client extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('clientes')
-            ->setDescriptionForEvent(fn (string $eventName) => "Cliente «{$this->name}» fue {$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Cliente «{$this->name}» fue creado", 'updated' => "Cliente «{$this->name}» fue actualizado", 'deleted' => "Cliente «{$this->name}» fue eliminado", 'restored' => "Cliente «{$this->name}» fue restaurado", default => "Cliente «{$this->name}» fue {$eventName}"
+            });
     }
 }

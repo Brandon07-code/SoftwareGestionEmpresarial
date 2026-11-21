@@ -43,7 +43,7 @@
                             <select name="tipo_negocio" required class="w-full bg-slate-950 border border-slate-800 rounded-xl text-xs text-white px-3.5 py-2.5 focus:border-indigo-500">
                                 <option value="mixto" @selected(old('tipo_negocio', $empresa->tipo_negocio) === 'mixto')>Mixto (Servicios + Comercio Minorista)</option>
                                 <option value="servicios" @selected(old('tipo_negocio', $empresa->tipo_negocio) === 'servicios')>Servicios (Barbería, Estética, Citas)</option>
-                                <option value="retail" @selected(old('tipo_negocio', $empresa->tipo_negocio) === 'retail')>Retail (Perfumería, Cosméticos, POS)</option>
+                                <option value="retail" @selected(old('tipo_negocio', $empresa->tipo_negocio) === 'retail')>Comercio Minorista (Perfumería, Cosméticos, POS)</option>
                                 <option value="mayorista" @selected(old('tipo_negocio', $empresa->tipo_negocio) === 'mayorista')>Distribución Mayorista</option>
                             </select>
                         </div>

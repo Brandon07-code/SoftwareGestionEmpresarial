@@ -53,6 +53,8 @@ class Product extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('productos')
-            ->setDescriptionForEvent(fn (string $eventName) => "Producto «{$this->name}» fue {$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Producto «{$this->name}» fue creado", 'updated' => "Producto «{$this->name}» fue actualizado", 'deleted' => "Producto «{$this->name}» fue enviado a papelera", 'restored' => "Producto «{$this->name}» fue restaurado", default => "Producto «{$this->name}» fue {$eventName}"
+            });
     }
 }

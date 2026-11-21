@@ -208,7 +208,7 @@
                 <div class="mt-6 space-y-2">
                     @if($cita->transaccionPago && $cita->transaccionPago->isPendiente())
                         <a href="{{ route('pagos.checkout', $cita->transaccionPago->id) }}" class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition">
-                            <span>🚀 Abrir Checkout Wompi / Nequi</span>
+                            <span>🚀 Abrir Pasarela Wompi / Nequi</span>
                         </a>
                     @elseif($cita->transaccionPago && $cita->transaccionPago->isAprobado())
                         <div class="text-center py-2.5 px-3 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-xs font-bold text-emerald-300 flex items-center justify-center gap-1.5">

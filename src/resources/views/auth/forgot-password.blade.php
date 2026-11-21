@@ -21,7 +21,7 @@
 
         <div class="flex items-center justify-between mt-6">
             <a class="underline text-xs text-slate-400 hover:text-indigo-400 transition" href="{{ route('login') }}">
-                ← Volver al Login
+                ← Volver al Inicio de Sesión
             </a>
 
             <x-primary-button class="bg-indigo-600 hover:bg-indigo-500">

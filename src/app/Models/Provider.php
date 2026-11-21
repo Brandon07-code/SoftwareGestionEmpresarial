@@ -41,6 +41,8 @@ class Provider extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('proveedores')
-            ->setDescriptionForEvent(fn (string $eventName) => "Proveedor «{$this->name}» fue {$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Proveedor «{$this->name}» fue creado", 'updated' => "Proveedor «{$this->name}» fue actualizado", 'deleted' => "Proveedor «{$this->name}» fue eliminado", 'restored' => "Proveedor «{$this->name}» fue restaurado", default => "Proveedor «{$this->name}» fue {$eventName}"
+            });
     }
 }

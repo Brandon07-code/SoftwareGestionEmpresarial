@@ -30,7 +30,7 @@
                         <select id="provider_id" name="provider_id" class="w-full bg-slate-950/80 border border-slate-700 text-white rounded-xl px-3.5 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition shadow-sm" required>
                             <option value="">Seleccione un proveedor</option>
                             @foreach ($providers as $provider)
-                                <option value="{{ $provider->id }}" @selected(old('provider_id') == $provider->id)>
+                                <option value="{{ $provider->id }}" data-provider-name="{{ $provider->name }}" @selected(old('provider_id') == $provider->id)>
                                     {{ $provider->name }} — {{ $provider->document_number }}
                                 </option>
                             @endforeach
@@ -53,7 +53,7 @@
                 <div>
                     <div class="flex items-center justify-between mb-2">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Productos a Comprar</label>
-                        <span class="text-xs text-slate-400">Digita el costo unitario pactado con el proveedor</span>
+                        <span id="provider-filter-hint" class="text-xs text-indigo-300 font-medium">Selecciona un proveedor para ver exclusivamente los productos que suministra</span>
                     </div>
 
                     <div class="overflow-x-auto border border-slate-800 rounded-xl">
@@ -121,9 +121,11 @@
                 <select name="items[__INDEX__][product_id]" class="product-select w-full bg-slate-950/80 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition" required>
                     <option value="">Seleccione producto...</option>
                     @foreach ($products as $product)
-                        <option value="{{ $product->id }}" data-price="{{ $product->price }}">
-                            {{ $product->name }} (Stock Actual: {{ $product->stock }})
-                        </option>
+                        @if ($product->category?->active ?? true)
+                            <option value="{{ $product->id }}" data-price="{{ $product->price }}" data-category="{{ $product->category?->name ?? '' }}">
+                                {{ $product->name }} (Stock Actual: {{ $product->stock }})
+                            </option>
+                        @endif
                     @endforeach
                 </select>
             </td>
@@ -154,11 +156,106 @@
         const addBtn = document.getElementById('add-item');
 
         const oldItems = @json(array_values(old('items', [])));
+        const providerSelect = document.getElementById('provider_id');
+        const providerHint = document.getElementById('provider-filter-hint');
+
+        function getAllowedCategoriesForProvider(providerName) {
+            const name = (providerName || '').toLowerCase();
+            if (!name) return null;
+            if (name.includes('perfumería') || name.includes('perfumeria') || name.includes('fragancias')) {
+                return ['Perfumería & Fragancias'];
+            }
+            if (name.includes('barber tools') || name.includes('laboratorios')) {
+                return ['Electrónicos & Máquinas'];
+            }
+            if (name.includes('insumos barber') || name.includes('andrés cardona')) {
+                return ['Barbería & Afeitado'];
+            }
+            if (name.includes('cosméticos del eje') || name.includes('cosmeticos del eje')) {
+                return ['Cuidado Capilar & Ceras'];
+            }
+            if (name.includes('droguería') || name.includes('drogueria')) {
+                return ['Cuidado Capilar & Ceras', 'Barbería & Afeitado'];
+            }
+            return null;
+        }
+
+        let masterProductOptions = null;
+
+        function getMasterOptions(selectEl) {
+            if (!masterProductOptions) {
+                masterProductOptions = Array.from(selectEl.options)
+                    .filter(opt => opt.value !== '')
+                    .map(opt => ({
+                        value: opt.value,
+                        text: opt.textContent.trim(),
+                        price: opt.dataset.price || '0',
+                        category: opt.dataset.category || ''
+                    }));
+            }
+            return masterProductOptions;
+        }
+
+        function filterProductsByProvider(resetInvalidSelection = true) {
+            const selectedProviderOpt = providerSelect?.options[providerSelect.selectedIndex];
+            const providerName = selectedProviderOpt?.dataset?.providerName || '';
+            const allowedCategories = getAllowedCategoriesForProvider(providerName);
+
+            let visibleCount = 0;
+            document.querySelectorAll('.product-select').forEach((select, idx) => {
+                const allOpts = getMasterOptions(select);
+                const previousValue = select.value;
+
+                // Keep only matching options for this provider
+                const filtered = allOpts.filter(o => !allowedCategories || allowedCategories.includes(o.category));
+                if (idx === 0) visibleCount = filtered.length;
+
+                select.innerHTML = '';
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = providerName
+                    ? `Seleccione producto de ${providerName.split(' ')[0]}...`
+                    : 'Seleccione primero un proveedor...';
+                select.appendChild(placeholder);
+
+                filtered.forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = o.value;
+                    opt.textContent = o.text;
+                    opt.dataset.price = o.price;
+                    opt.dataset.category = o.category;
+                    select.appendChild(opt);
+                });
+
+                // Restore selection if still valid
+                if (previousValue && filtered.some(o => String(o.value) === String(previousValue))) {
+                    select.value = previousValue;
+                } else if (resetInvalidSelection) {
+                    select.value = '';
+                }
+            });
+
+            if (providerHint) {
+                if (providerName && allowedCategories) {
+                    providerHint.textContent = `Catálogo filtrado: ${visibleCount} producto(s) de «${allowedCategories.join(' + ')}» para ${providerName}`;
+                } else if (providerName) {
+                    providerHint.textContent = `Catálogo general habilitado para ${providerName}`;
+                } else {
+                    providerHint.textContent = 'Selecciona un proveedor para ver exclusivamente los productos que suministra';
+                }
+            }
+            recalculate();
+        }
+
+        providerSelect?.addEventListener('change', () => filterProductsByProvider(true));
 
         function addRow(item = null) {
             const html = template.replace(/__INDEX__/g, index++);
             itemsBody.insertAdjacentHTML('beforeend', html);
             const row = itemsBody.lastElementChild;
+
+            bindRow(row);
+            filterProductsByProvider(false);
 
             if (item) {
                 row.querySelector('.product-select').value = item.product_id ?? '';
@@ -166,7 +263,6 @@
                 row.querySelector('.cost-input').value = item.unit_cost ?? '';
             }
 
-            bindRow(row);
             recalculate();
         }
 

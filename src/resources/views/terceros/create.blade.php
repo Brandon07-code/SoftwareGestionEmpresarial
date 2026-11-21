@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nuevo Tercero - Party Model ERP')
+@section('title', 'Nuevo Tercero - Modelo Unificado de Terceros ERP')
 
 @section('content')
 <div class="max-w-3xl mx-auto space-y-6">
@@ -14,10 +14,10 @@
                 </a>
             </div>
             <h1 class="text-2xl font-black text-white tracking-tight">Registrar Nuevo Tercero</h1>
-            <p class="text-sm text-slate-400 mt-0.5">Creación de persona natural o jurídica bajo el modelo empresarial Party Model.</p>
+            <p class="text-sm text-slate-400 mt-0.5">Creación de persona natural o jurídica bajo el modelo empresarial Modelo Unificado de Terceros.</p>
         </div>
         <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
-            Party Model
+            Modelo Unificado de Terceros
         </span>
     </div>
 
@@ -25,7 +25,7 @@
     <form action="{{ route('terceros.store') }}" method="POST" class="bg-slate-800/90 border border-slate-700/80 p-6 sm:p-8 rounded-2xl shadow-xl backdrop-blur-sm space-y-6">
         @csrf
 
-        <!-- 1. Roles de Negocio (El Corazón del Party Model) -->
+        <!-- 1. Roles de Negocio (El Corazón del Modelo Unificado de Terceros) -->
         <div class="p-4 bg-slate-900/60 border border-slate-700/60 rounded-xl space-y-2">
             <span class="block text-xs font-extrabold uppercase tracking-wider text-slate-300">
                 1. Clasificación / Roles de Negocio * (Selecciona al menos uno)

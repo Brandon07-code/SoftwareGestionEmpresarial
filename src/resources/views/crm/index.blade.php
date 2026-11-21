@@ -207,7 +207,7 @@
                                 <option value="WHATSAPP" class="bg-slate-900 text-white">📱 WhatsApp</option>
                                 <option value="LLAMADA" class="bg-slate-900 text-white">📞 Llamada</option>
                                 <option value="PRESENCIAL" class="bg-slate-900 text-white">🏢 Presencial</option>
-                                <option value="EMAIL" class="bg-slate-900 text-white">✉️ Email</option>
+                                <option value="EMAIL" class="bg-slate-900 text-white">✉️ Correo Electrónico</option>
                             </select>
                         </div>
                         <div>

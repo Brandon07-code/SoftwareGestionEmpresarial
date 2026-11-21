@@ -68,6 +68,8 @@ class Purchase extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('compras')
-            ->setDescriptionForEvent(fn (string $eventName) => "Orden de compra «{$this->purchase_number}» fue {$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Orden de compra «{$this->purchase_number}» fue creada", 'updated' => "Orden de compra «{$this->purchase_number}» fue actualizada", 'deleted' => "Orden de compra «{$this->purchase_number}» fue anulada", 'restored' => "Orden de compra «{$this->purchase_number}» fue restaurada", default => "Orden de compra «{$this->purchase_number}» fue {$eventName}"
+            });
     }
 }

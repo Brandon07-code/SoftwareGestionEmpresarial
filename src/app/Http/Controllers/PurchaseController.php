@@ -60,7 +60,7 @@ class PurchaseController extends Controller implements HasMiddleware
         return view('purchases.create', [
             'providers' => Provider::where('active', true)->orderBy('name')->get(['id', 'name', 'document_number']),
             // A diferencia de la venta, aquí SÍ se listan productos con stock 0 (son los que más se necesita comprar)
-            'products' => Product::orderBy('name')->get(['id', 'name', 'price', 'stock']),
+            'products' => Product::with('category:id,name,active')->where('active', true)->orderBy('name')->get(['id', 'name', 'price', 'stock', 'category_id']),
         ]);
     }
 

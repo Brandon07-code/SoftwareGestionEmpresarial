@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Checkout Pasarela ' . $transaccion->pasarela . ' - ERP')
+@section('title', 'Pasarela de Pago ' . $transaccion->pasarela . ' - ERP')
 
 @section('content')
 <div class="max-w-2xl mx-auto space-y-6">
@@ -33,7 +33,7 @@
                     </div>
                     <div>
                         <h2 class="text-base font-black tracking-wide">
-                            {{ $transaccion->pasarela === 'WOMPI' ? 'Checkout Oficial WOMPI Bancolombia' : 'Pasarela Móvil NEQUI' }}
+                            {{ $transaccion->pasarela === 'WOMPI' ? 'Pasarela Oficial WOMPI Bancolombia' : 'Pasarela Móvil NEQUI' }}
                         </h2>
                         <span class="text-[11px] text-slate-300 font-mono">Ref: {{ $transaccion->referencia_interna }}</span>
                     </div>

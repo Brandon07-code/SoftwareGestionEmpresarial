@@ -13,7 +13,7 @@
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">WOMPI & Nequi</span>
             </div>
             <p class="text-sm text-slate-400 mt-0.5 font-medium">
-                Monitoreo centralizado de transacciones electrónicas, estados de pago (PENDING / APPROVED / DECLINED) y webhooks.
+                Monitoreo centralizado de transacciones electrónicas, estados de pago (PENDIENTE / APROBADA / RECHAZADA) y webhooks.
             </p>
         </div>
     </div>
@@ -102,7 +102,7 @@
                                     </span>
                                 @endif
                                 @if($trx->referencia_pasarela)
-                                    <span class="text-[10px] text-slate-400 font-mono">Auth: {{ $trx->referencia_pasarela }}</span>
+                                    <span class="text-[10px] text-slate-400 font-mono">Ref: {{ $trx->referencia_pasarela }}</span>
                                 @endif
                             </div>
                         </td>
@@ -166,7 +166,7 @@
                         <!-- Acciones -->
                         <td class="px-6 py-4 text-right">
                             <a href="{{ route('pagos.checkout', $trx->id) }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 rounded-xl text-xs font-bold transition shadow-sm">
-                                <span>Ver Checkout →</span>
+                                <span>Ver Pasarela →</span>
                             </a>
                         </td>
                     </tr>
