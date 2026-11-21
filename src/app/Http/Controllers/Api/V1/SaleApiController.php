@@ -8,10 +8,20 @@ use App\Models\Sale;
 use App\Services\SaleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Validation\ValidationException;
 
-class SaleApiController extends BaseApiController
+class SaleApiController extends BaseApiController implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:ver-ventas', only: ['index', 'today', 'show']),
+            new Middleware('permission:crear-ventas', only: ['store']),
+        ];
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = Sale::query()

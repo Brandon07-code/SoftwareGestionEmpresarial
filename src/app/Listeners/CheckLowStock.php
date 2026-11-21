@@ -39,8 +39,8 @@ class CheckLowStock
     {
         $query = User::permission('crear-compras');
 
-        if (Schema::hasColumn('users', 'active')) {
-            $query->where('active', true);
+        if (Schema::hasColumn('users', 'activo')) {
+            $query->where('activo', true);
         }
 
         return $query->get();

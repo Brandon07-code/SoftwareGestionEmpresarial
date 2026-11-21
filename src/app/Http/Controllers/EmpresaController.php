@@ -5,17 +5,22 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Empresa;
+use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 
 class EmpresaController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
-        // Solo el Administrador tiene autorización para gestionar organizaciones
         return [
-            new Middleware('role:admin'),
+            function (Request $request, Closure $next) {
+                if ($request->user()?->activeRole()?->name !== 'admin') {
+                    abort(403, 'Solo el rol activo «admin» puede gestionar empresas.');
+                }
+
+                return $next($request);
+            },
         ];
     }
 

@@ -8,9 +8,19 @@ use App\Models\PuntosMovimiento;
 use App\Models\Tercero;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class CrmController extends Controller
+class CrmController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:ver-crm', only: ['index']),
+            new Middleware('permission:crear-crm', only: ['storeInteraccion']),
+        ];
+    }
+
     /**
      * Tablero principal de CRM y Fidelización
      */

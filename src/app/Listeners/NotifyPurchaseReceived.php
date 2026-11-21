@@ -12,6 +12,10 @@ class NotifyPurchaseReceived
 {
     public function handle(PurchaseReceived $event): void
     {
-        $event->purchase->user?->notify(new PurchaseReceivedNotification($event->purchase, $event->complete));
+        $user = $event->purchase->user;
+
+        if ($user && $user->activo) {
+            $user->notify(new PurchaseReceivedNotification($event->purchase, $event->complete));
+        }
     }
 }

@@ -41,9 +41,9 @@ Route::prefix('v1')->group(function () {
     // =========================================================================
     // ENDPOINTS EXTENDIDOS DEL ECOSISTEMA TURNIX ERP (COMPATIBILIDAD CON SUITE)
     // =========================================================================
-    Route::post('auth/login', [LegacyAuthController::class, 'login']);
+    Route::post('auth/login', [LegacyAuthController::class, 'login'])->middleware('throttle:5,1');
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         Route::get('auth/me', [LegacyAuthController::class, 'me']);
         Route::post('auth/logout', [LegacyAuthController::class, 'logout']);
 
@@ -53,7 +53,6 @@ Route::prefix('v1')->group(function () {
         Route::get('products/{product}/kardex', [KardexApiController::class, 'productKardex']);
 
         Route::get('sales', [SaleApiController::class, 'index']);
-        Route::get('sales/today', [SaleApiController::class, 'today']);
 
         Route::get('clients', [ClientApiController::class, 'index']);
         Route::get('clients/{client}', [ClientApiController::class, 'show']);

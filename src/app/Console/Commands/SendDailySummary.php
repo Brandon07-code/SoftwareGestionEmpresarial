@@ -33,8 +33,8 @@ class SendDailySummary extends Command
         ];
 
         $recipientsQuery = User::permission('ver-reportes');
-        if (Schema::hasColumn('users', 'active')) {
-            $recipientsQuery->where('active', true);
+        if (Schema::hasColumn('users', 'activo')) {
+            $recipientsQuery->where('activo', true);
         }
         $recipients = $recipientsQuery->get();
         Notification::send($recipients, new DailySummaryNotification($summary));

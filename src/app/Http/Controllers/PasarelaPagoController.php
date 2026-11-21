@@ -6,9 +6,19 @@ use App\Models\Cita;
 use App\Models\PuntosMovimiento;
 use App\Models\TransaccionPago;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class PasarelaPagoController extends Controller
+class PasarelaPagoController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:ver-pagos', only: ['index']),
+            new Middleware('permission:gestionar-pagos', only: ['checkout', 'simularWebhook']),
+        ];
+    }
+
     /**
      * Muestra el monitoreo de transacciones de pasarela (Wompi, Nequi, etc.)
      */

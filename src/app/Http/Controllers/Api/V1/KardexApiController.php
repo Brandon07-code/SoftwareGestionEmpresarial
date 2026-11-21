@@ -8,9 +8,18 @@ use App\Models\Kardex;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class KardexApiController extends BaseApiController
+class KardexApiController extends BaseApiController implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:ver-inventario', only: ['index', 'productKardex']),
+        ];
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = Kardex::query()

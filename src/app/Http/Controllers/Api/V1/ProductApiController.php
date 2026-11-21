@@ -8,9 +8,20 @@ use App\Models\Product;
 use App\Services\KardexService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\DB;
 
-class ProductApiController extends BaseApiController
+class ProductApiController extends BaseApiController implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:ver-productos', only: ['index', 'show']),
+            new Middleware('permission:crear-productos', only: ['store']),
+        ];
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = Product::query()
@@ -70,26 +81,31 @@ class ProductApiController extends BaseApiController
         ]);
 
         $initialStock = (int) $validated['stock'];
-        $product = Product::create([
-            'name' => $validated['name'],
-            'description' => $validated['description'] ?? null,
-            'price' => $validated['price'],
-            'stock' => 0,
-            'category_id' => $validated['category_id'],
-            'active' => $validated['active'] ?? true,
-        ]);
 
-        if ($initialStock > 0) {
-            $kardexService->record(
-                $product,
-                'AJUSTE_INICIAL',
-                $initialStock,
-                (float) $validated['price'],
-                'API-REST',
-                $request->user()->id,
-                'Carga inicial registrada mediante API REST'
-            );
-        }
+        $product = DB::transaction(function () use ($validated, $initialStock, $request, $kardexService): Product {
+            $product = Product::create([
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+                'price' => $validated['price'],
+                'stock' => 0,
+                'category_id' => $validated['category_id'],
+                'active' => $validated['active'] ?? true,
+            ]);
+
+            if ($initialStock > 0) {
+                $kardexService->record(
+                    $product,
+                    'AJUSTE_INICIAL',
+                    $initialStock,
+                    (float) $validated['price'],
+                    'API-REST',
+                    $request->user()->id,
+                    'Carga inicial registrada mediante API REST'
+                );
+            }
+
+            return $product;
+        });
 
         $product->load('category:id,name');
 

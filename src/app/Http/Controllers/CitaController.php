@@ -10,9 +10,21 @@ use App\Models\Sucursal;
 use App\Models\Tercero;
 use App\Models\TransaccionPago;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class CitaController extends Controller
+class CitaController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:ver-citas', only: ['index', 'show']),
+            new Middleware('permission:crear-citas', only: ['create', 'store']),
+            new Middleware('permission:editar-citas', only: ['edit', 'update']),
+            new Middleware('permission:eliminar-citas', only: ['destroy']),
+        ];
+    }
+
     /**
      * Muestra el listado de citas usando Eager Loading (with) para evitar el problema N+1
      */

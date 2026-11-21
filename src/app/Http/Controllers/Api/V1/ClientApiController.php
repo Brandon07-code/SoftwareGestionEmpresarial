@@ -7,9 +7,19 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class ClientApiController extends BaseApiController
+class ClientApiController extends BaseApiController implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:ver-clientes', only: ['index', 'show']),
+            new Middleware('permission:crear-clientes', only: ['store']),
+        ];
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = Client::query()

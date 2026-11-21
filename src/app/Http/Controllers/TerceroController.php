@@ -5,9 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Empresa;
 use App\Models\Tercero;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class TerceroController extends Controller
+class TerceroController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:ver-terceros', only: ['index', 'show']),
+            new Middleware('permission:crear-terceros', only: ['create', 'store']),
+        ];
+    }
+
     /**
      * Muestra el directorio unificado de Terceros (Party Model)
      */
