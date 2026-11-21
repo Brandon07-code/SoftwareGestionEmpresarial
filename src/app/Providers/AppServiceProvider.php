@@ -9,6 +9,7 @@ use App\Listeners\CheckLowStock;
 use App\Listeners\NotifyPurchaseReceived;
 use App\Listeners\SecurityAuditListener;
 use App\Listeners\SendLowStockNotification;
+use App\Models\User;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -30,15 +31,15 @@ class AppServiceProvider extends ServiceProvider
     {
         // Control de permisos centralizado con soporte de rol activo
         Gate::before(function ($user, string $ability) {
-            if ($user->hasRole('admin')) {
+            if (! $user instanceof User) {
+                return null;
+            }
+
+            if ($user->activeRole()?->name === 'admin') {
                 return true;
             }
 
-            if (method_exists($user, 'hasPermissionInActiveRole')) {
-                return $user->hasPermissionInActiveRole($ability);
-            }
-
-            return null;
+            return $user->hasPermissionInActiveRole($ability) ? true : null;
         });
 
         // Bitácora de Auditoría y Seguridad

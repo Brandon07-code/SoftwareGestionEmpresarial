@@ -28,6 +28,20 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = $request->user()->load('roles');
+
+        if ($user->roles->count() === 1) {
+            session(['active_role' => $user->roles->first()->name]);
+
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
+        session()->forget('active_role');
+
+        if ($user->hasMultipleRoles()) {
+            return redirect()->route('role.select');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

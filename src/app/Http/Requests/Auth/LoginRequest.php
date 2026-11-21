@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -42,8 +43,42 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $inactive = false;
+        $inactiveUser = null;
+
+        $authenticated = Auth::attemptWhen(
+            $this->only('email', 'password'),
+            function ($user) use (&$inactive, &$inactiveUser): bool {
+                if ($user instanceof User && ! $user->activo) {
+                    $inactive = true;
+                    $inactiveUser = $user;
+
+                    return false;
+                }
+
+                return true;
+            },
+            $this->boolean('remember')
+        );
+
+        if (! $authenticated) {
             RateLimiter::hit($this->throttleKey());
+
+            if ($inactive) {
+                activity('seguridad')
+                    ->causedBy($inactiveUser)
+                    ->withProperties([
+                        'email' => $this->input('email'),
+                        'ip' => $this->ip(),
+                        'user_agent' => $this->userAgent(),
+                        'motivo' => 'usuario_inactivo',
+                    ])
+                    ->log('Intento de inicio de sesión bloqueado: usuario inactivo');
+
+                throw ValidationException::withMessages([
+                    'email' => 'Su usuario está inactivo. Comuníquese con el administrador.',
+                ]);
+            }
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),

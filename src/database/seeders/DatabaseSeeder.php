@@ -142,6 +142,18 @@ class DatabaseSeeder extends Seeder
         ]);
         $userAuditor->assignRole('auditor');
 
+        $userSupervisor = User::firstOrCreate(
+            ['email' => 'supervisor@test.com'],
+            [
+                'empresa_id' => $empresaJyM->id,
+                'name' => 'Supervisor Multirrol',
+                'password' => Hash::make('password'),
+                'telefono' => '3119998877',
+                'activo' => true,
+            ]
+        );
+        $userSupervisor->syncRoles(['vendedor', 'almacenista']);
+
         $userBarbero = $userAlmacenista;
 
         // Código OTP de seguridad de prueba

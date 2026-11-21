@@ -29,6 +29,10 @@ class User extends Authenticatable
         'activo',
     ];
 
+    protected $attributes = [
+        'activo' => true,
+    ];
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -70,7 +74,9 @@ class User extends Authenticatable
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('seguridad')
-            ->setDescriptionForEvent(fn (string $eventName) => "Usuario «{$this->name}» fue {$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Usuario «{$this->name}» fue creado", 'updated' => "Usuario «{$this->name}» fue actualizado", 'deleted' => "Usuario «{$this->name}» fue eliminado", default => "Usuario «{$this->name}» fue {$eventName}"
+            });
     }
 
     /**
@@ -129,7 +135,7 @@ class User extends Authenticatable
 
             return $role
                 ? $role->hasPermissionTo($permission)
-                : $this->hasPermissionTo($permission);
+                : false;
         } catch (PermissionDoesNotExist) {
             return null;
         }
