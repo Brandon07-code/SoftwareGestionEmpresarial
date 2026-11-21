@@ -215,7 +215,7 @@
                         </a>
                     @endcan
 
-                    @can('ver-productos')
+                    @can('ver-inventario')
                         <a href="{{ route('kardex.index') }}" class="group block p-5 rounded-2xl border border-slate-800/80 bg-slate-950/60 hover:bg-slate-800/80 hover:border-amber-500/50 hover:shadow-xl transition duration-200">
                             <div class="flex items-start justify-between">
                                 <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center font-bold group-hover:bg-amber-600 group-hover:text-white transition duration-200">

@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreKardexAdjustmentRequest;
 use App\Models\Kardex;
 use App\Models\Product;
+use App\Services\KardexService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Validation\ValidationException;
 
 class KardexController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:ver-productos'),
+            new Middleware('permission:ver-inventario', only: ['index', 'productKardex']),
+            new Middleware('permission:ajustar-inventario', only: ['adjust']),
         ];
     }
 
@@ -37,7 +41,7 @@ class KardexController extends Controller implements HasMiddleware
             ->paginate(15)
             ->withQueryString();
 
-        $products = Product::orderBy('name')->get(['id', 'name']);
+        $products = Product::orderBy('name')->get(['id', 'name', 'stock']);
 
         $totalIn = Kardex::whereIn('movement_type', ['ENTRADA_COMPRA', 'ANULACION_VENTA', 'AJUSTE_INICIAL', 'AJUSTE_POSITIVO'])->sum('quantity');
         $totalOut = Kardex::whereIn('movement_type', ['SALIDA_VENTA', 'AJUSTE_NEGATIVO'])->sum('quantity');
@@ -55,5 +59,26 @@ class KardexController extends Controller implements HasMiddleware
     public function productKardex(Product $product)
     {
         return redirect()->route('kardex.index', ['product_id' => $product->id]);
+    }
+
+    public function adjust(StoreKardexAdjustmentRequest $request, KardexService $kardexService)
+    {
+        $data = $request->validated();
+
+        try {
+            $movement = $kardexService->adjust(
+                (int) $data['product_id'],
+                $data['movement_type'],
+                (int) $data['quantity'],
+                $data['reason'],
+                $request->user()->id,
+                $data['document_reference'] ?? null
+            );
+
+            return redirect()->route('kardex.index', ['product_id' => $movement->product_id])
+                ->with('success', "Ajuste de inventario ({$movement->movementTypeLabel()}) registrado correctamente. Nuevo stock: {$movement->stock_after} uds.");
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
     }
 }

@@ -110,6 +110,45 @@ class SaleService
     }
 
     /**
+     * Anula una venta con bloqueo pesimista e idempotencia, devolviendo existencias vía Kárdex.
+     */
+    public function cancel(Sale $sale, ?int $userId = null): Sale
+    {
+        return DB::transaction(function () use ($sale, $userId): Sale {
+            $lockedSale = Sale::withTrashed()->lockForUpdate()->findOrFail($sale->id);
+
+            if (! $lockedSale->canBeCancelled()) {
+                throw ValidationException::withMessages([
+                    'sale' => "La venta «{$lockedSale->invoice_number}» ya fue anulada previamente.",
+                ]);
+            }
+
+            $lockedSale->load('details');
+
+            foreach ($lockedSale->details as $detail) {
+                $product = Product::withTrashed()->lockForUpdate()->find($detail->product_id);
+
+                if ($product) {
+                    $this->kardexService->record(
+                        $product,
+                        'ANULACION_VENTA',
+                        $detail->quantity,
+                        (float) $detail->unit_price,
+                        $lockedSale->invoice_number,
+                        $userId,
+                        "Devolución por anulación de factura «{$lockedSale->invoice_number}»"
+                    );
+                }
+            }
+
+            $lockedSale->update(['status' => 'anulada']);
+            $lockedSale->delete();
+
+            return $lockedSale;
+        });
+    }
+
+    /**
      * Genera el siguiente número de factura: FV-00001, FV-00002, ...
      */
     private function nextInvoiceNumber(): string

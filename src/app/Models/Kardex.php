@@ -53,6 +53,8 @@ class Kardex extends Model
             'SALIDA_VENTA' => 'Salida por Venta',
             'ANULACION_VENTA' => 'Devolución Anulación',
             'AJUSTE_INICIAL' => 'Inventario Inicial',
+            'AJUSTE_POSITIVO' => 'Ajuste Positivo (+)',
+            'AJUSTE_NEGATIVO' => 'Ajuste Negativo (-)',
             'AJUSTE_STOCK' => 'Ajuste Manual',
             default => $this->movement_type,
         };

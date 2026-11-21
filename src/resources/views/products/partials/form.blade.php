@@ -44,14 +44,40 @@
         </div>
 
         <div>
-            <label for="stock" class="block font-semibold text-xs text-slate-300 uppercase tracking-wider mb-2">
-                Inventario Disponible (Unidades) <span class="text-indigo-400">*</span>
-            </label>
-            <input id="stock" name="stock" type="number" min="0" 
-                   class="w-full bg-slate-950/80 border border-slate-700 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 rounded-xl px-4 py-3 text-sm transition shadow-inner font-mono" 
-                   value="{{ old('stock', $product->stock ?? 0) }}" 
-                   placeholder="10" required />
-            <x-input-error class="mt-2" :messages="$errors->get('stock')" />
+            @if ($product->exists)
+                <label class="block font-semibold text-xs text-slate-300 uppercase tracking-wider mb-2">
+                    Inventario Disponible (Solo lectura)
+                </label>
+                <div class="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                    <span class="font-mono font-bold text-base text-white">{{ $product->stock }} uds</span>
+                    <div class="flex items-center gap-2">
+                        @can('ver-inventario')
+                            <a href="{{ route('kardex.index', ['product_id' => $product->id]) }}" class="text-xs font-bold text-indigo-300 hover:text-indigo-200 underline">
+                                @can('ajustar-inventario')
+                                    Ajustar en Kárdex →
+                                @else
+                                    Ver Kárdex →
+                                @endcan
+                            </a>
+                        @endcan
+                    </div>
+                </div>
+                <p class="mt-1.5 text-[11px] text-slate-400">
+                    El stock solo se modifica mediante Compras, Ventas o Ajuste de Kárdex.
+                </p>
+            @else
+                <label for="stock" class="block font-semibold text-xs text-slate-300 uppercase tracking-wider mb-2">
+                    Stock Inicial (Unidades) <span class="text-indigo-400">*</span>
+                </label>
+                <input id="stock" name="stock" type="number" min="0"
+                       class="w-full bg-slate-950/80 border border-slate-700 text-white placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 rounded-xl px-4 py-3 text-sm transition shadow-inner font-mono"
+                       value="{{ old('stock', $product->stock ?? 0) }}"
+                       placeholder="10" required />
+                <p class="mt-1.5 text-[11px] text-slate-400">
+                    Si es mayor a 0, se registrará automáticamente un asiento <code class="text-indigo-300">AJUSTE_INICIAL</code> en Kárdex.
+                </p>
+                <x-input-error class="mt-2" :messages="$errors->get('stock')" />
+            @endif
         </div>
     </div>
 

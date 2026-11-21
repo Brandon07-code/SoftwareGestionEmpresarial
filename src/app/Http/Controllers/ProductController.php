@@ -9,9 +9,12 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Imports\ProductsImport;
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\KardexService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 
@@ -21,8 +24,10 @@ class ProductController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:ver-productos', only: ['index', 'exportExcel', 'exportTemplate']),
-            new Middleware('permission:crear-productos', only: ['create', 'store', 'importExcel']),
+            new Middleware('permission:ver-productos', only: ['index']),
+            new Middleware('permission:exportar-productos', only: ['exportExcel']),
+            new Middleware('permission:importar-productos', only: ['exportTemplate', 'importExcel']),
+            new Middleware('permission:crear-productos', only: ['create', 'store']),
             new Middleware('permission:editar-productos', only: ['edit', 'update']),
             new Middleware('permission:eliminar-productos', only: ['destroy', 'restore']),
         ];
@@ -64,9 +69,29 @@ class ProductController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function store(StoreProductRequest $request)
+    public function store(StoreProductRequest $request, KardexService $kardexService)
     {
-        Product::create($request->validated());
+        $validated = $request->validated();
+        $initialStock = (int) ($validated['stock'] ?? 0);
+
+        DB::transaction(function () use ($validated, $initialStock, $request, $kardexService): void {
+            $product = Product::create([
+                ...$validated,
+                'stock' => 0,
+            ]);
+
+            if ($initialStock > 0) {
+                $kardexService->record(
+                    $product,
+                    'AJUSTE_INICIAL',
+                    $initialStock,
+                    (float) $product->price,
+                    'INV-INICIAL',
+                    $request->user()?->id,
+                    "Inventario inicial al registrar el producto «{$product->name}»"
+                );
+            }
+        });
 
         return redirect()->route('products.index')
             ->with('success', 'Producto creado exitosamente.');
@@ -82,7 +107,7 @@ class ProductController extends Controller implements HasMiddleware
 
     public function update(UpdateProductRequest $request, Product $product)
     {
-        $product->update($request->validated());
+        $product->update(Arr::except($request->validated(), ['stock']));
 
         return redirect()->route('products.index')
             ->with('success', 'Producto actualizado exitosamente.');

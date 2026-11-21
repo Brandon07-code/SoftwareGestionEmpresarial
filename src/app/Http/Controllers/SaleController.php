@@ -7,13 +7,11 @@ use App\Http\Requests\StoreSaleRequest;
 use App\Models\Client;
 use App\Models\Product;
 use App\Models\Sale;
-use App\Services\KardexService;
 use App\Services\SaleService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -85,29 +83,17 @@ class SaleController extends Controller implements HasMiddleware
         return view('sales.show', ['sale' => $sale]);
     }
 
-    public function destroy(Sale $sale, KardexService $kardexService)
+    public function destroy(Sale $sale, SaleService $service)
     {
-        // Regla de negocio: al anular, se devuelve el stock a los productos a través de Kárdex
-        DB::transaction(function () use ($sale, $kardexService) {
-            foreach ($sale->details as $detail) {
-                if ($detail->product) {
-                    $kardexService->record(
-                        $detail->product,
-                        'ANULACION_VENTA',
-                        $detail->quantity,
-                        (float) $detail->unit_price,
-                        $sale->invoice_number,
-                        auth()->id(),
-                        "Devolución por anulación de factura «{$sale->invoice_number}»"
-                    );
-                }
-            }
-            $sale->update(['status' => 'anulada']);
-            $sale->delete();
-        });
+        try {
+            $service->cancel($sale, auth()->id());
 
-        return redirect()->route('sales.index')
-            ->with('success', "Venta «{$sale->invoice_number}» anulada y stock devuelto.");
+            return redirect()->route('sales.index')
+                ->with('success', "Venta «{$sale->invoice_number}» anulada y stock devuelto.");
+        } catch (ValidationException $e) {
+            return redirect()->route('sales.index')
+                ->with('error', collect($e->errors())->flatten()->first());
+        }
     }
 
     // Factura de venta en PDF

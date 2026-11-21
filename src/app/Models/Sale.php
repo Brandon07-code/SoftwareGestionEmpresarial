@@ -55,6 +55,11 @@ class Sale extends Model
             ->withTimestamps();
     }
 
+    public function canBeCancelled(): bool
+    {
+        return $this->status !== 'anulada' && ! $this->trashed();
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -62,6 +67,8 @@ class Sale extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('ventas')
-            ->setDescriptionForEvent(fn (string $eventName) => "Factura de venta «{$this->invoice_number}» fue {$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Factura de venta «{$this->invoice_number}» fue creada", 'updated' => "Factura de venta «{$this->invoice_number}» fue actualizada", 'deleted' => "Factura de venta «{$this->invoice_number}» fue anulada", 'restored' => "Factura de venta «{$this->invoice_number}» fue restaurada", default => "Factura de venta «{$this->invoice_number}» fue {$eventName}"
+            });
     }
 }

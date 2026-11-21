@@ -9,10 +9,12 @@
                     <p class="text-xs text-slate-400 mt-0.5 font-medium">Catálogo comercial de ceras, perfumes, navajas y cuidado personal</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <a href="{{ route('kardex.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-indigo-300 font-bold text-xs rounded-xl border border-slate-700 transition" title="Consultar bitácora de movimientos físicos">
-                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                        Kárdex
-                    </a>
+                    @can('ver-inventario')
+                        <a href="{{ route('kardex.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-indigo-300 font-bold text-xs rounded-xl border border-slate-700 transition" title="Consultar bitácora de movimientos físicos">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                            Kárdex
+                        </a>
+                    @endcan
 
                     @can('exportar-productos')
                         <a href="{{ route('products.export', request()->only('search')) }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-300 font-bold text-xs rounded-xl border border-emerald-500/30 transition shadow-sm" title="Exportar catálogo completo a formato Excel (.xlsx)">
@@ -221,9 +223,11 @@
                                                     </button>
                                                 </form>
                                             @else
-                                                <a href="{{ route('products.kardex', $product) }}" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/30 transition" title="Consultar Kárdex de este producto">
-                                                    Kárdex
-                                                </a>
+                                                @can('ver-inventario')
+                                                    <a href="{{ route('products.kardex', $product) }}" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/30 transition" title="Consultar Kárdex de este producto">
+                                                        Kárdex
+                                                    </a>
+                                                @endcan
                                                 @can('editar-productos')
                                                     <a href="{{ route('products.edit', $product) }}" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700 transition">
                                                         Editar
