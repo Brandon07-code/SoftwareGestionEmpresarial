@@ -211,13 +211,56 @@ Contraseña estándar para todos los usuarios: **`password`**
 
 ## 13. Guía de Instalación y Puesta en Marcha
 
+> [!IMPORTANT]
+> El proyecto completo de Laravel se encuentra dentro de la carpeta **`src/`** del repositorio. Todas las instrucciones de ejecución (Sail, Composer y Artisan) deben ejecutarse situándose dentro de `src/`.
+
+### 13.1. Instalación y Despliegue con Laravel Sail (Docker) — Método Oficial de la Cátedra
+Para docentes, evaluadores y entornos contenerizados bajo Docker / WSL2:
+
 ```bash
-# 1. Clonar el repositorio
+# 1. Clonar el repositorio oficial e ingresar a la carpeta src/
 git clone https://github.com/Brandon07-code/SoftwareGestionEmpresarial.git
 cd SoftwareGestionEmpresarial/src
 
-# 2. Instalar dependencias
+# 2. Configurar variables de entorno
+cp .env.example .env
+
+# 3. Instalar dependencias de Composer vía contenedor efímero (si no se tiene PHP localmente)
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php84-composer:latest \
+    composer install --ignore-platform-reqs
+
+# 4. Levantar los contenedores de Sail en segundo plano
+./vendor/bin/sail up -d
+
+# 5. Generar Application Key, migrar base de datos y cargar Seeders institucionales
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate:fresh --seed
+
+# 6. Ejecutar verificación de calidad PSR-12 y suite completa de pruebas
+./vendor/bin/sail bin pint --test
+./vendor/bin/sail artisan test --compact
+
+# 7. Ejecutar la traza de demostración paso a paso en consola (Requisito Clase 15)
+./vendor/bin/sail artisan erp:demo-test
+```
+La aplicación queda disponible en: **`http://localhost`** o **`http://127.0.0.1:8000`**.
+
+---
+
+### 13.2. Instalación Local Tradicional (PHP 8.2+ / Composer / SQLite o MariaDB)
+
+```bash
+# 1. Clonar el repositorio e ingresar a la carpeta src/
+git clone https://github.com/Brandon07-code/SoftwareGestionEmpresarial.git
+cd SoftwareGestionEmpresarial/src
+
+# 2. Instalar dependencias de backend y compilar assets
 composer install
+npm install && npm run build
 
 # 3. Configurar variables de entorno y generar clave
 cp .env.example .env
