@@ -120,13 +120,6 @@
             <td class="py-2.5 px-4">
                 <select name="items[__INDEX__][product_id]" class="product-select w-full bg-slate-950/80 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition" required>
                     <option value="">Seleccione producto...</option>
-                    @foreach ($products as $product)
-                        @if ($product->category?->active ?? true)
-                            <option value="{{ $product->id }}" data-price="{{ $product->price }}" data-category="{{ $product->category?->name ?? '' }}">
-                                {{ $product->name }} (Stock Actual: {{ $product->stock }})
-                            </option>
-                        @endif
-                    @endforeach
                 </select>
             </td>
             <td class="py-2.5 px-4 text-center">
@@ -148,6 +141,16 @@
         </tr>
     </template>
 
+    @php
+        $catalogData = $products->map(fn($p) => [
+            'id' => $p->id,
+            'name' => $p->name,
+            'stock' => $p->stock,
+            'price' => (float) $p->price,
+            'category' => $p->category?->name ?? 'Sin categoría',
+        ])->values()->all();
+    @endphp
+
     @push('scripts')
     <script>
         let index = 0;
@@ -159,17 +162,20 @@
         const providerSelect = document.getElementById('provider_id');
         const providerHint = document.getElementById('provider-filter-hint');
 
+        // Catálogo completo serializado directamente desde el backend
+        const productsCatalog = @json($catalogData);
+
         function getAllowedCategoriesForProvider(providerName) {
             const name = (providerName || '').toLowerCase();
-            if (!name) return null;
+            if (!name) return [];
             if (name.includes('perfumería') || name.includes('perfumeria') || name.includes('fragancias')) {
                 return ['Perfumería & Fragancias'];
             }
             if (name.includes('barber tools') || name.includes('laboratorios')) {
-                return ['Electrónicos & Máquinas'];
+                return ['Electrónicos & Máquinas', 'Accesorios & Cuidado Personal'];
             }
             if (name.includes('insumos barber') || name.includes('andrés cardona')) {
-                return ['Barbería & Afeitado'];
+                return ['Barbería & Afeitado', 'Accesorios & Cuidado Personal'];
             }
             if (name.includes('cosméticos del eje') || name.includes('cosmeticos del eje')) {
                 return ['Cuidado Capilar & Ceras'];
@@ -177,71 +183,68 @@
             if (name.includes('droguería') || name.includes('drogueria')) {
                 return ['Cuidado Capilar & Ceras', 'Barbería & Afeitado'];
             }
-            return null;
-        }
-
-        let masterProductOptions = null;
-
-        function getMasterOptions(selectEl) {
-            if (!masterProductOptions) {
-                masterProductOptions = Array.from(selectEl.options)
-                    .filter(opt => opt.value !== '')
-                    .map(opt => ({
-                        value: opt.value,
-                        text: opt.textContent.trim(),
-                        price: opt.dataset.price || '0',
-                        category: opt.dataset.category || ''
-                    }));
-            }
-            return masterProductOptions;
+            return [];
         }
 
         function filterProductsByProvider(resetInvalidSelection = true) {
             const selectedProviderOpt = providerSelect?.options[providerSelect.selectedIndex];
             const providerName = selectedProviderOpt?.dataset?.providerName || '';
             const allowedCategories = getAllowedCategoriesForProvider(providerName);
+            const hasProvider = Boolean(providerSelect && providerSelect.value && providerName);
 
-            let visibleCount = 0;
-            document.querySelectorAll('.product-select').forEach((select, idx) => {
-                const allOpts = getMasterOptions(select);
+            // Filtrar productos exclusivos para el proveedor seleccionado
+            const filtered = hasProvider
+                ? productsCatalog.filter(p => allowedCategories.length === 0 || allowedCategories.includes(p.category))
+                : [];
+
+            document.querySelectorAll('.product-select').forEach((select) => {
                 const previousValue = select.value;
-
-                // Keep only matching options for this provider
-                const filtered = allOpts.filter(o => !allowedCategories || allowedCategories.includes(o.category));
-                if (idx === 0) visibleCount = filtered.length;
-
                 select.innerHTML = '';
-                const placeholder = document.createElement('option');
-                placeholder.value = '';
-                placeholder.textContent = providerName
-                    ? `Seleccione producto de ${providerName.split(' ')[0]}...`
-                    : 'Seleccione primero un proveedor...';
-                select.appendChild(placeholder);
 
-                filtered.forEach(o => {
-                    const opt = document.createElement('option');
-                    opt.value = o.value;
-                    opt.textContent = o.text;
-                    opt.dataset.price = o.price;
-                    opt.dataset.category = o.category;
-                    select.appendChild(opt);
-                });
-
-                // Restore selection if still valid
-                if (previousValue && filtered.some(o => String(o.value) === String(previousValue))) {
-                    select.value = previousValue;
-                } else if (resetInvalidSelection) {
+                if (!hasProvider) {
+                    select.disabled = true;
+                    select.classList.add('opacity-60', 'cursor-not-allowed');
+                    const placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.textContent = '⚠️ Primero selecciona un proveedor arriba...';
+                    select.appendChild(placeholder);
                     select.value = '';
+                } else {
+                    select.disabled = false;
+                    select.classList.remove('opacity-60', 'cursor-not-allowed');
+                    const placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.textContent = `Seleccione producto de ${providerName.split(' ')[0]} (${filtered.length} disponibles)...`;
+                    select.appendChild(placeholder);
+
+                    filtered.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = `${p.name} (Stock Actual: ${p.stock})`;
+                        opt.dataset.price = p.price;
+                        opt.dataset.category = p.category;
+                        select.appendChild(opt);
+                    });
+
+                    // Mantener la selección previa si el producto pertenece al nuevo proveedor
+                    if (previousValue && filtered.some(p => String(p.id) === String(previousValue))) {
+                        select.value = previousValue;
+                    } else if (resetInvalidSelection) {
+                        select.value = '';
+                    }
                 }
             });
 
             if (providerHint) {
-                if (providerName && allowedCategories) {
-                    providerHint.textContent = `Catálogo filtrado: ${visibleCount} producto(s) de «${allowedCategories.join(' + ')}» para ${providerName}`;
-                } else if (providerName) {
-                    providerHint.textContent = `Catálogo general habilitado para ${providerName}`;
+                if (hasProvider && allowedCategories.length > 0) {
+                    providerHint.textContent = `Catálogo exclusivo de ${providerName}: ${filtered.length} producto(s) disponibles (${allowedCategories.join(' + ')})`;
+                    providerHint.className = 'text-xs text-emerald-400 font-semibold';
+                } else if (hasProvider) {
+                    providerHint.textContent = `Catálogo habilitado para ${providerName}: ${filtered.length} productos`;
+                    providerHint.className = 'text-xs text-indigo-300 font-medium';
                 } else {
-                    providerHint.textContent = 'Selecciona un proveedor para ver exclusivamente los productos que suministra';
+                    providerHint.textContent = '⚠️ Selecciona un proveedor primero para desbloquear su catálogo exclusivo';
+                    providerHint.className = 'text-xs text-amber-400 font-medium';
                 }
             }
             recalculate();
